@@ -1894,7 +1894,7 @@ function spaceSVG(){
     {id:'mars',nm:'Mars',x:198,r:9,c:'#d1603d'},
     {id:'jupiter',nm:'Jupiter',x:252,r:20,c:'#d9a05b'},
     {id:'saturn',nm:'Saturn',x:312,r:16,c:'#e5c37f'},
-    {id:'uranus',nm:'Uranus',x:360,r:12,c:'#8fd8e0'},
+    {id:'uranus',nm:'Uranus',x:354,r:12,c:'#8fd8e0'},
     {id:'neptune',nm:'Neptune',x:394,r:12,c:'#4a6fd1'}];
   return `<svg viewBox="0 0 420 252">
   <rect width="420" height="252" fill="#0d0a26"/>
@@ -1942,7 +1942,7 @@ function wireSpace(){
       const gx=Math.max(30,Math.min(390,g.x));
       guide.setAttribute('x1',gx-18); guide.setAttribute('x2',gx+18);
       guide.setAttribute('y1',gy); guide.setAttribute('y2',gy);
-      lbl.setAttribute('x',Math.max(58,Math.min(362,g.x))); lbl.setAttribute('y',Math.max(12,gy-7)); lbl.textContent=d.t;
+      lbl.setAttribute('x',Math.max(58,Math.min(362,g.x))); lbl.setAttribute('y',Math.max(12,gy-30)); lbl.textContent=d.t;
       stand.textContent='standing on: '+names[k];
       body.style.transition='transform .45s ease-out'; body.style.transform=`translateY(${-d.h}px)`;
       timers.push(setTimeout(()=>{ body.style.transition='transform .55s ease-in'; body.style.transform='translateY(0)'; },500));
