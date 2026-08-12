@@ -219,6 +219,18 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 </head>
 <body>
 
+<div id="errbar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#c62b46;color:#fff;font:600 12px/1.4 monospace;padding:8px 12px;word-break:break-all"></div>
+<script>
+window.addEventListener('error',function(e){
+  var b=document.getElementById('errbar'); b.style.display='block';
+  b.textContent='⚠ '+(e.message||'error')+' @ '+(e.filename||'').split('/').pop()+':'+e.lineno;
+});
+window.addEventListener('unhandledrejection',function(e){
+  var b=document.getElementById('errbar'); b.style.display='block';
+  b.textContent='⚠ promise: '+(e.reason&&e.reason.message||e.reason);
+});
+</script>
+
 <header>
   <div class="brand"><span class="star">★</span> Jad's Quest</div>
   <button class="iconbtn" id="gear">⚙</button>
@@ -379,7 +391,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded.</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v2</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
