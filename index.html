@@ -397,7 +397,7 @@ window.addEventListener('unhandledrejection',function(e){
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v4</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v5</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -1806,6 +1806,97 @@ function wireSpace(){
     });
   });
 }
+function shadowsSVG(){return `<svg viewBox="0 0 240 215">
+  <rect width="240" height="150" fill="#1c2a5e"/>
+  <rect y="150" width="240" height="65" fill="#3aa856"/>
+  <g class="sunpos" data-s="0"><circle cx="34" cy="96" r="16" fill="#ffd23f"/></g>
+  <g class="sunpos" data-s="1" opacity="0.25"><circle cx="120" cy="30" r="16" fill="#ffd23f"/></g>
+  <g class="sunpos" data-s="2" opacity="0.25"><circle cx="206" cy="96" r="16" fill="#ffd23f"/></g>
+  <ellipse id="shadowEl" cx="164" cy="152" rx="44" ry="6" fill="#0d0a26" opacity="0.55"/>
+  <g><circle cx="120" cy="112" r="9" fill="#e8b98a"/><rect x="114" y="120" width="12" height="24" rx="4" fill="#ff5e87"/>
+    <rect x="114" y="143" width="5" height="10" rx="2" fill="#2b3a8f"/><rect x="121" y="143" width="5" height="10" rx="2" fill="#2b3a8f"/></g>
+  <text x="120" y="205" font-size="10" fill="#eaf4ff" text-anchor="middle">tap a sun position — watch the shadow!</text>
+</svg>`;}
+function wireShadows(){
+  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('.sunpos')) return;
+  const sh=svg.querySelector('#shadowEl');
+  const conf={0:{cx:164,rx:44},1:{cx:122,rx:12},2:{cx:76,rx:44}};
+  svg.querySelectorAll('.sunpos').forEach(g=>{ g.style.cursor='pointer';
+    g.addEventListener('click',()=>{
+      svg.querySelectorAll('.sunpos').forEach(x=>x.setAttribute('opacity',x===g?'1':'0.25'));
+      const c=conf[g.dataset.s];
+      sh.setAttribute('cx',c.cx); sh.setAttribute('rx',c.rx);
+    });
+  });
+}
+function weatherSVG(){return `<svg viewBox="0 0 240 215">
+  <rect width="240" height="215" fill="#274b7a"/>
+  <rect y="168" width="240" height="47" fill="#2f8fd0"/>
+  <g id="wSun" style="cursor:pointer"><circle cx="42" cy="42" r="20" fill="#ffd23f"/><circle cx="35" cy="35" r="5" fill="#ffe89a"/></g>
+  <g id="steam" opacity="0" style="transition:opacity .6s">
+    <path d="M60 160 q6 -14 0 -28 q-6 -14 0 -26" stroke="#bfe6ff" stroke-width="3" fill="none" stroke-dasharray="5 6"/>
+    <path d="M84 162 q6 -14 0 -28 q-6 -14 0 -26" stroke="#bfe6ff" stroke-width="3" fill="none" stroke-dasharray="5 6"/>
+    <text x="72" y="96" font-size="10" fill="#bfe6ff" text-anchor="middle">evaporation</text>
+  </g>
+  <g id="wCloud" style="cursor:pointer"><ellipse cx="172" cy="60" rx="34" ry="18" fill="#e9eef5"/><ellipse cx="148" cy="68" rx="20" ry="13" fill="#dfe6f0"/><ellipse cx="196" cy="68" rx="20" ry="13" fill="#dfe6f0"/></g>
+  <g id="rain" opacity="0" style="transition:opacity .5s" stroke="#7fc8ff" stroke-width="3" stroke-linecap="round">
+    <line x1="152" y1="92" x2="146" y2="112"/><line x1="172" y1="92" x2="166" y2="112"/><line x1="192" y1="92" x2="186" y2="112"/>
+    <line x1="162" y1="122" x2="156" y2="142"/><line x1="182" y1="122" x2="176" y2="142"/>
+  </g>
+  <text x="120" y="207" font-size="10" fill="#bfe6ff" text-anchor="middle">tap the sun, then tap the cloud</text>
+</svg>`;}
+function wireWeather(){
+  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#wSun')) return;
+  svg.querySelector('#wSun').addEventListener('click',()=>{ const st=svg.querySelector('#steam'); st.setAttribute('opacity', st.getAttribute('opacity')==='1'?'0':'1'); });
+  svg.querySelector('#wCloud').addEventListener('click',()=>{ const r=svg.querySelector('#rain'); r.setAttribute('opacity', r.getAttribute('opacity')==='1'?'0':'1'); });
+}
+function bodySVG(){return `<svg viewBox="0 0 240 215">
+  <rect width="240" height="215" fill="#2e1a4a"/>
+  <g id="heartG" style="cursor:pointer;transform-origin:120px 100px">
+    <path d="M120 150 C70 110 78 62 108 62 C118 62 120 72 120 72 C120 72 122 62 132 62 C162 62 170 110 120 150Z" fill="#ff4d6d" stroke="#ff8fa3" stroke-width="3"/>
+    <path d="M96 92 l14 0 l6 -14 l8 24 l6 -10 l14 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text id="beatCount" x="120" y="185" font-size="14" fill="#ffd6de" text-anchor="middle" font-family="Fredoka,sans-serif">beats: 0</text>
+  <text x="120" y="205" font-size="10" fill="#cdbff0" text-anchor="middle">tap the heart to make it beat</text>
+</svg>`;}
+function wireBody(){
+  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#heartG')) return;
+  const h=svg.querySelector('#heartG'), c=svg.querySelector('#beatCount'); let n=0;
+  h.addEventListener('click',()=>{
+    n++; c.textContent='beats: '+n;
+    h.style.transition='transform .12s ease-out'; h.style.transform='scale(1.18)';
+    setTimeout(()=>{ h.style.transition='transform .25s ease-in'; h.style.transform='scale(1)'; },130);
+  });
+}
+function circuitSVG(){return `<svg viewBox="0 0 240 215" id="circuitSvg">
+  <rect width="240" height="215" fill="#16113a"/>
+  <path d="M60 160 L60 70 L104 70 M136 70 L180 70 L180 160 L140 160 M100 160 L60 160" stroke="#d9b54a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <g id="switchG" style="cursor:pointer">
+    <rect x="86" y="126" width="68" height="66" fill="#fff" opacity="0.001"/>
+    <circle cx="100" cy="160" r="5" fill="#e9e9f5"/><circle cx="140" cy="160" r="5" fill="#e9e9f5"/>
+    <line id="switchArm" x1="100" y1="160" x2="132" y2="136" stroke="#e9e9f5" stroke-width="5" stroke-linecap="round" style="transition:all .25s"/>
+    <text x="120" y="188" font-size="11" fill="#cdbff0" text-anchor="middle">switch</text>
+  </g>
+  <g id="bulbG">
+    <circle id="bulbGlow" cx="120" cy="70" r="26" fill="#ffd23f" opacity="0" style="transition:opacity .3s;filter:blur(6px)"/>
+    <circle cx="120" cy="70" r="15" fill="#2e2266" stroke="#e9e9f5" stroke-width="3"/>
+    <path d="M113 70 q7 -10 14 0" stroke="#ffd23f" stroke-width="2.5" fill="none"/>
+    <rect x="113" y="84" width="14" height="8" rx="2" fill="#9aa0a4"/>
+  </g>
+  <g id="battG"><rect x="46" y="100" width="28" height="44" rx="4" fill="#37d4a7"/><rect x="54" y="92" width="12" height="8" fill="#cdd0d2"/>
+    <text x="60" y="127" font-size="16" fill="#06251c" text-anchor="middle" font-weight="700">+</text>
+    <text x="60" y="188" font-size="11" fill="#cdbff0" text-anchor="middle">battery</text></g>
+</svg>`;}
+function wireCircuit(){
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='circuitSvg') return;
+  let closed=false;
+  svg.querySelector('#switchG').addEventListener('click',()=>{
+    closed=!closed;
+    const arm=svg.querySelector('#switchArm');
+    arm.setAttribute('x2', closed?140:132); arm.setAttribute('y2', closed?160:136);
+    svg.querySelector('#bulbGlow').setAttribute('opacity', closed?'0.85':'0');
+  });
+}
 function magnetsSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="0" y="186" width="240" height="29" fill="#2e2266"/>
   <g id="clip"><rect x="44" y="135" width="28" height="34" rx="13" fill="none" stroke="#cfd6e6" stroke-width="5"/></g>
@@ -1840,6 +1931,7 @@ const TOPICS=[{
     {type:'predict', predict:'Now SCRUNCH that paper into a tight ball and drop it with the Lego. What happens?', opts:['The Lego still wins','They land almost together','The paper wins'], correct:1,
       test:'Scrunch the same paper into a tight ball, then drop it with the Lego.',
       reveal:'Almost together now! Same paper, but scrunched small it catches less air. Gravity never changed — the air did!'},
+    {type:'mission', q:'Drop a bouncy ball — it bounces back HALF as high each time.\nYou drop it from 80 cm. How high is the first bounce?', ans:40, unit:'cm', why:'Half of 80 is 40. And the next bounce? Half again — just 20!'},
     {type:'say', emoji:'🎓', title:'Brilliant science!', text:'Gravity pulls everything down the same. Air can slow light, spread‑out things — that’s air resistance. You predicted and tested just like a real scientist!'}
   ]
 },{
@@ -1849,7 +1941,7 @@ const TOPICS=[{
   steps:[
     {type:'say', text:'Every planet and moon pulls with its own gravity. Small worlds pull gently. Giant worlds pull HARD. Tap the planets above and watch how high the astronaut can jump on each one!'},
     {type:'ask', q:'The Moon is much smaller than Earth. What do you think its gravity is like?', opts:['Weaker — a gentle pull','Stronger — a huge pull','Exactly the same'], correct:0, why:'Smaller worlds pull more gently. The Moon’s pull is 6 times weaker than Earth’s.'},
-    {type:'ask', q:'On Earth you can jump about 30 cm. On the Moon you’d jump 6 TIMES higher!\n30 × 6 = ?', opts:['180 cm','90 cm','60 cm'], correct:0, why:'Count in 30s: 30, 60, 90, 120, 150, 180. That’s nearly 2 metres — higher than a door handle!'},
+    {type:'mission', q:'On Earth you can jump about 30 cm. On the Moon you’d jump 6 TIMES higher!\n30 × 6 = ?', ans:180, unit:'cm', why:'Count in 30s: 30, 60, 90, 120, 150, 180. Nearly 2 metres — higher than a door handle!'},
     {type:'ask', q:'Mars is smaller than Earth too — there you’d jump about 3 times higher.\n30 × 3 = ?', opts:['90 cm','60 cm','120 cm'], correct:0, why:'30, 60, 90 — almost a metre high on Mars!'},
     {type:'ask', q:'Jupiter is a GIANT. Its pull is so strong you could only jump less than HALF your Earth jump. What is half of 30?', opts:['15 cm','20 cm','25 cm'], correct:0, why:'Half of 30 is 15 — and on Jupiter you’d jump even less than that. Legs like lead!'},
     {type:'predict', predict:'Time to measure YOUR jump! Do you think you can jump higher than 30 cm?', opts:['Yes — higher than 30 cm','Probably less than 30 cm'], correct:0,
@@ -1876,6 +1968,7 @@ const TOPICS=[{
     {type:'ask', q:'So what really makes something float?', opts:['It pushes away enough water to hold itself up','It is always light','It is a magic shape'], correct:0, why:'If a thing pushes away lots of water, the water’s upthrust can hold it up. Floaters push away more water than they weigh.'},
     {type:'predict', predict:'A ball of kitchen foil SINKS. Now flatten the same foil into a wide boat shape. Will the boat float?', opts:['It still sinks','The boat floats'], correct:1,
       test:'Squash foil into a tight ball (it sinks). Now shape that same foil into a wide boat and place it on the water.', reveal:'The boat floats! Same foil — but the wide shape pushes away much more water, so the water can hold it up. That’s how enormous heavy ships float!'},
+    {type:'mission', q:'Your foil boat holds 20 pennies before it sinks. Each penny weighs about 4 grams.\nWhat weight sank the boat? 20 × 4 = ?', ans:80, unit:'g', why:'20 × 4 = 80. Count in 20s: 20, 40, 60, 80.'},
     {type:'say', emoji:'🎓', title:'Eureka — you did it!', text:'Floating isn’t just about being light. Water pushes UP (upthrust). If something pushes away enough water it floats — and a clever shape pushes away more. That’s Archimedes’ big idea!'}
   ]
 },{
@@ -1895,7 +1988,66 @@ const TOPICS=[{
     {type:'ask', q:'So a plant needs sunlight, water and air. Where would a plant grow best?', opts:['On a sunny windowsill','In a dark cupboard'], correct:0, why:'No light means no food — so a plant in the dark gets weak and pale.'},
     {type:'predict', predict:'Big experiment to try! Put one little plant on a sunny windowsill and one in a dark cupboard, and water both. After a week, what will the DARK one look like?', opts:['Green and healthy','Pale, yellow and droopy'], correct:1,
       reveal:'The dark plant turns pale, yellow and droopy — with no light it can’t make food. Try it this week and watch! ☀️'},
+    {type:'mission', q:'A sunflower grows about 10 cm every week.\nHow tall is it after 6 weeks?', ans:60, unit:'cm', why:'6 jumps of 10: 10, 20, 30, 40, 50, 60.'},
     {type:'say', emoji:'🎓', title:'Plant power!', text:'Plants are food‑making, oxygen‑making heroes. Leaves catch sunlight, roots drink water, and they breathe in air — that’s photosynthesis. And the oxygen you’re breathing right now? A plant made it!'}
+  ]
+},{
+  id:'shadows', title:'Light & Shadows', emoji:'🔦', blurb:'Why shadows stretch and shrink',
+  tags:['light','shadow','shadows','sun','torch','dark','bright','lightning','thunder','shine','reflection','night','day'],
+  svg:shadowsSVG, cap:'👆 Tap a sun position — watch the shadow move and stretch!',
+  steps:[
+    {type:'say', text:'Light zooms along in perfectly straight lines. When something blocks its path, the light can’t bend round it — so a dark patch appears behind: a SHADOW. Tap the sun positions above to move the sun across the sky!'},
+    {type:'ask', q:'So what exactly IS a shadow?', opts:['A place the light can’t reach','Black paint from the sun','Your reflection'], correct:0, why:'Your body blocks the light, leaving a dark patch behind you shaped just like you.'},
+    {type:'predict', predict:'Shine a torch at a toy near a wall. What happens to the shadow if you move the torch CLOSER?', opts:['The shadow gets bigger','The shadow gets smaller','The shadow disappears'], correct:0,
+      test:'In a dim room, shine a torch at a toy near a wall. Slowly move the torch closer, then further away.',
+      reveal:'Closer torch = GIANT shadow! Up close, the toy blocks much more of the torch’s light.'},
+    {type:'ask', q:'When is your outdoor shadow the LONGEST?', opts:['Morning and evening, when the sun is low','Midday, when the sun is high','Shadows are always the same'], correct:0, why:'A low sun stretches shadows long — just like in the picture above.'},
+    {type:'mission', q:'At sunset your shadow can be 3 times your height.\nJad is 120 cm tall. How long is his sunset shadow? 120 × 3 = ?', ans:360, unit:'cm', why:'120 + 120 + 120 = 360 cm. Longer than a bed!'},
+    {type:'ask', q:'In a storm you SEE lightning before you HEAR thunder. Why?', opts:['Light travels much faster than sound','The thunder happens later','Your ears switch off'], correct:0, why:'They happen at the same moment — but light reaches your eyes almost instantly, while sound takes about 3 seconds to travel each kilometre.'},
+    {type:'say', emoji:'🎓', title:'Light detective!', text:'Light travels straight and incredibly fast. Block it and you get a shadow; a low sun means a looong shadow. You even did shadow maths — 3 times your height!'}
+  ]
+},{
+  id:'body', title:'Your Amazing Body', emoji:'🫀', blurb:'Heartbeats, breathing and pulse maths',
+  tags:['body','heart','heartbeat','pulse','blood','lungs','breathe','breathing','muscle','exercise','oxygen','doctor'],
+  svg:bodySVG, cap:'👆 Tap the heart — every tap is one beat!',
+  steps:[
+    {type:'say', text:'Your heart is a muscle about the size of your fist. It squeezes about once every second — all day, all night — pumping blood around your whole body. Tap the heart above and count some beats!'},
+    {type:'ask', q:'What does your heart pump?', opts:['Blood','Air','Water'], correct:0, why:'Blood carries oxygen and food to every single bit of you, from your brain to your toes.'},
+    {type:'predict', predict:'Do 20 star jumps. What will your heart do?', opts:['Beat much faster','Beat slower','Stay exactly the same'], correct:0,
+      test:'Put two fingers on your neck under your jaw and feel your pulse. Now do 20 star jumps and feel it again!',
+      reveal:'Much faster! Your leg muscles needed extra oxygen, so your heart pumped quicker to deliver it.'},
+    {type:'mission', q:'Doctors count pulse beats for 15 seconds, then multiply by 4.\nYou count 20 beats in 15 seconds. Beats per minute = 20 × 4 = ?', ans:80, unit:'bpm', why:'Four 15-second chunks make one minute, so 20 × 4 = 80 beats per minute.'},
+    {type:'ask', q:'Why do you also BREATHE faster when you run?', opts:['Your body needs more oxygen from the air','To cool your shoes down','It’s just a habit'], correct:0, why:'Lungs pull in oxygen; your blood delivers it. Working muscles are hungry for it!'},
+    {type:'ask', q:'Roughly how many times does your heart beat in one whole day?', opts:['About 100,000 times','About 100 times','About 500 times'], correct:0, why:'Around 100,000 beats every day — and it never once stops for a rest. What a champion!'},
+    {type:'say', emoji:'🎓', title:'Body expert!', text:'Your heart pumps blood, your lungs grab oxygen, and exercise makes both work faster. You even did real doctor maths: beats × 4 = beats per minute!'}
+  ]
+},{
+  id:'weather', title:'Weather & Water Cycle', emoji:'🌧️', blurb:'Where rain really comes from',
+  tags:['weather','rain','cloud','clouds','water','cycle','evaporation','sun','puddle','storm','snow','river','sea'],
+  svg:weatherSVG, cap:'👆 Tap the sun to make steam rise, tap the cloud to make rain!',
+  steps:[
+    {type:'say', text:'Water goes round and round for ever! The sun warms the sea → invisible water vapour rises (that’s EVAPORATION) → high up it cools into clouds → the drops get heavy and fall as RAIN → rivers carry the water back to the sea. Tap the sun and the cloud above!'},
+    {type:'ask', q:'So where does rain actually come from?', opts:['Water that rose up from seas and puddles','Holes in the sky','Aeroplanes watering the ground'], correct:0, why:'Every raindrop was once sea, river or puddle water that the sun lifted into the sky!'},
+    {type:'predict', predict:'Leave a cup of water on a sunny windowsill for two days. What will happen?', opts:['Some water will vanish','It will overflow','It will turn green'], correct:0,
+      test:'Fill a cup, mark the water level with a pen, and leave it on a sunny windowsill. Check the mark after two days.',
+      reveal:'The level drops! The sun turned some of the water into invisible vapour — evaporation happening right in your house.'},
+    {type:'mission', q:'A rain gauge collects 5 mm of rain every day for 4 days.\nHow much rain altogether? 5 × 4 = ?', ans:20, unit:'mm', why:'Count in 5s: 5, 10, 15, 20 mm.'},
+    {type:'ask', q:'After the rain stops, why do puddles disappear in the sunshine?', opts:['The sun evaporates them back into the sky','They soak up into the clouds directly','Dogs drink them all'], correct:0, why:'The sun lifts the puddle water into the air as vapour — and one day it will fall as rain again. Round and round!'},
+    {type:'say', emoji:'🎓', title:'Weather wizard!', text:'The water cycle never stops: evaporate → cloud → rain → river → sea → evaporate again. The rain falling on your window has been round that loop millions of times!'}
+  ]
+},{
+  id:'electricity', title:'Electricity & Circuits', emoji:'🔋', blurb:'Make the bulb light up',
+  tags:['electricity','electric','circuit','circuits','battery','batteries','bulb','light','switch','wire','power','energy','torch','conductor'],
+  svg:circuitSVG, cap:'👆 Tap the switch — close the loop and the bulb lights!',
+  steps:[
+    {type:'say', text:'Electricity is a flow of tiny particles racing round a loop called a CIRCUIT. If the loop is complete, energy flows from the battery and the bulb lights up. If there’s a gap — nothing flows. Tap the switch above to open and close the loop!'},
+    {type:'ask', q:'Why does the bulb go out when the switch is open?', opts:['The loop is broken so electricity can’t flow','The bulb gets tired','The battery falls asleep'], correct:0, why:'Electricity only flows round a COMPLETE loop. An open switch is a gap — the flow stops instantly.'},
+    {type:'ask', q:'Which of these is SAFE to play with?', opts:['A battery-powered toy','Wall sockets','Bare wires'], correct:0, why:'Little batteries are gentle and safe. Mains sockets and bare wires are DANGEROUS — never ever poke them!'},
+    {type:'predict', predict:'If you put a plastic spoon into the circuit loop, will the bulb still light?', opts:['No — plastic blocks electricity','Yes — electricity flows through anything'], correct:0,
+      reveal:'No! Electricity only flows through CONDUCTORS like metal. Plastic is an INSULATOR — that’s exactly why wires wear little plastic jackets to keep us safe.'},
+    {type:'mission', q:'A torch needs 2 batteries to work.\nYou have 8 batteries. How many torches can you power? 8 ÷ 2 = ?', ans:4, unit:'torches', why:'Share 8 into pairs: 2, 4, 6, 8 — that’s 4 pairs, so 4 torches.'},
+    {type:'ask', q:'What pushes the electricity round the circuit?', opts:['The battery','The switch','The colour of the wire'], correct:0, why:'The battery is the pump of the circuit — it pushes the flow round the loop until it runs out of energy.'},
+    {type:'say', emoji:'🎓', title:'Circuit engineer!', text:'Electricity needs a complete metal loop, a battery to push it, and a switch to control it. Conductors let it flow, insulators block it — and you divided batteries like an engineer!'}
   ]
 },{
   id:'magnets', title:'Magnets', emoji:'🧲', blurb:'The invisible pull',
@@ -1915,6 +2067,7 @@ const TOPICS=[{
     {type:'predict', predict:'If you have TWO magnets: push the same‑coloured ends together. What happens?', opts:['They pull together','They push each other away'], correct:1,
       reveal:'Same ends PUSH apart! Magnets have two ends called poles (North and South). Same poles push away, opposite poles pull together — opposites attract! (Try it if you have two magnets.)'},
     {type:'ask', q:'Fun fact: the whole Earth acts like one giant magnet! What do we use that points us North?', opts:['A compass','A clock','A spoon'], correct:0, why:'A compass needle is a tiny magnet that lines up with the Earth’s magnetism to point North.'},
+    {type:'mission', q:'One fridge magnet holds 8 paperclips.\nHow many clips can 3 magnets hold? 8 × 3 = ?', ans:24, unit:'clips', why:'Count in 8s: 8, 16, 24.'},
     {type:'say', emoji:'🎓', title:'Magnet master!', text:'Magnets pull special metals — iron and steel — but not plastic or aluminium. They work through a gap, and they have two poles: opposite poles attract, same poles repel. Even the Earth is a giant magnet!'}
   ]
 }];
@@ -1941,7 +2094,7 @@ function renderSci(filter){
   const list=TOPICS.filter(t=>!f||t.title.toLowerCase().includes(f)||t.blurb.toLowerCase().includes(f)||t.tags.some(x=>x.includes(f)||f.includes(x)));
   if(!list.length){ g.innerHTML='<p class="small" style="grid-column:1/-1;text-align:center;padding:14px">No topics match yet — try “fall”, “gravity” or “apple”. More coming soon!</p>'; return; }
   list.forEach(t=>{ const el=document.createElement('button'); el.className='cat'+(S.explored[t.id]?' mastered':'');
-    el.innerHTML=`<span class="crown">✓</span><div class="emoji">${t.emoji}</div><div class="nm">${t.title}</div><div class="lvl">${t.blurb}</div>`;
+    el.innerHTML=`<span class="crown">✓</span><div class="emoji">${t.emoji}</div><div class="nm">${t.title}</div><div class="lvl">${S.explored[t.id]?t.blurb+' · 🧠 quiz ready':t.blurb}</div>`;
     el.onclick=()=>openTopic(t); g.appendChild(el); });
 }
 function openTopic(t){
@@ -1952,11 +2105,29 @@ function openTopic(t){
   $('#topVis').querySelectorAll('.tapdrop').forEach(el=>el.onclick=()=>el.classList.toggle('dropped'));
   const sun=$('#sunTap'); if(sun){ const svg=sun.closest('svg'); sun.style.cursor='pointer'; sun.onclick=()=>svg.classList.toggle('sunny'); }
   if(document.getElementById('magnet')) wireMagnet();
-  wireSpace();
-  runStep(0);
+  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit();
+  if(S.explored[t.id]) renderTopicChooser(); else runStep(0);
   $('#topic').classList.remove('hidden'); $('#topic').scrollTop=0;
 }
 function nextStep(i){ const t=sciState.t; if(i+1<t.steps.length) runStep(i+1); else finishTopic(); }
+function renderTopicChooser(){
+  const t=sciState.t, quizable=t.steps.filter(x=>x.type==='ask'||x.type==='mission').length;
+  $('#topStep').innerHTML=`<div class="opts">
+    <button class="optbtn" id="chooseExplore">🔁 Explore it all again</button>
+    ${quizable?`<button class="optbtn" id="chooseQuiz">🧠 Quiz me! · ★ for each right answer</button>`:''}
+  </div>`;
+  $('#chooseExplore').onclick=()=>runStep(0);
+  const qb=document.getElementById('chooseQuiz'); if(qb) qb.onclick=startSciQuiz;
+}
+function startSciQuiz(){
+  const base=sciState.t;
+  const pool=base.steps.filter(x=>x.type==='ask'||x.type==='mission');
+  shuffleArr(pool);
+  const steps=pool.slice(0,5);
+  steps.push({type:'say',emoji:'🧠',title:'Quiz complete!',text:'Brilliant remembering! Come back another day and quiz again — the questions shuffle every time.'});
+  sciState.t=Object.assign({},base,{steps});
+  runStep(0);
+}
 function finishTopic(){ S.explored[sciState.t.id]=true; save(); toast('🌟 Topic complete!'); closeTopic(); }
 function stepNextBtn(i){ const last=i+1>=sciState.t.steps.length; return last?'Finish ⭐':'Next →'; }
 function runStep(i){
@@ -1980,6 +2151,37 @@ function runStep(i){
         $('#aNext').classList.remove('hidden'); $('#aNext').onclick=()=>nextStep(i);
         $('#topic').scrollTop=$('#topic').scrollHeight;
       } else { b.classList.add('no'); b.disabled=true; }
+    });
+  } else if(s.type==='mission'){
+    step.innerHTML=`<div class="chstar">🧮</div><div class="checkq">${s.q.replace(/\n/g,'<br>')}</div>
+      <div class="kdisp" style="margin-bottom:10px"><span id="mInput">…</span><span class="kunit">${s.unit||''}</span></div>
+      <div class="kgrid">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button class="kdel" data-k="del">⌫</button><button data-k="0">0</button><button class="kok" data-k="ok">✓</button></div>
+      <div class="why hidden" id="mWhy"></div>
+      <button class="btn correct hidden" id="mNext" style="width:100%;margin-top:14px">${stepNextBtn(i)}</button>`;
+    let val='', tries=0, done=false;
+    const disp=step.querySelector('#mInput');
+    const finish=(earned)=>{ done=true;
+      if(earned){ award(2); burst(); toast('🧮 Maths mission! +2 ★'); $('#mWhy').textContent='✓ '+s.why; }
+      else { disp.textContent=String(s.ans); $('#mWhy').textContent=s.why; }
+      $('#mWhy').classList.remove('hidden');
+      $('#mNext').classList.remove('hidden'); $('#mNext').onclick=()=>nextStep(i);
+      $('#topic').scrollTop=$('#topic').scrollHeight;
+    };
+    step.querySelectorAll('.kgrid button').forEach(b=>b.onclick=()=>{
+      if(done) return;
+      const k=b.dataset.k;
+      if(k==='del') val=val.slice(0,-1);
+      else if(k==='ok'){
+        if(!val) return;
+        if(parseInt(val,10)===s.ans){ finish(true); return; }
+        tries++; val='';
+        const kd=step.querySelector('.kdisp'); kd.classList.remove('shake'); void kd.offsetWidth; kd.classList.add('shake');
+        if(tries>=2){ finish(false); return; }
+        toast('Not quite — try again! 🤔'); disp.textContent='…';
+        return;
+      }
+      else if(val.length<4) val+=k;
+      disp.textContent=val||'…';
     });
   } else { // predict
     step.innerHTML=`<div class="chstar">🔮</div><div class="checkq">${s.predict}</div><div class="opts" id="predOpts"></div>`;
