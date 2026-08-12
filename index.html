@@ -188,6 +188,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .saycard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center}
 .saycard h3{margin:4px 0 8px;color:var(--ink)}
 .saytext{font-size:18px;line-height:1.5;color:var(--ink);margin:0}
+.sayline{margin:0 0 10px;animation:howin .35s ease;text-align:left}
+.btn:disabled{opacity:.4}
 
 /* Times-table sprint */
 #sprint{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:16px;overflow:auto}
@@ -486,7 +488,7 @@ window.addEventListener('unhandledrejection',function(e){
     </select></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v10</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v11</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -1897,11 +1899,10 @@ function spaceSVG(){
   return `<svg viewBox="0 0 420 252">
   <rect width="420" height="252" fill="#0d0a26"/>
   ${[...Array(46)].map(()=>`<circle cx="${rand(0,420)}" cy="${rand(0,140)}" r="${(Math.random()*1.4+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.7).toFixed(2)}"/>`).join('')}
-  <line x1="24" y1="152" x2="396" y2="152" stroke="#3d4a57" stroke-width="3" stroke-linecap="round"/>
-  <line id="jumpGuide" x1="192" y1="128" x2="228" y2="128" stroke="#ffd23f" stroke-width="2.5" stroke-dasharray="5 5"/>
-  <text id="jumpLbl" x="210" y="121" font-size="12" fill="#ffd23f" text-anchor="middle">your Earth jump</text>
-  <text id="standLbl" x="210" y="170" font-size="11" fill="#cfeaff" text-anchor="middle">standing on: Earth</text>
-  <g id="astro" transform="translate(210 0)"><g id="astroBody">
+  <text id="standLbl" x="210" y="26" font-size="12" fill="#cfeaff" text-anchor="middle">standing on: Earth — tap another world!</text>
+  <line id="jumpGuide" x1="108" y1="173" x2="144" y2="173" stroke="#ffd23f" stroke-width="2.5" stroke-dasharray="5 5"/>
+  <text id="jumpLbl" x="126" y="166" font-size="12" fill="#ffd23f" text-anchor="middle">your Earth jump</text>
+  <g id="astro" transform="translate(126 42)"><g id="astroBody">
     <circle cx="0" cy="136" r="7.5" fill="#e9e9f5"/><rect x="-6.5" y="142" width="13" height="11" rx="4" fill="#fff"/>
     <rect x="-10" y="143" width="4" height="9" rx="2" fill="#e9e9f5"/><rect x="6" y="143" width="4" height="9" rx="2" fill="#e9e9f5"/>
     <circle cx="2" cy="135" r="4" fill="#43c2ff"/>
@@ -1917,22 +1918,31 @@ function spaceSVG(){
 </svg>`;}
 function wireSpace(){
   const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#planets')||!svg.querySelector('#standLbl')) return;
-  const body=svg.querySelector('#astroBody'), lbl=svg.querySelector('#jumpLbl'), guide=svg.querySelector('#jumpGuide'), stand=svg.querySelector('#standLbl');
+  const astro=svg.querySelector('#astro'), body=svg.querySelector('#astroBody');
+  const lbl=svg.querySelector('#jumpLbl'), guide=svg.querySelector('#jumpGuide'), stand=svg.querySelector('#standLbl');
   const data={mercury:{h:58,t:'about 3× higher!'},venus:{h:25,t:'almost the same as Earth'},earth:{h:22,t:'your Earth jump'},
     moon:{h:110,t:'6× higher!'},mars:{h:58,t:'about 3× higher!'},jupiter:{h:9,t:'less than half — heavy legs!'},
     saturn:{h:21,t:'about the same — surprise!'},uranus:{h:25,t:'almost the same as Earth'},neptune:{h:19,t:'a little lower'}};
+  const geo={mercury:{x:30,r:8},venus:{x:78,r:11},earth:{x:126,r:11},moon:{x:163,r:6},mars:{x:198,r:9},
+    jupiter:{x:252,r:20},saturn:{x:312,r:16},uranus:{x:360,r:12},neptune:{x:394,r:12}};
   const names={mercury:'Mercury',venus:'Venus',earth:'Earth',moon:'the Moon',mars:'Mars',jupiter:'Jupiter',saturn:'Saturn',uranus:'Uranus',neptune:'Neptune'};
   let timers=[];
   svg.querySelectorAll('.planet').forEach(pl=>{ pl.style.cursor='pointer';
     pl.addEventListener('click',()=>{
-      const k=pl.dataset.p, d=data[k]; if(!d) return;
+      const k=pl.dataset.p, d=data[k], g=geo[k]; if(!d||!g) return;
       timers.forEach(clearTimeout); timers=[];
-      body.style.transition='none'; body.style.transform='translateY(0)'; void body.getBoundingClientRect();
       svg.querySelectorAll('.planet circle').forEach(c=>c.setAttribute('stroke','none'));
-      pl.querySelector('circle').setAttribute('stroke','#ffd23f'); pl.querySelector('circle').setAttribute('stroke-width','2');
-      const gy=150-d.h;
+      const pc=pl.querySelectorAll('circle'); pc[pc.length-1].setAttribute('stroke','#ffd23f'); pc[pc.length-1].setAttribute('stroke-width','2.5');
+      // stand the astronaut on this planet's surface
+      const surfaceY=206-g.r, standOff=surfaceY-153;
+      astro.setAttribute('transform',`translate(${g.x} ${standOff})`);
+      body.style.transition='none'; body.style.transform='translateY(0)'; void body.getBoundingClientRect();
+      // jump guide at this world's apex, clamped inside the scene
+      const gy=Math.max(14,surfaceY-d.h);
+      const gx=Math.max(30,Math.min(390,g.x));
+      guide.setAttribute('x1',gx-18); guide.setAttribute('x2',gx+18);
       guide.setAttribute('y1',gy); guide.setAttribute('y2',gy);
-      lbl.setAttribute('y',gy-6); lbl.textContent=d.t;
+      lbl.setAttribute('x',Math.max(58,Math.min(362,g.x))); lbl.setAttribute('y',Math.max(12,gy-7)); lbl.textContent=d.t;
       stand.textContent='standing on: '+names[k];
       body.style.transition='transform .45s ease-out'; body.style.transform=`translateY(${-d.h}px)`;
       timers.push(setTimeout(()=>{ body.style.transition='transform .55s ease-in'; body.style.transform='translateY(0)'; },500));
@@ -2516,8 +2526,18 @@ function runStep(i){
   $('#topVis').classList.toggle('compact',shrink);
   $('#topCap').classList.toggle('hidden', !sciState.t.cap || shrink);
   if(s.type==='say'){
-    step.innerHTML=`<div class="saycard">${s.emoji?`<div class="chstar">${s.emoji}</div>`:''}${s.title?`<h3>${s.title}</h3>`:''}<p class="saytext">${s.text}</p></div><button class="btn correct" id="sNext" style="width:100%;margin-top:14px">${stepNextBtn(i)}</button>`;
-    $('#sNext').onclick=()=>nextStep(i);
+    const sentences=(s.text||'').split(/(?<=[.!?…])\s+/).filter(Boolean);
+    step.innerHTML=`<div class="saycard">${s.emoji?`<div class="chstar">${s.emoji}</div>`:''}${s.title?`<h3>${s.title}</h3>`:''}<div id="sayBody"></div></div><button class="btn correct" id="sNext" style="width:100%;margin-top:14px">…</button>`;
+    const body=step.querySelector('#sayBody'), btn=$('#sNext');
+    let si=0;
+    const reveal=()=>{
+      const pEl=document.createElement('p'); pEl.className='saytext sayline'; pEl.textContent=sentences[si++]; body.appendChild(pEl);
+      if(si>=sentences.length){ btn.disabled=false; btn.textContent=stepNextBtn(i); btn.onclick=()=>nextStep(i); }
+      else{ btn.disabled=true; btn.textContent='▾';
+        setTimeout(()=>{ btn.disabled=false; btn.textContent='▾ keep reading'; btn.onclick=reveal; },800); }
+      $('#topic').scrollTop=$('#topic').scrollHeight;
+    };
+    reveal();
   } else if(s.type==='ask'){
     let h=`<div class="checkq">${s.q}</div><div class="opts">`;
     s.opts.forEach((o,k)=>h+=`<button class="optbtn" data-k="${k}">${o}</button>`);
@@ -2528,7 +2548,8 @@ function runStep(i){
       if(k===s.correct){ b.classList.add('ok'); award(QUIZ_STARS);
         step.querySelectorAll('.optbtn').forEach(x=>x.disabled=true);
         $('#why').textContent='✓ '+s.why; $('#why').classList.remove('hidden');
-        $('#aNext').classList.remove('hidden'); $('#aNext').onclick=()=>nextStep(i);
+        $('#aNext').onclick=()=>nextStep(i);
+        setTimeout(()=>{ $('#aNext').classList.remove('hidden'); $('#topic').scrollTop=$('#topic').scrollHeight; },1300);
         $('#topic').scrollTop=$('#topic').scrollHeight;
       } else { b.classList.add('no'); b.disabled=true; }
     });
@@ -2590,8 +2611,9 @@ function predictReveal(i,tested){
   burst();
   $('#topStep').innerHTML=`<div class="chstar">${good?'🎉':'💡'}</div><h3 style="text-align:center;color:var(--ink)">${good?'Great prediction!':'Surprise!'}</h3>
     <p class="chbody" style="text-align:center">${s.reveal}</p>
-    <button class="btn correct" id="rNext" style="width:100%;margin-top:6px">${stepNextBtn(i)}</button>`;
+    <button class="btn correct hidden" id="rNext" style="width:100%;margin-top:6px">${stepNextBtn(i)}</button>`;
   $('#rNext').onclick=()=>nextStep(i);
+  setTimeout(()=>{ $('#rNext').classList.remove('hidden'); $('#topic').scrollTop=$('#topic').scrollHeight; },1300);
   $('#topic').scrollTop=$('#topic').scrollHeight;
 }
 function closeTopic(){ $('#topic').classList.add('hidden'); renderSci($('#sciSearch').value); renderPicture(); renderHeader(); }
