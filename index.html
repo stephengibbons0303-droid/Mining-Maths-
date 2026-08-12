@@ -391,7 +391,7 @@ window.addEventListener('unhandledrejection',function(e){
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v2</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v3</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -1299,17 +1299,18 @@ const SCENES=[
 const BUILTIN_PICS=['./pics/minecraftsea.gif','./pics/trexroar.gif'];
 let builtinPics=[];
 async function loadBuiltins(){
-  builtinPics=[];
-  for(const url of BUILTIN_PICS){
+  const out=await Promise.all(BUILTIN_PICS.map(async url=>{
     try{
-      const r=await fetch(url); if(!r.ok) continue;
+      const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),25000);
+      const r=await fetch(url,{signal:ctl.signal}); clearTimeout(tm); if(!r.ok) return null;
       const blob=await r.blob();
       const isGif=/gif/i.test(blob.type)||url.endsWith('.gif');
       let poster=null;
       if(isGif){ const pb=await makePoster(blob); if(pb) poster=URL.createObjectURL(pb); }
-      builtinPics.push({id:'builtin:'+url,name:url.split('/').pop(),isGif,url:URL.createObjectURL(blob),poster,builtin:true});
-    }catch(e){}
-  }
+      return {id:'builtin:'+url,name:url.split('/').pop(),isGif,url:URL.createObjectURL(blob),poster,builtin:true};
+    }catch(e){ return null; }
+  }));
+  builtinPics=out.filter(Boolean);
 }
 
 /* ---------- User pictures (IndexedDB) ---------- */
@@ -2009,7 +2010,14 @@ $('#newPic').onclick=()=>{S.picIndex=(S.picIndex+1)%sceneCount();S.revealBase=S.
 $('#resetBtn').onclick=()=>{ if(confirm("Reset ALL of Jad's progress? This cannot be undone.")){localStorage.removeItem(KEY);load();renderHeader();renderGrid();renderPicture();$('#sheet').classList.remove('open');} };
 
 /* ---------- Boot ---------- */
-(async()=>{ load(); initSpeech(); await loadBuiltins(); await loadPics(); renderHeader();renderGrid();renderPicture();renderPicsList(); setTab(S.tab); })();
+(async()=>{
+  load(); initSpeech();
+  renderHeader(); renderGrid(); renderPicture(); renderPicsList(); setTab(S.tab);
+  // pictures load in the background — UI must never wait on network or IndexedDB
+  try{ await loadBuiltins(); }catch(e){}
+  try{ await loadPics(); }catch(e){}
+  renderPicture(); renderPicsList();
+})();
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 </script>
 </body>
