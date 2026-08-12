@@ -418,7 +418,7 @@ window.addEventListener('unhandledrejection',function(e){
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v7</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v8</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -1792,42 +1792,59 @@ function photosynthesisSVG(){return `<svg viewBox="0 0 240 215">
   <g stroke="#43c2ff" stroke-width="3"><line x1="162" y1="182" x2="162" y2="152"/><polygon points="162,146 156,158 168,158" fill="#43c2ff" stroke="none"/></g>
   <text x="190" y="172" font-size="11" fill="#bfe6ff" text-anchor="middle">water</text>
 </svg>`;}
-function spaceSVG(){return `<svg viewBox="0 0 240 215">
-  <rect width="240" height="215" fill="#0d0a26"/>
-  ${[...Array(34)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,150)}" r="${(Math.random()*1.3+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.7).toFixed(2)}"/>`).join('')}
-  <line id="jumpGuide" x1="91" y1="130" x2="119" y2="130" stroke="#ffd23f" stroke-width="2" stroke-dasharray="4 4"/>
-  <text id="jumpLbl" x="105" y="124" font-size="10" fill="#ffd23f" text-anchor="middle">your normal jump</text>
-  <g id="planets">
-    <g class="planet" data-p="moon"><circle cx="40" cy="172" r="14" fill="#b9b9c9"/><circle cx="35" cy="168" r="3.5" fill="#9a9aad"/><circle cx="45" cy="176" r="2.5" fill="#9a9aad"/><text x="40" y="200" font-size="10" fill="#a9b8c6" text-anchor="middle">Moon</text></g>
-    <g class="planet" data-p="earth"><circle cx="105" cy="170" r="19" fill="#3d8fd1"/><path d="M94 164 q8 -6 14 0 q8 4 12 -2 l0 10 q-10 6 -16 2 q-8 -2 -10 -10Z" fill="#3aa856"/><text x="105" y="203" font-size="10" fill="#a9b8c6" text-anchor="middle">Earth</text></g>
-    <g class="planet" data-p="mars"><circle cx="163" cy="172" r="15" fill="#d1603d"/><circle cx="158" cy="168" r="3" fill="#b34d2e"/><text x="163" y="201" font-size="10" fill="#a9b8c6" text-anchor="middle">Mars</text></g>
-    <g class="planet" data-p="jupiter"><circle cx="216" cy="174" r="22" fill="#d9a05b"/><path d="M194 170 q22 -6 44 0" stroke="#c2854a" stroke-width="4" fill="none"/><path d="M196 180 q20 5 40 0" stroke="#e8bd85" stroke-width="4" fill="none"/><circle cx="222" cy="178" r="4" fill="#c2542e"/><text x="216" y="207" font-size="10" fill="#a9b8c6" text-anchor="middle">Jupiter</text></g>
-  </g>
-  <g id="astro" transform="translate(105 0)"><g id="astroBody">
+function spaceSVG(){
+  const BODIES=[
+    {id:'mercury',nm:'Mercury',x:16,r:5,c:'#b5a08a'},
+    {id:'venus',nm:'Venus',x:40,r:7,c:'#e8c37a'},
+    {id:'earth',nm:'Earth',x:64,r:7,c:'#3d8fd1'},
+    {id:'moon',nm:'Moon',x:85,r:3.5,c:'#b9b9c9'},
+    {id:'mars',nm:'Mars',x:105,r:5.5,c:'#d1603d'},
+    {id:'jupiter',nm:'Jupiter',x:136,r:13,c:'#d9a05b'},
+    {id:'saturn',nm:'Saturn',x:170,r:10,c:'#e5c37f'},
+    {id:'uranus',nm:'Uranus',x:199,r:7.5,c:'#8fd8e0'},
+    {id:'neptune',nm:'Neptune',x:223,r:7.5,c:'#4a6fd1'}];
+  return `<svg viewBox="0 0 240 248">
+  <rect width="240" height="248" fill="#0d0a26"/>
+  ${[...Array(30)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,140)}" r="${(Math.random()*1.2+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.7).toFixed(2)}"/>`).join('')}
+  <line x1="14" y1="152" x2="226" y2="152" stroke="#3d4a57" stroke-width="3" stroke-linecap="round"/>
+  <line id="jumpGuide" x1="106" y1="128" x2="134" y2="128" stroke="#ffd23f" stroke-width="2" stroke-dasharray="4 4"/>
+  <text id="jumpLbl" x="120" y="122" font-size="10" fill="#ffd23f" text-anchor="middle">your Earth jump</text>
+  <text id="standLbl" x="120" y="168" font-size="9" fill="#a9b8c6" text-anchor="middle">standing on: Earth</text>
+  <g id="astro" transform="translate(120 0)"><g id="astroBody">
     <circle cx="0" cy="138" r="6" fill="#e9e9f5"/><rect x="-5" y="143" width="10" height="9" rx="3" fill="#fff"/>
     <rect x="-8" y="144" width="3" height="7" rx="1.5" fill="#e9e9f5"/><rect x="5" y="144" width="3" height="7" rx="1.5" fill="#e9e9f5"/>
     <circle cx="1.5" cy="137" r="3" fill="#43c2ff"/>
   </g></g>
+  <g id="planets">
+    ${BODIES.map(b=>`<g class="planet" data-p="${b.id}">
+      <rect x="${b.x-12}" y="178" width="24" height="52" fill="#fff" opacity="0.001"/>
+      ${b.id==='saturn'?`<ellipse cx="${b.x}" cy="202" rx="${b.r+6.5}" ry="3.4" fill="none" stroke="#c9a55f" stroke-width="1.6"/>`:''}
+      <circle cx="${b.x}" cy="202" r="${b.r}" fill="${b.c}"/>
+      <text x="${b.x}" y="228" font-size="6.6" fill="#a9b8c6" text-anchor="middle">${b.nm}</text>
+    </g>`).join('')}
+  </g>
 </svg>`;}
 function wireSpace(){
-  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#planets')) return;
-  const astro=svg.querySelector('#astro'), body=svg.querySelector('#astroBody');
-  const lbl=svg.querySelector('#jumpLbl'), guide=svg.querySelector('#jumpGuide');
-  const data={moon:{x:40,h:110,t:'6× higher than Earth!'},earth:{x:105,h:22,t:'your normal jump'},
-              mars:{x:163,h:62,t:'about 3× higher!'},jupiter:{x:216,h:10,t:'less than half!'}};
-  let busy=false;
+  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#planets')||!svg.querySelector('#standLbl')) return;
+  const body=svg.querySelector('#astroBody'), lbl=svg.querySelector('#jumpLbl'), guide=svg.querySelector('#jumpGuide'), stand=svg.querySelector('#standLbl');
+  const data={mercury:{h:58,t:'about 3× higher!'},venus:{h:25,t:'almost the same as Earth'},earth:{h:22,t:'your Earth jump'},
+    moon:{h:110,t:'6× higher!'},mars:{h:58,t:'about 3× higher!'},jupiter:{h:9,t:'less than half — heavy legs!'},
+    saturn:{h:21,t:'about the same — surprise!'},uranus:{h:25,t:'almost the same as Earth'},neptune:{h:19,t:'a little lower'}};
+  const names={mercury:'Mercury',venus:'Venus',earth:'Earth',moon:'the Moon',mars:'Mars',jupiter:'Jupiter',saturn:'Saturn',uranus:'Uranus',neptune:'Neptune'};
+  let timers=[];
   svg.querySelectorAll('.planet').forEach(pl=>{ pl.style.cursor='pointer';
     pl.addEventListener('click',()=>{
-      const d=data[pl.dataset.p]; if(!d||busy) return;
-      astro.setAttribute('transform',`translate(${d.x} 0)`);
-      const gy=152-d.h;
-      guide.setAttribute('x1',d.x-14); guide.setAttribute('x2',d.x+14);
+      const k=pl.dataset.p, d=data[k]; if(!d) return;
+      timers.forEach(clearTimeout); timers=[];
+      body.style.transition='none'; body.style.transform='translateY(0)'; void body.getBoundingClientRect();
+      svg.querySelectorAll('.planet circle').forEach(c=>c.setAttribute('stroke','none'));
+      pl.querySelector('circle').setAttribute('stroke','#ffd23f'); pl.querySelector('circle').setAttribute('stroke-width','2');
+      const gy=150-d.h;
       guide.setAttribute('y1',gy); guide.setAttribute('y2',gy);
-      lbl.setAttribute('x',Math.max(34,Math.min(d.x,196))); lbl.setAttribute('y',gy-6); lbl.textContent=d.t;
-      busy=true;
+      lbl.setAttribute('y',gy-6); lbl.textContent=d.t;
+      stand.textContent='standing on: '+names[k];
       body.style.transition='transform .45s ease-out'; body.style.transform=`translateY(${-d.h}px)`;
-      setTimeout(()=>{ body.style.transition='transform .55s ease-in'; body.style.transform='translateY(0)';
-        setTimeout(()=>busy=false,560); },500);
+      timers.push(setTimeout(()=>{ body.style.transition='transform .55s ease-in'; body.style.transform='translateY(0)'; },500));
     });
   });
 }
@@ -1922,6 +1939,90 @@ function wireCircuit(){
     svg.querySelector('#bulbGlow').setAttribute('opacity', closed?'0.85':'0');
   });
 }
+function ziplineSVG(){return `<svg viewBox="0 0 240 215" id="zipSvg">
+  <rect width="240" height="215" fill="#1c2a3e"/>
+  <circle cx="204" cy="34" r="16" fill="#ffd23f"/>
+  <rect y="188" width="240" height="27" fill="#2c4a38"/>
+  <g id="zipPostL" style="cursor:pointer">
+    <rect x="26" y="40" width="20" height="148" fill="#fff" opacity="0.001"/>
+    <rect x="32" y="40" width="8" height="148" rx="3" fill="#7a5a38"/>
+    <text x="36" y="32" font-size="9" fill="#ffd23f" text-anchor="middle">tap post!</text>
+  </g>
+  <rect x="200" y="122" width="8" height="66" rx="3" fill="#7a5a38"/>
+  <line id="zipLine" x1="40" y1="88" x2="200" y2="150" stroke="#d9d9e5" stroke-width="2.5"/>
+  <g id="zipToy" style="cursor:pointer">
+    <rect x="-10" y="-6" width="20" height="32" fill="#fff" opacity="0.001"/>
+    <line x1="0" y1="0" x2="0" y2="10" stroke="#d9b54a" stroke-width="3"/>
+    <circle cx="0" cy="-3" r="5" fill="#ffd23f"/>
+    <rect x="-7" y="10" width="14" height="12" rx="4" fill="#ff5e87"/>
+    <circle cx="-3" cy="15" r="2" fill="#fff"/><circle cx="3" cy="15" r="2" fill="#fff"/>
+  </g>
+  <text id="zipTime" x="120" y="207" font-size="11" fill="#ffe89a" text-anchor="middle">tap the toy to launch!</text>
+</svg>`;}
+function wireZip(){
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='zipSvg') return;
+  const toy=svg.querySelector('#zipToy'), line=svg.querySelector('#zipLine'), tlbl=svg.querySelector('#zipTime');
+  let steep=false, running=false;
+  const startY=()=>steep?52:88;
+  // toy starts a little way down the line so it never covers the post's tap area
+  const place=()=>{ line.setAttribute('y1',startY()); toy.style.transition='none'; toy.style.transform=`translate(56px,${steep?62:94}px)`; };
+  place();
+  svg.querySelector('#zipPostL').addEventListener('click',()=>{ if(running) return; steep=!steep; place();
+    tlbl.textContent= steep?'steep start — launch it!':'gentle start — launch it!'; });
+  toy.addEventListener('click',()=>{ if(running) return; running=true;
+    const dur= steep?1.1:2.3;
+    tlbl.textContent='wheee!';
+    toy.style.transition=`transform ${dur}s cubic-bezier(.45,0,.9,1)`;
+    toy.style.transform='translate(200px,150px)';
+    setTimeout(()=>{ tlbl.textContent= steep?'about 1 second — FAST! ⚡':'about 2 seconds — slower 🐌';
+      setTimeout(()=>{ place(); running=false; },1000);
+    }, dur*1000+60);
+  });
+}
+function lightSVG(){return `<svg viewBox="0 0 240 215" id="lightSvg">
+  <rect width="240" height="215" fill="#0d0a26"/>
+  ${[...Array(26)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,215)}" r="${(Math.random()*1.2+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.6).toFixed(2)}"/>`).join('')}
+  <circle cx="2" cy="108" r="30" fill="#ffd23f"/><circle cx="8" cy="98" r="7" fill="#ffe89a"/>
+  <g id="lightBodies">
+    <g class="lp" data-i="0"><rect x="52" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="63" cy="108" r="4" fill="#b5a08a"/></g>
+    <g class="lp" data-i="1"><rect x="76" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="87" cy="108" r="5.5" fill="#e8c37a"/></g>
+    <g class="lp" data-i="2"><rect x="100" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="111" cy="108" r="5.5" fill="#3d8fd1"/></g>
+    <g class="lp" data-i="3"><rect x="124" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="135" cy="108" r="4.5" fill="#d1603d"/></g>
+    <g class="lp" data-i="4"><rect x="148" y="88" width="24" height="40" fill="#fff" opacity="0.001"/><circle cx="160" cy="108" r="9" fill="#d9a05b"/></g>
+    <g class="lp" data-i="5"><rect x="176" y="88" width="24" height="40" fill="#fff" opacity="0.001"/><ellipse cx="188" cy="108" rx="12" ry="2.6" fill="none" stroke="#c9a55f" stroke-width="1.4"/><circle cx="188" cy="108" r="7.5" fill="#e5c37f"/></g>
+    <g class="lp" data-i="6"><rect x="202" y="88" width="18" height="40" fill="#fff" opacity="0.001"/><circle cx="211" cy="108" r="5.5" fill="#8fd8e0"/></g>
+    <g class="lp" data-i="7"><rect x="222" y="88" width="18" height="40" fill="#fff" opacity="0.001"/><circle cx="230" cy="108" r="5.5" fill="#4a6fd1"/></g>
+  </g>
+  <g id="voyagerG" style="cursor:pointer"><rect x="204" y="26" width="34" height="34" fill="#fff" opacity="0.001"/>
+    <text x="221" y="46" font-size="13" text-anchor="middle">🛰️</text>
+    <text x="221" y="58" font-size="6.5" fill="#a9b8c6" text-anchor="middle">Voyager 1</text></g>
+  <g id="lightPulse" opacity="0"><circle cx="0" cy="0" r="7" fill="#fff" opacity="0.35"/><circle cx="0" cy="0" r="3.5" fill="#fff"/></g>
+  <text id="lightLbl" x="120" y="196" font-size="10.5" fill="#ffe89a" text-anchor="middle">tap a planet — race a beam of sunlight!</text>
+</svg>`;}
+function wireLight(){
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='lightSvg') return;
+  const pulse=svg.querySelector('#lightPulse'), lbl=svg.querySelector('#lightLbl');
+  const P=[{nm:'Mercury',x:63,t:'3 minutes'},{nm:'Venus',x:87,t:'6 minutes'},{nm:'Earth',x:111,t:'8 minutes'},{nm:'Mars',x:135,t:'13 minutes'},
+    {nm:'Jupiter',x:160,t:'43 minutes'},{nm:'Saturn',x:188,t:'1 hour 20 min'},{nm:'Uranus',x:211,t:'2 hours 40 min'},{nm:'Neptune',x:230,t:'4 whole hours'}];
+  let busy=false;
+  const race=(x,y,dur,done)=>{ if(busy) return; busy=true;
+    pulse.style.transition='none'; pulse.style.transform='translate(30px,108px)'; pulse.setAttribute('opacity','1');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      pulse.style.transition=`transform ${dur}s linear`; pulse.style.transform=`translate(${x}px,${y}px)`;
+      setTimeout(()=>{ pulse.setAttribute('opacity','0'); done(); busy=false; }, dur*1000+80);
+    }));
+  };
+  svg.querySelectorAll('.lp').forEach(g=>{ g.style.cursor='pointer';
+    g.addEventListener('click',()=>{ const d=P[+g.dataset.i];
+      lbl.textContent='light is racing to '+d.nm+'…';
+      race(d.x,108, 0.5+(+g.dataset.i)*0.28, ()=>{ lbl.textContent=`Sun → ${d.nm}: ${d.t} at LIGHT SPEED`; });
+    });
+  });
+  svg.querySelector('#voyagerG').addEventListener('click',()=>{
+    lbl.textContent='racing to Voyager… so far away…';
+    race(221,44, 3.2, ()=>{ lbl.textContent='Sun → Voyager 1: almost a whole DAY!'; });
+  });
+}
 function magnetsSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="0" y="186" width="240" height="29" fill="#2e2266"/>
   <g id="clip"><rect x="44" y="135" width="28" height="34" rx="13" fill="none" stroke="#cfd6e6" stroke-width="5"/></g>
@@ -1962,18 +2063,53 @@ const TOPICS=[{
 },{
   id:'space', title:'Space & Planets', emoji:'🚀', blurb:'Jumping on other worlds', keepVis:true,
   tags:['space','planet','planets','moon','mars','jupiter','astronaut','rocket','jump','solar','system','stars','gravity','saturn','sun'],
-  svg:spaceSVG, cap:'👆 Tap each planet — watch the astronaut jump there!',
+  svg:spaceSVG, cap:'👆 Tap all 8 planets — and the Moon! Watch the astronaut jump on each one.',
   steps:[
-    {type:'say', text:'Every planet and moon pulls with its own gravity. Small worlds pull gently. Giant worlds pull HARD. Tap the planets above and watch how high the astronaut can jump on each one!'},
+    {type:'say', text:'Every planet and moon pulls with its own gravity. Small worlds pull gently. Giant worlds pull HARD. Try the WHOLE Solar System above — all 8 planets and the Moon — and watch how high the astronaut jumps on each one!'},
     {type:'ask', q:'The Moon is much smaller than Earth. What do you think its gravity is like?', opts:['Weaker — a gentle pull','Stronger — a huge pull','Exactly the same'], correct:0, why:'Smaller worlds pull more gently. The Moon’s pull is 6 times weaker than Earth’s.'},
     {type:'mission', q:'On Earth you can jump about 30 cm. On the Moon you’d jump 6 TIMES higher!\n30 × 6 = ?', ans:180, unit:'cm', why:'Count in 30s: 30, 60, 90, 120, 150, 180. Nearly 2 metres — higher than a door handle!'},
     {type:'ask', q:'Mars is smaller than Earth too — there you’d jump about 3 times higher.\n30 × 3 = ?', opts:['90 cm','60 cm','120 cm'], correct:0, why:'30, 60, 90 — almost a metre high on Mars!'},
     {type:'ask', q:'Jupiter is a GIANT. Its pull is so strong you could only jump less than HALF your Earth jump. What is half of 30?', opts:['15 cm','20 cm','25 cm'], correct:0, why:'Half of 30 is 15 — and on Jupiter you’d jump even less than that. Legs like lead!'},
+    {type:'ask', q:'Saturn is a GIANT like Jupiter — but tap it above: your jump there is about the same as on Earth! How can that be?', opts:['Saturn is huge but made of very light, puffy gas','Saturn is secretly tiny','Its rings pull you upwards'], correct:0, why:'Saturn is enormous but so light and puffy it would float in a giant bathtub! Big but light = a gentle, Earth-like pull.'},
     {type:'predict', predict:'Time to measure YOUR jump! Do you think you can jump higher than 30 cm?', opts:['Yes — higher than 30 cm','Probably less than 30 cm'], correct:0,
       test:'Stand next to a wall or door frame. Reach up and note where your fingers touch. Now JUMP and touch as high as you can — measure the gap between the two spots with a ruler or tape measure.',
       reveal:'Whatever you measured — on the Moon it would be 6 times higher! Try multiplying your jump by 6. On Mars, times 3. That’s space maths!'},
     {type:'ask', q:'Astronauts on the Moon don’t walk — they BOUNCE along in slow motion. Why?', opts:['The Moon’s gentle gravity lets every step lift them high','Their boots have springs inside','They are swimming'], correct:0, why:'Weak gravity = gentle pull = big, slow, bouncy leaps. Every step is a little jump into the sky.'},
     {type:'say', emoji:'🎓', title:'Space explorer!', text:'Gravity is different on every world: gentle on small ones like the Moon (6× higher jumps!), crushing on giants like Jupiter. You even used your times tables to work out jumps across the Solar System. 🚀'}
+  ]
+},{
+  id:'lightspeed', title:'Racing Light', emoji:'🛰️', blurb:'How long sunlight takes — and Voyager', keepVis:true,
+  tags:['light','speed','fast','sun','sunlight','voyager','nasa','space','signal','radio','star','stars','time','planets','probe'],
+  svg:lightSVG, cap:'👆 Tap a planet to race a beam of sunlight from the Sun. Tap Voyager too!',
+  steps:[
+    {type:'say', text:'Light is the fastest thing in the whole universe — in ONE second it could zoom round the Earth 7 times! But space is SO enormous that even light needs travel time. Tap the planets above and race a sunbeam!'},
+    {type:'ask', q:'Which of these is the fastest?', opts:['Light','A rocket','A racing car'], correct:0, why:'Nothing in the universe beats light — not even the fastest rocket ever built.'},
+    {type:'ask', q:'Sunlight takes 8 minutes to reach Earth. So the sunshine warming your face left the Sun…', opts:['8 minutes ago','Just this second','Last week'], correct:0, why:'You always see the Sun as it was 8 minutes ago. Looking into space is looking back in time!'},
+    {type:'mission', q:'Sunlight reaches Earth in 8 minutes. Neptune is so far away it takes about 30 TIMES longer.\n8 × 30 = ?', ans:240, unit:'minutes', why:'8 × 3 = 24, so 8 × 30 = 240 minutes — that’s 4 whole hours at light speed!'},
+    {type:'say', text:'Nearly 50 years ago — in 1977 — NASA launched a little robot explorer called Voyager 1. It flew past Jupiter and Saturn, took amazing photos, and just kept going… Today it is the farthest human-made object EVER, way beyond all the planets — and it STILL radios home.'},
+    {type:'ask', q:'Voyager’s radio message travels at light speed — but it’s so far away the message takes almost a whole DAY to reach Earth. If scientists send a reply, how long before Voyager hears it?', opts:['About 2 days — nearly a day each way','A few seconds','About an hour'], correct:0, why:'Nearly a day out + nearly a day back. Every single chat with Voyager takes about two days!'},
+    {type:'predict', predict:'Look at the stars tonight! The light from some stars took HUNDREDS of years to reach your eyes. Are you seeing those stars now — or in the past?', opts:['The past — their light left long ago','Right now'], correct:0,
+      test:'On a clear night, find the brightest star you can and give it a wave.',
+      reveal:'The past! Some starlight set off before castles were built. Looking through a telescope is time travel for your eyes.'},
+    {type:'say', emoji:'🎓', title:'Light racer!', text:'Light is the universe’s speed champion, but space is so huge that sunlight takes minutes or hours to arrive — and Voyager’s messages take a whole day. You even did light maths: 8 × 30 = 240 minutes!'}
+  ]
+},{
+  id:'zipline', title:'Zip Line Physics', emoji:'🎢', blurb:'Speed, time and acceleration', keepVis:true,
+  tags:['zip','zipline','wire','speed','fast','slow','acceleration','friction','race','rope','slide','gravity','time','distance'],
+  svg:ziplineSVG, cap:'👆 Tap the toy to launch it — tap the tall post to change the steepness!',
+  steps:[
+    {type:'say', text:'A zip line is gravity having fun! The line slopes downhill, gravity pulls the rider along it, and off you zoom. Launch the toy above — then tap the tall post to make the start steeper or gentler and launch again.'},
+    {type:'ask', q:'What pulls the toy down the zip line?', opts:['Gravity','The wind','The string pushes it'], correct:0, why:'The same pull that drops the apple — gravity! The sloping line just steers the fall sideways.'},
+    {type:'predict', predict:'Make your real zip line STEEPER. What will the toy do?', opts:['Go faster','Go slower','Exactly the same'], correct:0,
+      test:'Set your toy zip line gentle and count out loud how long the ride takes. Now make it steeper and count again!',
+      reveal:'Steeper = faster! A steeper slope lets gravity pull the toy along much harder — just like the app’s zip line.'},
+    {type:'say', text:'How do we measure “fast”? SPEED! Speed tells you how far something travels every second. A sprinting cheetah covers about 30 metres each second!'},
+    {type:'mission', q:'Your zip line is 8 metres long and the toy takes 2 seconds.\nSpeed = distance ÷ time = 8 ÷ 2 = ?', ans:4, unit:'m each second', why:'8 ÷ 2 = 4 — the toy travels 4 metres every single second.'},
+    {type:'ask', q:'At the start the toy moves slowly, then faster and faster and FASTER. What is speeding up called?', opts:['Accelerating','Evaporating','Hibernating'], correct:0, why:'Acceleration means getting faster. Gravity accelerates the toy all the way down the line.'},
+    {type:'predict', predict:'Race a HEAVY toy against a LIGHT toy on the zip line. Which one usually wins?', opts:['The heavy toy','The light toy','Always a draw'], correct:0,
+      test:'Clip a heavy toy on and time its ride. Now a light toy. Race them!',
+      reveal:'Usually the heavy one! Gravity pulls both equally — but the rubbing of the line (FRICTION) slows the light toy down more. Friction is speed’s sneaky enemy.'},
+    {type:'say', emoji:'🎓', title:'Zip line engineer!', text:'Gravity powers the ride, steeper means faster, speed = distance ÷ time, and speeding up is called acceleration. Now go break your zip line speed record — safely!'}
   ]
 },{
   id:'floating', title:'Floating & Sinking', emoji:'🛁', blurb:'Archimedes & why boats float',
@@ -2130,7 +2266,7 @@ function openTopic(t){
   $('#topVis').querySelectorAll('.tapdrop').forEach(el=>el.onclick=()=>el.classList.toggle('dropped'));
   const sun=$('#sunTap'); if(sun){ const svg=sun.closest('svg'); sun.style.cursor='pointer'; sun.onclick=()=>svg.classList.toggle('sunny'); }
   if(document.getElementById('magnet')) wireMagnet();
-  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit();
+  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit(); wireZip(); wireLight();
   if(S.explored[t.id]) renderTopicChooser(); else runStep(0);
   $('#topic').classList.remove('hidden'); $('#topic').scrollTop=0;
 }
