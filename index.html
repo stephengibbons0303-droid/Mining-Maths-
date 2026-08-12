@@ -189,6 +189,32 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .saycard h3{margin:4px 0 8px;color:var(--ink)}
 .saytext{font-size:18px;line-height:1.5;color:var(--ink);margin:0}
 
+/* Times-table sprint */
+#sprint{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:16px;overflow:auto}
+#sprint.hidden{display:none}
+.sprintcard{max-width:480px;margin:0 auto}
+.sprintbar{height:10px;border-radius:6px;background:#ffffff14;border:1px solid #ffffff22;overflow:hidden;margin-top:6px}
+.sprintbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),#ff8a5c);transition:width 1s linear}
+
+/* Certificate */
+#cert{position:fixed;inset:0;background:#000c;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+#cert.hidden{display:none}
+.certwrap{width:100%;max-width:430px;margin:auto}
+.certcard{background:#fdf6e3;border:6px double #d9a520;border-radius:14px;padding:28px 18px;text-align:center;color:#3a2f14}
+.certstar{font-size:54px;line-height:1}
+.certhead{font-family:'Fredoka';letter-spacing:.22em;font-size:13px;color:#a07713;margin-top:8px}
+.certname{font-family:'Fredoka';font-size:44px;margin:8px 0 0;color:#1b2530}
+.certsub{font-size:14px;color:#6b5a2a}
+.certtopic{font-family:'Fredoka';font-size:30px;color:#b8860b;margin:4px 0}
+.certmeta{font-size:13px;color:#6b5a2a;margin-top:8px}
+.certfoot{margin-top:16px;font-size:12px;color:#a07713;font-family:'Fredoka'}
+@media print{
+  body{background:#fff;padding:0}
+  body>:not(#cert){display:none!important}
+  #cert{position:static;background:#fff;padding:0;display:block}
+  #cert .row,#certList{display:none!important}
+}
+
 /* Tablet portrait: use the width */
 @media(min-width:700px){
   :root{--maxw:860px}
@@ -283,6 +309,7 @@ window.addEventListener('unhandledrejection',function(e){
 
 <div id="views">
   <div id="mathsView">
+    <button class="newpic" id="sprintBtn" style="margin:0 0 12px">⚡ Times-Table Sprint</button>
     <div class="grid" id="catGrid"></div>
   </div>
   <div id="scienceView" class="hidden">
@@ -356,6 +383,45 @@ window.addEventListener('unhandledrejection',function(e){
   </div>
 </div>
 
+<div id="sprint" class="hidden">
+  <div class="sprintcard">
+    <div id="sprintLive">
+      <div class="actbar">
+        <button class="back" id="sprintQuit">✕ Quit</button>
+        <b id="sprintClock" style="font-family:'Fredoka';font-size:24px">60</b>
+        <b id="sprintScore" style="font-family:'Fredoka';font-size:18px;color:var(--gold)">✓ 0</b>
+      </div>
+      <div class="sprintbar"><i id="sprintFill"></i></div>
+      <div id="sprintQ" style="text-align:center;font-family:'Fredoka';font-size:58px;margin:24px 0">3 × 4</div>
+      <div class="kdisp" style="margin-bottom:10px"><span id="sprintIn">…</span></div>
+      <div class="kgrid" id="sprintPad">
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button class="kdel" data-k="del">⌫</button><button data-k="0">0</button><button class="kok" data-k="ok">✓</button>
+      </div>
+    </div>
+    <div id="sprintEnd" class="hidden"></div>
+  </div>
+</div>
+
+<div id="cert" class="hidden"><div class="certwrap">
+  <div class="certcard" id="certCard">
+    <div class="certstar">🏆</div>
+    <div class="certhead">CERTIFICATE OF MASTERY</div>
+    <div class="certname">JAD</div>
+    <div class="certsub">has mastered</div>
+    <div class="certtopic" id="certTopic">Addition</div>
+    <div class="certmeta" id="certMeta"></div>
+    <div class="certfoot">★ JAD'S MATHS QUEST ★</div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button class="btn ghost" id="certPrint">🖨 Print / Save</button>
+    <button class="btn next" id="certClose">Done</button>
+  </div>
+  <div id="certList" class="opts" style="margin-top:10px"></div>
+</div></div>
+
 <div id="howto" class="hidden"><div class="howcard">
   <h3>🧭 Let's work it out</h3>
   <p class="howq" id="howQtext"></p>
@@ -417,8 +483,9 @@ window.addEventListener('unhandledrejection',function(e){
     <select id="optStars" style="background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:inherit">
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
+  <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v8</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v9</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -480,6 +547,7 @@ function load(){
   S.who      = S.who      || 'kid';        // 'kid' = Jad answers himself, 'parent' = dad-led
   S.missQ    = S.missQ    || {};           // per-category queue of missed questions to revisit
   S.wrongRun = S.wrongRun || {};           // per-category consecutive misses (for auto step-down)
+  S.sprintBest = S.sprintBest || 0;
   rollDate();
 }
 function rollDate(){
@@ -534,8 +602,8 @@ function genAddition(l){
     for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
     return {q:`${arr[0]} + ${arr[1]} + ${arr[2]}`, ans:p+q2+t, small:true, noFade:true, hint:'Spot the two that make 10 — add those first.', d:{t:'three',p,q2,x:t}};
   }
-  const nm=pick(['Sam','Mia','Jad','Ava','Leo','Zoe']);
-  if(Math.random()<0.45){ const things=pick([['stickers','got'],['marbles','won'],['points','scored'],['shells','found']]);
+  const nm=pick(['Sam','Mia','Jad','Rai','Ava','Leo','Zoe']);
+  if(Math.random()<0.45){ const things=pick([['stickers','got'],['marbles','won'],['points','scored'],['shells','found'],['moths','caught'],['moon rocks','collected']]);
     const a=rand(15,50),b=rand(10,45);
     return {q:`${nm} had ${a} ${things[0]} and ${things[1]} ${b} more.\nHow many now?`, ans:a+b, small:true, noFade:true, hint:'One step — add them.', d:{t:'wadd',a,b}}; }
   const a=rand(20,45),b=rand(10,30),c=rand(5,20);
@@ -577,8 +645,8 @@ function genSubtraction(l){
     const a=rand(45,99),b=rand(10,a-10);
     return {q:`What is the difference between ${a} and ${b}?`, ans:a-b, small:true, noFade:true, hint:`Count up from ${b} to ${a}.`, d:{t:'diff',a,b}};
   }
-  const nm=pick(['Sam','Mia','Jad','Ava','Leo','Zoe']);
-  if(Math.random()<0.45){ const things=pick([['stickers','gave away'],['marbles','lost'],['sweets','ate'],['cards','swapped']]);
+  const nm=pick(['Sam','Mia','Jad','Rai','Ava','Leo','Zoe']);
+  if(Math.random()<0.45){ const things=pick([['stickers','gave away'],['marbles','lost'],['sweets','ate'],['cards','swapped'],['moon rocks','gave away'],['fish','set free']]);
     const a=rand(20,60),b=rand(5,a-5);
     return {q:`${nm} had ${a} ${things[0]} and ${things[1]} ${b}.\nHow many are left?`, ans:a-b, small:true, noFade:true, hint:'One step — take away.', d:{t:'wsub',a,b}}; }
   const a=rand(70,99),b=rand(10,30),c=rand(5,20);
@@ -590,12 +658,13 @@ function genSubtraction(l){
 }
 const BUGS6=[{e:'🐜',nm:'ant'},{e:'🐝',nm:'bee'},{e:'🐞',nm:'ladybird'},{e:'🦗',nm:'cricket'}];
 function genMul(l){
-  if(l>=2 && Math.random()<0.35){  // minibeast legs problem
-    const spider = l>=4 && Math.random()<0.5;
-    const legs = spider?8:6;
-    const nm = spider?'spider':pick(BUGS6).nm, e = spider?'🕷️':BUGS6.find(b=>b.nm===nm)?.e || '🐜';
-    const n = rand(2, l<=3?6:9);
-    return {q:`Each ${nm} has ${legs} legs.\nHow many legs do ${n} ${nm}s have?\n${e.repeat(n)}`, ans:legs*n, small:true, noFade:true, hint:`${legs} × ${n}`, d:{t:'legs',legs,n}};
+  if(l>=2 && Math.random()<0.35){  // creature counting problem
+    const pool = l<=3
+      ? [{nm:'ant',legs:6,e:'🐜',w:'legs'},{nm:'bee',legs:6,e:'🐝',w:'legs'},{nm:'ladybird',legs:6,e:'🐞',w:'legs'},{nm:'starfish',legs:5,e:'⭐',w:'arms'}]
+      : [{nm:'spider',legs:8,e:'🕷️',w:'legs'},{nm:'octopus',legs:8,e:'🐙',w:'arms'},{nm:'crab',legs:10,e:'🦀',w:'legs'},{nm:'starfish',legs:5,e:'⭐',w:'arms'}];
+    const cr=pick(pool), n=rand(2, l<=3?6:9);
+    const plural=cr.nm==='octopus'?'octopuses':cr.nm+'s';
+    return {q:`Each ${cr.nm} has ${cr.legs} ${cr.w}.\nHow many ${cr.w} do ${n} ${plural} have?\n${cr.e.repeat(n)}`, ans:cr.legs*n, small:true, noFade:true, hint:`${cr.legs} × ${n}`, d:{t:'legs',legs:cr.legs,n,word:cr.w}};
   }
   const tbl = l===1?2 : l===2?5 : l===3?10 : l===4?pick([3,4]) : pick([3,4,8]);
   const n=rand(2,12); return {q:`${tbl} × ${n}`,ans:tbl*n, hint:`Count up in ${tbl}s — ${n} jumps.`, d:{t:'times',a:tbl,b:n}};
@@ -626,7 +695,7 @@ function genDiv(l){
   if(type==='missing'){ const d=pick([2,3,4,5,8]), n=rand(2,10), total=d*n;
     if(Math.random()<0.5) return {q:`${total} ÷ ▢ = ${n}`, ans:d, small:true, noFade:true, hint:'What do you divide by to get '+n+'?', d:{t:'divmiss',total,dv:d,qn:n,first:false}};
     return {q:`▢ ÷ ${d} = ${n}`, ans:total, small:true, noFade:true, hint:`Think: ${d} × ${n}`, d:{t:'divmiss',total,dv:d,qn:n,first:true}}; }
-  const items=pick([['cakes','plates'],['sweets','bags'],['apples','baskets'],['stickers','sheets']]);
+  const items=pick([['cakes','plates'],['sweets','bags'],['apples','baskets'],['stickers','sheets'],['moon rocks','crates'],['sea shells','pools']]);
   const d=pick([2,3,4,5]), per=rand(3,8), total=d*per;
   return {q:`${total} ${items[0]} are shared equally onto ${d} ${items[1]}.\nHow many on each ${items[1].slice(0,-1)}?`, ans:per, small:true, noFade:true, hint:'Sharing means dividing.', d:{t:'share',total,gr:d,per}};
 }
@@ -867,7 +936,7 @@ function buildSteps(q){
     case 'wsub': return [`Start with ${d.a}. The story takes ${d.b} away.`,`${d.a} − ${d.b} = ${d.a-d.b}.`];
     case 'wsub2':{ if(d.plus) return [`Start with ${d.a}. First ${d.b} are lost: ${d.a} − ${d.b} = ${d.a-d.b}.`,`Then ${d.c} more arrive: ${d.a-d.b} + ${d.c} = ${d.a-d.b+d.c}.`];
       return [`Start with ${d.a}. First spend ${d.b}: ${d.a} − ${d.b} = ${d.a-d.b}.`,`Then spend ${d.c} more: ${d.a-d.b} − ${d.c} = ${d.a-d.b-d.c}.`]; }
-    case 'legs': return [`Each one has ${d.legs} legs, and there are ${d.n} of them.`,`Count in ${d.legs}s, one jump each: ${countIn(d.legs,d.n)}.`,`So ${d.legs} × ${d.n} = ${d.legs*d.n} legs.`];
+    case 'legs':{ const w=d.word||'legs'; return [`Each one has ${d.legs} ${w}, and there are ${d.n} of them.`,`Count in ${d.legs}s, one jump each: ${countIn(d.legs,d.n)}.`,`So ${d.legs} × ${d.n} = ${d.legs*d.n} ${w}.`]; }
     case 'times': return [`${d.a} × ${d.b} means ${d.b} jumps of ${d.a}.`,`Count in ${d.a}s: ${countIn(d.a,d.b)}.`,`So ${d.a} × ${d.b} = ${d.a*d.b}.`];
     case 'share': return [`Share ${d.total} into ${d.gr} equal groups — deal them out like cards, one each at a time.`,
       `Keep going until all ${d.total} are used up.`,`Count one group: ${d.per}. So ${d.total} ÷ ${d.gr} = ${d.per}.`,`Check: ${d.gr} × ${d.per} = ${d.total} ✓`];
@@ -927,6 +996,9 @@ function buildSteps(q){
       if(d.mode==='edges') return [`An EDGE is a straight line where two faces meet.`,`Spin it slowly and count the lines.`,`A ${sh.nm} has ${sh.e} edges.`];
       return [`A VERTEX is a pointy corner.`,`Spin it slowly and count the corners.`,`A ${sh.nm} has ${sh.v} vertices.`]; }
     case 'ruler': return [`Find where the blue bar ends.`,`Look straight down to the ruler number under the end.`,`It says ${d.n} — so the bar is ${d.n} cm long.`];
+    case 'thermneg': return [`Find the top of the red line.`,`The marks count in 5s. Below the bold 0 line the numbers are MINUS — colder than freezing!`,`It reads ${d.v}°C${d.v<0?' — below zero, brrr! 🥶':''}`];
+    case 'tchange':{ const arr=[]; for(let v=d.start;v>=d.start-d.delta;v--) arr.push(v<0?('−'+(-v)):v);
+      return [`Start at ${d.start}°C on the thermometer.`,`Count DOWN ${d.delta} degrees, one at a time: ${arr.join(', ')}.`,`You land on −${d.delta-d.start}°C. Below zero means minus — brrr! 🥶`]; }
     case 'therm': return [`Find the top of the red line.`,`The marks count in ${d.tick}s.`+(d.v%d.tick?` Halfway between two marks counts 5.`:''),`It reads ${d.v}°C.`];
     case 'jug': return [`Find the top of the water.`,`The marks count in ${d.step}s. Read the mark level with the water.`,`There are ${d.v} ml in the jug.`];
     case 'dial': return [`Look where the pointer points.`,`The marks count in ${d.step}s round the dial.`,`It shows ${d.v} g.`];
@@ -976,6 +1048,8 @@ function kidSpec(q){
     case 'hund': return {pad:Math.floor(d.n/100), unit:'hundreds'};
     case 'morless': return {pad:d.r};
     case 'ruler': return {pad:d.n, unit:'cm'};
+    case 'thermneg': return {pad:d.v, neg:true, unit:'°C'};
+    case 'tchange': return {pad:d.start-d.delta, neg:true, unit:'°C'};
     case 'therm': return {pad:d.v, unit:'°C'};
     case 'jug': return {pad:d.v, unit:'ml'};
     case 'dial': return {pad:d.v, unit:'g'};
@@ -1032,21 +1106,28 @@ function genMeasure(l){
   if(l===3){const v=rand(1,10)*100;return{q:'How much water is in the jug?',ans:v+' ml',small:true,measure:{t:'jug',v,max:1000,step:100},hint:'Read the mark level with the top of the water.',d:{t:'jug',v,step:100}};}
   if(l===4){ if(Math.random()<0.4){const v=rand(0,10)*5;return{q:'What does the thermometer read?',ans:v+'°C',small:true,measure:{t:'therm',v,max:50},hint:'Halfway between two marks counts 5.',d:{t:'therm',v,tick:10}};}
     const v=rand(1,10)*50; return{q:'How much water is in the jug?',ans:v+' ml',small:true,measure:{t:'jug',v,max:500,step:50},hint:'Read the mark level with the top of the water.',d:{t:'jug',v,step:50}};}
-  if(Math.random()<0.4){const v=rand(0,20)*5;return{q:'What does the thermometer read?',ans:v+'°C',small:true,measure:{t:'therm',v,max:100},hint:'Halfway between two marks counts 5.',d:{t:'therm',v,tick:10}};}
+  const r5=Math.random();
+  if(r5<0.25){const v=rand(0,20)*5;return{q:'What does the thermometer read?',ans:v+'°C',small:true,measure:{t:'therm',v,max:100},hint:'Halfway between two marks counts 5.',d:{t:'therm',v,tick:10}};}
+  if(r5<0.5){const v=rand(-2,4)*5;return{q:'What does the thermometer read?',ans:v+'°C',small:true,measure:{t:'therm',v,max:20,min:-10,tick:5},hint:'Below the bold 0 line means MINUS — colder than freezing!',d:{t:'thermneg',v}};}
+  if(r5<0.75){const start=rand(1,6),delta=rand(start+1,start+6);
+    return{q:`The temperature is ${start}°C. It gets ${delta} degrees COLDER.\nWhat is the temperature now?`,ans:(start-delta)+'°C',small:true,noFade:true,hint:'Count down one degree at a time — keep going past zero!',d:{t:'tchange',start,delta}};}
   const v=rand(1,10)*100; return{q:'What does the scale show?',ans:v+' g',small:true,measure:{t:'dial',v,max:1000,step:100},hint:'Read the number the pointer points at.',d:{t:'dial',v,step:100}};
 }
 function buildMeasure(m){
   if(m.t==='ruler') return rulerSVG(m.n,m.max);
   if(m.t==='jug')   return jugSVG(m.v,m.max,m.step);
-  if(m.t==='therm') return thermSVG(m.v,m.max);
+  if(m.t==='therm') return thermSVG(m.v,m.max,m.min,m.tick);
   return dialSVG(m.v,m.max,m.step);
 }
-function thermSVG(val,max){
-  const W=120,H=210,cx=46,top=20,bot=160,h=bot-top,tw=18,fy=bot-(val/max)*h;
+function thermSVG(val,max,min,tick){
+  min=min||0; tick=tick||10;
+  const W=120,H=210,cx=46,top=20,bot=160,h=bot-top,tw=18,fy=bot-((val-min)/(max-min))*h;
   let ticks='';
-  for(let v=0;v<=max;v+=10){const y=bot-(v/max)*h;
-    ticks+=`<line x1="${cx+tw/2}" y1="${y}" x2="${cx+tw/2+8}" y2="${y}" stroke="#a9b8c6" stroke-width="1.5"/>`;
-    ticks+=`<text x="${cx+tw/2+11}" y="${y+3}" font-size="9" fill="#a9b8c6">${v}</text>`;}
+  for(let v=min;v<=max;v+=tick){const y=bot-((v-min)/(max-min))*h;
+    const zero=(v===0&&min<0);
+    ticks+=`<line x1="${cx+tw/2}" y1="${y}" x2="${cx+tw/2+8}" y2="${y}" stroke="${zero?'#7fc8ff':'#a9b8c6'}" stroke-width="${zero?2.5:1.5}"/>`;
+    ticks+=`<text x="${cx+tw/2+11}" y="${y+3}" font-size="9" fill="${zero?'#7fc8ff':'#a9b8c6'}" font-weight="${zero?'800':'400'}">${v}</text>`;
+    if(zero) ticks+=`<line x1="${cx-tw/2-8}" y1="${y}" x2="${cx+tw/2}" y2="${y}" stroke="#7fc8ff" stroke-width="1.5" stroke-dasharray="3 3"/>`;}
   return `<svg viewBox="0 0 ${W} ${H}">
     <rect x="${cx-tw/2}" y="${top}" width="${tw}" height="${h}" rx="${tw/2}" fill="#2e2266" stroke="#e9e9f5" stroke-width="2"/>
     <rect x="${cx-tw/2+3}" y="${fy}" width="${tw-6}" height="${bot-fy}" fill="#ff5e5e"/>
@@ -1452,6 +1533,7 @@ function renderHeader(){
   $('#parentModeRow').style.display = S.who==='parent'?'':'none';
 }
 function renderGrid(){
+  $('#sprintBtn').textContent='⚡ Times-Table Sprint'+(S.sprintBest?` · best ${S.sprintBest}`:'');
   const g=$('#catGrid'); g.innerHTML='';
   CATS.forEach(c=>{
     const lvl=S.levels[c.id], mastered=S.mastered[c.id];
@@ -1545,7 +1627,7 @@ function newQuestion(){
 }
 
 /* ---------- Kid mode: answer entry ---------- */
-let kMain='', kRem='', kPart=0, kUnitSel='p';
+let kMain='', kRem='', kPart=0, kUnitSel='p', kNeg=false;
 function applyWho(){
   $('#trackerActions').classList.toggle('hidden',S.who==='kid'||S.mode!=='tracker');
   $('#quizActions').classList.toggle('hidden',S.who==='kid'||S.mode!=='quiz');
@@ -1568,9 +1650,11 @@ function renderKidEntry(q){
     });
   } else {
     pad.classList.remove('hidden');
-    kMain=''; kRem=''; kPart=0; kUnitSel='p';
+    kMain=''; kRem=''; kPart=0; kUnitSel='p'; kNeg=false;
     const xr=$('#kXRow');
-    if(spec.money){ xr.classList.remove('hidden'); xr.innerHTML='<button data-u="£">£</button><button data-u="p" class="sel">p</button>';
+    if(spec.neg){ xr.classList.remove('hidden'); xr.innerHTML='<button data-u="neg">−&nbsp;<small>minus</small></button>';
+      xr.querySelector('button').onclick=()=>kidKey('neg'); }
+    else if(spec.money){ xr.classList.remove('hidden'); xr.innerHTML='<button data-u="£">£</button><button data-u="p" class="sel">p</button>';
       xr.querySelectorAll('button').forEach(b=>b.onclick=()=>kidKey(b.dataset.u)); }
     else if(spec.rem!==undefined){ xr.classList.remove('hidden'); xr.innerHTML='<button data-u="r">r&nbsp; <small>remainder</small></button>';
       xr.querySelector('button').onclick=()=>kidKey('r'); }
@@ -1581,6 +1665,7 @@ function renderKidEntry(q){
 function updateKidDisp(){
   const sp=cur.spec;
   let txt=kMain||'…';
+  if(sp.neg&&kNeg) txt='−'+txt;
   if(sp.rem!==undefined && kPart===1) txt=(kMain||'…')+' r '+(kRem||'…');
   $('#kInput').textContent=txt;
   $('#kUnit').textContent = sp.money ? kUnitSel : (sp.unit||'');
@@ -1603,7 +1688,7 @@ function kidMiss(){
     $('#kChoices').querySelectorAll('.optbtn').forEach(x=>{ x.disabled=true; if(x.textContent===cur.spec.correct) x.classList.add('ok'); });
   } else {
     const sp=cur.spec;
-    $('#kInput').textContent = sp.money ? money(sp.pad) : (sp.rem!==undefined ? sp.pad+' r '+sp.rem : String(sp.pad));
+    $('#kInput').textContent = sp.money ? money(sp.pad) : (sp.rem!==undefined ? sp.pad+' r '+sp.rem : String(sp.pad).replace('-','−'));
     $('#kUnit').textContent = sp.money ? '' : (sp.unit||'');
   }
   showAns();
@@ -1622,12 +1707,17 @@ function kidKey(k){
     if(sp.money){ kUnitSel=k;
       document.querySelectorAll('#kXRow button').forEach(b=>b.classList.toggle('sel',b.dataset.u===k)); }
   }
+  else if(k==='neg'){
+    if(sp.neg){ kNeg=!kNeg;
+      const b=document.querySelector('#kXRow button'); if(b) b.classList.toggle('sel',kNeg); }
+  }
   else if(k==='ok'){
     if(!kMain) return;
     if(sp.rem!==undefined && kPart===0){ toast('Add the remainder — tap the r button'); return; }
     let good;
     if(sp.money){ const pence = kUnitSel==='£' ? parseInt(kMain,10)*100 : parseInt(kMain,10); good = pence===sp.pad; }
     else if(sp.rem!==undefined) good = parseInt(kMain,10)===sp.pad && parseInt(kRem||'-1',10)===sp.rem;
+    else if(sp.neg) good = ((kNeg?-1:1)*parseInt(kMain,10))===sp.pad;
     else good = parseInt(kMain,10)===sp.pad;
     if(good){ cur.done=true; burst(); setTimeout(()=>resolveCorrect(cur.attempts>0),700); }
     else {
@@ -1687,7 +1777,7 @@ function flashLevel(){ const el=$('#lvlctrl'); el.classList.remove('flash'); voi
 function levelUp(){
   const c=cur.cat;
   if(S.mastered[c.id]) return;
-  if(S.levels[c.id]>=5){S.mastered[c.id]=true;toast('👑 '+c.nm+' mastered!');burst();}
+  if(S.levels[c.id]>=5){S.mastered[c.id]=true;toast('👑 '+c.nm+' mastered!');burst();setTimeout(()=>showCert(c),1100);}
   else{S.levels[c.id]++;toast('⬆ Level '+S.levels[c.id]+'!');burst();}
   save();lvlLabel();flashLevel();
 }
@@ -2023,6 +2113,97 @@ function wireLight(){
     race(221,44, 3.2, ()=>{ lbl.textContent='Sun → Voyager 1: almost a whole DAY!'; });
   });
 }
+function machinesSVG(){return `<svg viewBox="0 0 240 215" id="machSvg">
+  <rect width="240" height="215" fill="#233042"/>
+  <rect y="182" width="240" height="33" fill="#2c4a38"/>
+  <polygon points="12,182 112,182 112,122" fill="#5a4632"/>
+  <g id="rampBox" style="cursor:pointer">
+    <rect x="-14" y="-26" width="28" height="26" fill="#fff" opacity="0.001"/>
+    <rect x="-11" y="-22" width="22" height="22" rx="3" fill="#d9a520"/><rect x="-11" y="-22" width="22" height="7" fill="#b8860b"/>
+  </g>
+  <text x="58" y="200" font-size="10" fill="#a9b8c6" text-anchor="middle">ramp — tap the box</text>
+  <rect x="146" y="26" width="88" height="8" rx="3" fill="#5a4632"/>
+  <g id="wheelG"><circle cx="188" cy="50" r="12" fill="#8a97a5" stroke="#e9e9f5" stroke-width="3"/>
+    <line x1="188" y1="40" x2="188" y2="60" stroke="#e9e9f5" stroke-width="2"/>
+    <line x1="178" y1="50" x2="198" y2="50" stroke="#e9e9f5" stroke-width="2"/></g>
+  <line id="ropeA" x1="180" y1="52" x2="180" y2="132" stroke="#d9b54a" stroke-width="2.5"/>
+  <line id="ropeB" x1="196" y1="52" x2="196" y2="118" stroke="#d9b54a" stroke-width="2.5"/>
+  <text id="pullLbl" x="212" y="128" font-size="12" fill="#ffd23f">⬇</text>
+  <g id="crateG" style="cursor:pointer" transform="translate(180 156)">
+    <rect x="-16" y="-28" width="32" height="32" fill="#fff" opacity="0.001"/>
+    <rect x="-13" y="-24" width="26" height="24" rx="3" fill="#a06a3a"/>
+    <line x1="-13" y1="-12" x2="13" y2="-12" stroke="#7a4e28" stroke-width="2"/>
+    <line x1="0" y1="-24" x2="0" y2="0" stroke="#7a4e28" stroke-width="2"/>
+  </g>
+  <text x="188" y="200" font-size="10" fill="#a9b8c6" text-anchor="middle">pulley — tap the crate</text>
+</svg>`;}
+function wireMachines(){
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='machSvg') return;
+  const box=svg.querySelector('#rampBox'), crate=svg.querySelector('#crateG');
+  const ropeA=svg.querySelector('#ropeA'), ropeB=svg.querySelector('#ropeB'), wheel=svg.querySelector('#wheelG');
+  const ease=k=>k*k*(3-2*k);
+  let busyR=false, busyP=false;
+  box.style.transform='translate(30px,182px)';
+  box.addEventListener('click',()=>{ if(busyR) return; busyR=true;
+    box.style.transition='transform 1.2s ease-in-out';
+    box.style.transform='translate(100px,124px)';
+    setTimeout(()=>{ box.style.transition='transform .9s ease-in'; box.style.transform='translate(30px,182px)';
+      setTimeout(()=>busyR=false,950); },1500);
+  });
+  crate.addEventListener('click',()=>{ if(busyP) return; busyP=true;
+    const t0=performance.now(), dur=1100;
+    (function up(t){ const k=ease(Math.min(1,(t-t0)/dur));
+      const y=156-52*k;
+      crate.setAttribute('transform',`translate(180 ${y})`);
+      ropeA.setAttribute('y2',y-24);
+      ropeB.setAttribute('y2',118+52*k);
+      wheel.setAttribute('transform',`rotate(${-k*200} 188 50)`);
+      if(k<1) requestAnimationFrame(up);
+      else setTimeout(()=>{ const t1=performance.now();
+        (function down(t){ const k2=ease(Math.min(1,(t-t1)/800)), y2=104+52*k2;
+          crate.setAttribute('transform',`translate(180 ${y2})`);
+          ropeA.setAttribute('y2',y2-24);
+          ropeB.setAttribute('y2',170-52*k2);
+          wheel.setAttribute('transform',`rotate(${-200+k2*200} 188 50)`);
+          if(k2<1) requestAnimationFrame(down); else busyP=false;
+        })(t1); },900);
+    })(t0);
+  });
+}
+function soundSVG(){return `<svg viewBox="0 0 240 215" id="soundSvg">
+  <rect width="240" height="108" fill="#1c2a5e"/>
+  ${[...Array(14)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,60)}" r="${(Math.random()*1+0.3).toFixed(1)}" fill="#fff" opacity="0.7"/>`).join('')}
+  <circle cx="210" cy="22" r="12" fill="#f2f0d8"/>
+  <rect y="108" width="240" height="107" fill="#123a55"/>
+  <g id="batG" style="cursor:pointer"><rect x="18" y="30" width="44" height="44" fill="#fff" opacity="0.001"/>
+    <text x="40" y="62" font-size="24" text-anchor="middle">🦇</text></g>
+  <text x="200" y="58" font-size="15" text-anchor="middle">🦋</text>
+  <g id="whaleG" style="cursor:pointer"><rect x="16" y="146" width="52" height="46" fill="#fff" opacity="0.001"/>
+    <text x="42" y="182" font-size="28" text-anchor="middle">🐋</text></g>
+  <text x="204" y="180" font-size="16" text-anchor="middle">🐟</text>
+  <g id="airPing" opacity="0"><circle cx="0" cy="0" r="6" fill="#ffd23f" opacity="0.4"/><circle cx="0" cy="0" r="3" fill="#ffd23f"/></g>
+  <g id="seaPing" opacity="0"><circle cx="0" cy="0" r="6" fill="#7fc8ff" opacity="0.4"/><circle cx="0" cy="0" r="3" fill="#7fc8ff"/></g>
+  <text id="sndLbl" x="120" y="104" font-size="10.5" fill="#ffe89a" text-anchor="middle">tap the bat, then tap the whale!</text>
+</svg>`;}
+function wireSound(){
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='soundSvg') return;
+  const lbl=svg.querySelector('#sndLbl');
+  let busy=false;
+  const bounce=(ping,x0,y0,x1,dur,outTxt,backTxt)=>{ if(busy) return; busy=true;
+    lbl.textContent=outTxt;
+    ping.style.transition='none'; ping.style.transform=`translate(${x0}px,${y0}px)`; ping.setAttribute('opacity','1');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      ping.style.transition=`transform ${dur}s linear`; ping.style.transform=`translate(${x1}px,${y0}px)`;
+      setTimeout(()=>{ ping.style.transition=`transform ${dur}s linear`; ping.style.transform=`translate(${x0}px,${y0}px)`;
+        setTimeout(()=>{ ping.setAttribute('opacity','0'); lbl.textContent=backTxt; busy=false; }, dur*1000+60);
+      }, dur*1000+40);
+    }));
+  };
+  svg.querySelector('#batG').addEventListener('click',()=>bounce(svg.querySelector('#airPing'),58,50,188,0.7,
+    'squeak! …the sound flies out…','…ECHO! The bat “sees” the moth with its ears! 🦇'));
+  svg.querySelector('#whaleG').addEventListener('click',()=>bounce(svg.querySelector('#seaPing'),66,170,192,0.22,
+    'CLICK!','So fast! Sound travels about 4× FASTER in water! 🐋'));
+}
 function magnetsSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="0" y="186" width="240" height="29" fill="#2e2266"/>
   <g id="clip"><rect x="44" y="135" width="28" height="34" rx="13" fill="none" stroke="#cfd6e6" stroke-width="5"/></g>
@@ -2110,6 +2291,43 @@ const TOPICS=[{
       test:'Clip a heavy toy on and time its ride. Now a light toy. Race them!',
       reveal:'Usually the heavy one! Gravity pulls both equally — but the rubbing of the line (FRICTION) slows the light toy down more. Friction is speed’s sneaky enemy.'},
     {type:'say', emoji:'🎓', title:'Zip line engineer!', text:'Gravity powers the ride, steeper means faster, speed = distance ÷ time, and speeding up is called acceleration. Now go break your zip line speed record — safely!'}
+  ]
+},{
+  id:'machines', title:'Ramps, Levers & Pulleys', emoji:'🏗️', blurb:'Simple machines — build them from Lego!', keepVis:true,
+  tags:['machine','machines','ramp','ramps','lever','levers','pulley','pulleys','lego','build','lift','seesaw','crane','engineer','simple'],
+  svg:machinesSVG, cap:'👆 Tap the box to push it up the ramp — tap the crate to hoist it with the pulley!',
+  steps:[
+    {type:'say', text:'Machines don’t have to beep or have motors! A RAMP, a LEVER and a PULLEY are called simple machines — clever tricks that make heavy work easier. Try both machines above!'},
+    {type:'ask', q:'You must get a heavy box onto a table. Which way is easier?', opts:['Slide it up a ramp — a gentler push, just longer','Lift it straight up in one go','They’re exactly the same'], correct:0, why:'The ramp spreads the work out: a smaller push over a longer path. That’s the ramp’s trick!'},
+    {type:'predict', predict:'Build two ramps from Lego or books: one STEEP, one GENTLE. Push a toy car up each. Which needs the smaller push?', opts:['The gentle ramp','The steep ramp','Both the same'], correct:0,
+      test:'Lean a book for a steep ramp and a line of books for a gentle one — or build proper ramps from Lego! Slowly push a toy car up each.',
+      reveal:'The gentle ramp needs the smallest push — but it’s a longer journey. Easier but longer: that’s the deal every ramp offers.'},
+    {type:'say', text:'A LEVER is a see-saw for lifting: a stiff bar resting on a balance point called the FULCRUM. Push DOWN on your side and the far side lifts your load UP.'},
+    {type:'predict', predict:'Rest a ruler over a pencil and put a small book on one end. Where should you press to lift the book most easily?', opts:['Far from the pencil','Right next to the pencil','On top of the book'], correct:0,
+      test:'Set it up: pencil under a ruler, book on one end. Press close to the pencil, then right at the ruler’s end.',
+      reveal:'Pressing far from the fulcrum wins easily — a long lever arm multiplies your push. Levers are strength multipliers!'},
+    {type:'mission', q:'A pulley with 2 ropes shares the weight equally between them.\nYour Lego crate weighs as much as 12 bricks. Each rope carries 12 ÷ 2 = ?', ans:6, unit:'bricks', why:'The two ropes share the load: 12 ÷ 2 = 6 bricks each — so your pull only needs to be HALF as strong!'},
+    {type:'ask', q:'With a pulley you pull the rope DOWN… and the crate goes UP! Why is pulling down easier for people?', opts:['Your whole body weight can help you pull down','Down is closer to the ground','It isn’t really easier'], correct:0, why:'You can hang your body weight on a downward pull — much easier than hauling upwards with just your arms.'},
+    {type:'say', emoji:'🎓', title:'Engineer!', text:'Ramps trade a big push for a longer path, levers multiply your push, and pulleys flip your pull upside-down and share the load. Build all three from Lego — you’re a proper engineer now!'}
+  ]
+},{
+  id:'sound', title:'Sound & Echoes', emoji:'🦇', blurb:'Whales, bats and echolocation',
+  tags:['sound','echo','echoes','echolocation','bat','bats','whale','whales','dolphin','hear','hearing','ears','vibration','noise','thunder','music','loud'],
+  svg:soundSVG, cap:'👆 Tap the bat — then tap the whale. Watch their sounds bounce back!', keepVis:true,
+  steps:[
+    {type:'say', text:'Sound is made of VIBRATIONS — tiny wobbles that ripple through the air like invisible waves. Tap the bat and the whale above and watch their sounds bounce!'},
+    {type:'ask', q:'So what IS sound?', opts:['Wobbling vibrations travelling through the air','Tiny sparks of light','A kind of smell'], correct:0, why:'Anything that wobbles fast — a drum skin, a guitar string, your voice box — makes the air wobble too. That travelling wobble is sound!'},
+    {type:'predict', predict:'Put your fingers gently on your throat and HUM. What will you feel?', opts:['A buzzing wobble','Nothing at all','It will feel cold'], correct:0,
+      test:'Fingers softly on your throat — now hum your favourite song!',
+      reveal:'Buzzzz! That wobble is your voice box vibrating. You just FELT sound being made!'},
+    {type:'say', text:'When sound hits something big and hard — a wall, a cliff, a cave — it BOUNCES back to you. A bounced sound is called an ECHO.'},
+    {type:'ask', q:'Bats hunt moths in the pitch dark. Why do they squeak while they fly?', opts:['They listen for echoes bouncing off moths and trees','They are singing to the moon','To keep themselves warm'], correct:0, why:'Squeak → echo → “moth ahead!” Bats see with their EARS. It’s called ECHOLOCATION.'},
+    {type:'say', text:'Whales and dolphins do it too! They send clicks through the dark deep sea and listen for echoes. And here’s the amazing bit: sound travels about 4 TIMES FASTER in water than in air — whale songs can cross a whole sea!'},
+    {type:'mission', q:'Storm maths! Count the seconds between lightning and thunder — every 3 seconds means the storm is about 1 km away.\nYou count 9 seconds. How far is the storm? 9 ÷ 3 = ?', ans:3, unit:'km', why:'9 ÷ 3 = 3 km away. Counting thunder is echolocation for storms!'},
+    {type:'predict', predict:'Make a string telephone: two paper cups joined by a long, TIGHT string. Will a whisper travel down the string?', opts:['Yes — the string carries the vibrations','No — string can’t carry sound'], correct:0,
+      test:'Poke a small hole in two paper cups, thread a long string between them, pull it tight — and whisper into one cup while someone listens at the other.',
+      reveal:'It works! Your whisper wobbles the cup, the wobble runs along the tight string, and the far cup turns it back into sound. Teach Rai — little brothers make great scientists too!'},
+    {type:'say', emoji:'🎓', title:'Echo expert!', text:'Sound is vibration. It bounces back as echoes, travels 4× faster in water, and bats, whales and dolphins use it to SEE in the dark. Next thunderstorm, you can even measure the storm!'}
   ]
 },{
   id:'floating', title:'Floating & Sinking', emoji:'🛁', blurb:'Archimedes & why boats float',
@@ -2266,7 +2484,7 @@ function openTopic(t){
   $('#topVis').querySelectorAll('.tapdrop').forEach(el=>el.onclick=()=>el.classList.toggle('dropped'));
   const sun=$('#sunTap'); if(sun){ const svg=sun.closest('svg'); sun.style.cursor='pointer'; sun.onclick=()=>svg.classList.toggle('sunny'); }
   if(document.getElementById('magnet')) wireMagnet();
-  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit(); wireZip(); wireLight();
+  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit(); wireZip(); wireLight(); wireMachines(); wireSound();
   if(S.explored[t.id]) renderTopicChooser(); else runStep(0);
   $('#topic').classList.remove('hidden'); $('#topic').scrollTop=0;
 }
@@ -2385,6 +2603,80 @@ function setTab(n){
   if(n==='science') renderSci($('#sciSearch').value);
 }
 
+/* ---------- Times-table sprint ---------- */
+let spr={run:false,t:60,score:0,ans:0,val:'',iv:null};
+function sprintQnew(){
+  const tbl=pick([2,3,4,5,8,10]), n=rand(2,12);
+  spr.ans=tbl*n; spr.val='';
+  $('#sprintQ').textContent=`${tbl} × ${n}`;
+  $('#sprintIn').textContent='…';
+}
+function startSprint(){
+  clearInterval(spr.iv);
+  spr={run:true,t:60,score:0,ans:0,val:'',iv:null};
+  $('#sprintEnd').classList.add('hidden');
+  $('#sprintLive').classList.remove('hidden');
+  $('#sprintScore').textContent='✓ 0';
+  $('#sprintClock').textContent='60';
+  $('#sprintFill').style.width='100%';
+  $('#sprint').classList.remove('hidden');
+  sprintQnew();
+  spr.iv=setInterval(()=>{
+    spr.t--; $('#sprintClock').textContent=spr.t;
+    $('#sprintFill').style.width=(spr.t/60*100)+'%';
+    if(spr.t<=0) endSprint();
+  },1000);
+}
+function endSprint(){
+  clearInterval(spr.iv); spr.run=false;
+  const sc=spr.score, best=sc>(S.sprintBest||0);
+  if(best) S.sprintBest=sc;
+  const stars=(sc>0?Math.ceil(sc/3):0)+(best?2:0);
+  if(stars) award(stars); else save();
+  renderGrid(); renderPicture();
+  $('#sprintLive').classList.add('hidden');
+  const e=$('#sprintEnd'); e.classList.remove('hidden');
+  e.innerHTML=`<div class="chstar">${best?'🏅':'⚡'}</div>
+    <h3 style="text-align:center;margin:0">${best?'NEW PERSONAL BEST!':'Time\u2019s up!'}</h3>
+    <p class="chbody" style="text-align:center">${sc} correct in 60 seconds${best?'':' · best: '+S.sprintBest}</p>
+    <p class="chsub" style="text-align:center">${stars?'+'+stars+' ★':'Have another go!'}</p>
+    <button class="btn correct" id="sprintAgain" style="width:100%">⚡ Again!</button>
+    <button class="btn ghost" id="sprintDone" style="width:100%;margin-top:8px">Done</button>`;
+  $('#sprintAgain').onclick=startSprint;
+  $('#sprintDone').onclick=()=>$('#sprint').classList.add('hidden');
+  if(best) burst();
+}
+function sprintKey(k){
+  if(!spr.run) return;
+  if(k==='del') spr.val=spr.val.slice(0,-1);
+  else if(k==='ok'){
+    if(!spr.val) return;
+    if(parseInt(spr.val,10)===spr.ans){ spr.score++; $('#sprintScore').textContent='✓ '+spr.score; sprintQnew(); return; }
+    const d=document.querySelector('#sprint .kdisp'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
+    spr.val=''; $('#sprintIn').textContent='…'; return;
+  }
+  else if(spr.val.length<4) spr.val+=k;
+  $('#sprintIn').textContent=spr.val||'…';
+}
+
+/* ---------- Certificates ---------- */
+function showCert(cat){
+  $('#certTopic').textContent=cat.emoji+' '+cat.nm;
+  $('#certMeta').textContent='All 5 levels · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  $('#certList').innerHTML='';
+  $('#cert').classList.remove('hidden');
+}
+function openCerts(){
+  const done=CATS.filter(c=>S.mastered[c.id]);
+  if(!done.length){ toast('Master a topic (finish Level 5) to earn a certificate! 🏆'); return; }
+  showCert(done[0]);
+  if(done.length>1){
+    const list=$('#certList');
+    done.forEach(c=>{ const b=document.createElement('button'); b.className='optbtn'; b.textContent=c.emoji+' '+c.nm;
+      b.onclick=()=>$('#certTopic').textContent=c.emoji+' '+c.nm; list.appendChild(b); });
+  }
+}
+
 /* ---------- FX ---------- */
 let toastT;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1600);}
@@ -2423,6 +2715,12 @@ $('#kNext').onclick=newQuestion;
 $('#howT').onclick=openHow; $('#howQ').onclick=openHow; $('#howK').onclick=openHow;
 $('#colBtn').onclick=()=>{ const q=cur&&cur.q; if(!q||!q.colSvg) return;
   $('#vissvg').classList.remove('hidden'); $('#vissvg').innerHTML=q.colSvg; $('#colBtn').classList.add('hidden'); };
+$('#sprintBtn').onclick=startSprint;
+$('#sprintQuit').onclick=()=>{ clearInterval(spr.iv); spr.run=false; $('#sprint').classList.add('hidden'); };
+document.querySelectorAll('#sprintPad button').forEach(b=>b.onclick=()=>sprintKey(b.dataset.k));
+$('#certPrint').onclick=()=>window.print();
+$('#certClose').onclick=()=>$('#cert').classList.add('hidden');
+$('#certRow').onclick=()=>{ $('#sheet').classList.remove('open'); openCerts(); };
 $('#howNext').onclick=()=>{ if(howIdx>=cur.q.steps.length-1) $('#howto').classList.add('hidden'); else { howIdx++; renderHowSteps(); } };
 $('#howClose').onclick=()=>$('#howto').classList.add('hidden');
 document.querySelectorAll('#kPad .kgrid button').forEach(b=>b.onclick=()=>kidKey(b.dataset.k));
