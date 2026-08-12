@@ -293,6 +293,7 @@ window.addEventListener('unhandledrejection',function(e){
     <div class="q" id="qText">33 + 33</div>
     <div class="ans" id="aText"></div>
     <div class="hint" id="hintText"></div>
+    <button class="btn ghost hidden" id="colBtn" style="flex:0 0 auto;margin-top:12px;padding:10px 18px;font-size:14px">🧱 Show columns</button>
   </div>
 
   <div class="tracker-actions hidden" id="trackerActions">
@@ -397,7 +398,7 @@ window.addEventListener('unhandledrejection',function(e){
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v5</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v6</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -494,7 +495,7 @@ function genAddition(l){
     const onesC=(a%10+b%10)>=10;
     const hint = onesC ? 'If a column makes 10 or more, carry 1 to the next column on the left.'
       : 'Add each column: ones first, then tens'+(a>=100?', then hundreds.':'.');
-    return {q:'', say:`${a} plus ${b}`, ans:a+b, small:true, svg:columnSVG(a,b,'+'), hint, d:{t:'coladd',a,b}};
+    return {q:`${a} + ${b}`, say:`${a} plus ${b}`, ans:a+b, colSvg:columnSVG(a,b,'+'), autoCol:l===1, hint, d:{t:'coladd',a,b}};
   }
   if(l===4){
     const r=Math.random();
@@ -547,7 +548,7 @@ function genSubtraction(l){
     const borrow=(a%10)<(b%10)||(Math.floor(a/10)%10)<(Math.floor(b/10)%10);
     const hint = borrow ? 'Not enough in a column? Take 1 from the column on its left (worth 10).'
       : 'Subtract each column: ones first, then tens'+(a>=100?', then hundreds.':'.');
-    return {q:'', say:`${a} minus ${b}`, ans:a-b, small:true, svg:columnSVG(a,b,'−'), hint, d:{t:'colsub',a,b}};
+    return {q:`${a} − ${b}`, say:`${a} minus ${b}`, ans:a-b, colSvg:columnSVG(a,b,'−'), autoCol:l===1, hint, d:{t:'colsub',a,b}};
   }
   if(l===4){
     if(Math.random()<0.5){ const a=rand(30,99),b=rand(10,a-5),c=a-b;
@@ -1506,9 +1507,13 @@ function newQuestion(){
   const mz=$('#measure');
   if(q.measure){ mz.classList.remove('hidden'); mz.innerHTML=buildMeasure(q.measure); }
   else mz.classList.add('hidden');
-  const vis=$('#vissvg');
-  if(q.svg){ vis.classList.remove('hidden'); vis.innerHTML=q.svg; }
-  else vis.classList.add('hidden');
+  const vis=$('#vissvg'), colBtn=$('#colBtn');
+  if(q.svg){ vis.classList.remove('hidden'); vis.innerHTML=q.svg; colBtn.classList.add('hidden'); }
+  else if(q.colSvg){
+    if(q.autoCol){ vis.classList.remove('hidden'); vis.innerHTML=q.colSvg; colBtn.classList.add('hidden'); }
+    else { vis.classList.add('hidden'); colBtn.classList.remove('hidden'); }
+  }
+  else { vis.classList.add('hidden'); colBtn.classList.add('hidden'); }
   if(q.hint) $('#hintText').textContent=q.hint;
   $('#qText').textContent=q.q;
   $('#qText').style.opacity='1';
@@ -2260,6 +2265,8 @@ $('#wrong').onclick=()=>{ if(!cur.noted){ cur.noted=true; resolveWrong(); } show
 $('#nextQ').onclick=newQuestion;
 $('#kNext').onclick=newQuestion;
 $('#howT').onclick=openHow; $('#howQ').onclick=openHow; $('#howK').onclick=openHow;
+$('#colBtn').onclick=()=>{ const q=cur&&cur.q; if(!q||!q.colSvg) return;
+  $('#vissvg').classList.remove('hidden'); $('#vissvg').innerHTML=q.colSvg; $('#colBtn').classList.add('hidden'); };
 $('#howNext').onclick=()=>{ if(howIdx>=cur.q.steps.length-1) $('#howto').classList.add('hidden'); else { howIdx++; renderHowSteps(); } };
 $('#howClose').onclick=()=>$('#howto').classList.add('hidden');
 document.querySelectorAll('#kPad .kgrid button').forEach(b=>b.onclick=()=>kidKey(b.dataset.k));
