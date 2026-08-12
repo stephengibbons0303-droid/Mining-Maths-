@@ -165,7 +165,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .topemoji{font-size:54px;text-align:center;line-height:1}
 .topiccard h2{text-align:center;margin:4px 0 10px;font-size:30px;color:var(--ink)}
 #topVis{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;margin-bottom:6px}
-#topVis svg{display:block;width:100%;max-height:250px;margin:0 auto}
+#topVis svg{display:block;width:100%;max-height:250px;margin:0 auto;transition:max-height .4s}
+#topVis.compact svg{max-height:130px}
 .topcap{text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px}
 .topintro{font-size:18px;line-height:1.5;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
 .checkq{font-size:21px;font-weight:600;color:var(--ink);margin:6px 0 14px;text-align:center;line-height:1.35}
@@ -177,6 +178,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 #topStep .btn{width:100%;margin-top:14px}
 .tapdrop{transition:transform .9s cubic-bezier(.45,0,1,1);cursor:pointer}
 #appleDrop.dropped{transform:translateY(90px)}
+#featherDrop{transition:transform 2.8s ease-in;cursor:pointer}
+#featherDrop.dropped{transform:translateY(118px) rotate(24deg)}
 #dropBall.dropped{transform:translateY(64px)}
 #topVis #rays{transition:opacity .5s}
 #topVis svg.sunny #rays{opacity:1}
@@ -201,6 +204,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .kgrid button:active{transform:scale(.96)}
 .kgrid .kok{background:linear-gradient(135deg,var(--good),#1fae84);color:#fff;border:0}
 .kgrid .kdel{color:var(--bad)}
+.kxrow{display:flex;gap:8px}
+.kxrow button{flex:1;border-radius:12px;padding:10px;font-family:'Fredoka';font-size:19px;background:var(--card2);
+  border:1px solid var(--line);color:var(--muted)}
+.kxrow button small{font-size:12px;font-family:'Nunito'}
+.kxrow button.sel{background:linear-gradient(135deg,var(--c-mon),#3aa856);color:#06251c;border-color:transparent}
 #retryTag{background:#ffd23f22;border:1px solid var(--gold);color:var(--gold);border-radius:20px;
   padding:4px 14px;font-size:13px;font-family:'Fredoka';display:inline-block;margin-bottom:8px}
 
@@ -277,7 +285,6 @@ window.addEventListener('unhandledrejection',function(e){
   <div style="text-align:center"><span id="retryTag" class="hidden">🔁 Try this one again!</span></div>
 
   <div class="qcard">
-    <button id="speak" class="hidden">🔊</button>
     <div class="tag" id="actCat">Addition</div>
     <div id="clockwrap" class="hidden"></div>
     <div id="shape3d" class="hidden"></div>
@@ -313,6 +320,7 @@ window.addEventListener('unhandledrejection',function(e){
     <div id="kChoices" class="hidden"></div>
     <div id="kPad" class="hidden">
       <div class="kdisp"><span id="kInput"></span><span class="kunit" id="kUnit"></span></div>
+      <div class="kxrow hidden" id="kXRow"></div>
       <div class="kgrid">
         <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
         <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
@@ -381,9 +389,7 @@ window.addEventListener('unhandledrejection',function(e){
       <button id="mQuiz" class="on">Quiz me</button>
     </div></div>
   <div class="opt"><span>Auto‑show answer in Quiz</span><input type="checkbox" id="optAuto"></div>
-  <div class="opt"><span>Read +−×÷ questions aloud</span><input type="checkbox" id="optAudio"></div>
   <div class="opt"><span>Flash &amp; fade question (Quiz)</span><input type="checkbox" id="optFade"></div>
-  <div class="opt"><span>Hide written question (listen only)</span><input type="checkbox" id="optHideQ"></div>
   <div class="opt"><span>Auto level‑up (5 correct in a row)</span><input type="checkbox" id="optAutoLevel"></div>
   <div class="opt"><span>Real‑world challenges (on level‑up)</span><input type="checkbox" id="optChallenge"></div>
   <div class="opt"><span>Stars to reveal a picture tile</span>
@@ -391,7 +397,7 @@ window.addEventListener('unhandledrejection',function(e){
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v3</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v4</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -767,7 +773,7 @@ function genMoney(l){
   else if(l===2){ const pool=[1,2,5,10,20,50]; for(let i=0;i<3;i++) items.push(pick(pool)); }
   else { const pool=[1,2,5,10,20,50,100,200]; for(let i=0;i<rand(3,4);i++) items.push(pick(pool)); if(Math.random()<.4) items.push(500); }
   const total=items.reduce((a,b)=>a+b,0);
-  return {q:'How much money is here?', ans:money(total), small:true, svg:moneySVG(items), hint:'Start with the biggest coin and count on.', d:{t:'mcount',items,total}};
+  return {q:'How much money is here?', ans:money(total), small:true, svg:moneySVG(items), hint:'Start with the biggest coin and count on. Answer in pence (p) — or whole pounds (£).', d:{t:'mcount',items,total}};
 }
 function genPlace(l){
   if(l===1){const n=rand(11,99);return {q:`How many TENS in ${n}?`,ans:Math.floor(n/10)+' tens',small:true,hint:'The FIRST digit of a 2-digit number counts the tens.',d:{t:'tens',n}};}
@@ -927,15 +933,14 @@ function kidSpec(q){
   const d=q.d||{};
   switch(d.t){
     case 'fshade': return mcFrom(fracStr(d.n,d.dn),[fracStr(d.dn-d.n,d.dn),fracStr(1,d.dn),fracStr(Math.min(d.n+1,d.dn-1),d.dn),fracStr(d.n,d.dn+2),fracStr(1,3),fracStr(3,4)]);
-    case 'divrem': return mcFrom(`${d.qn} r ${d.rem}`,[`${d.qn} r ${d.rem+1<d.dv?d.rem+1:d.rem-1}`,`${d.qn+1} r ${d.rem}`,`${d.qn>1?d.qn-1:d.qn+2} r ${d.rem}`]);
+    case 'divrem': return {pad:d.qn, rem:d.rem};
     case 'clock':{ const h2=d.h===12?1:d.h+1;
       const cands=[fmtClock(h2,d.m),fmtClock(d.h,(d.m+30)%60)];
       if(d.m>0&&d.m%5===0&&d.m/5>=1&&d.m/5<=12&&d.h*5<60) cands.unshift(fmtClock(d.m/5,d.h*5));
       return mcFrom(fmtClock(d.h,d.m),cands); }
-    case 'mcount':{ const t=d.total,small=Math.min.apply(null,d.items);
-      return mcFrom(money(t),[money(t+small),money(Math.max(1,t-small)),money(t+10)]); }
+    case 'mcount': return {pad:d.total, money:true};
     case 'mword':{ const v={sum:d.x+d.y,more:d.x+d.n,both:d.x+(d.x+d.n),change:d.pay-d.c}[d.type];
-      return mcFrom(money(v),[money(v+5),money(Math.max(1,v-5)),money(v+10)]); }
+      return {pad:v, money:true}; }
     case 'part':{ const t=Math.floor(d.n/10),u=d.n%10;
       return mcFrom(`${t*10} + ${u}`,[`${t} + ${u}`,`${u*10} + ${t}`,`${t*10} + ${u*10}`]); }
     case 'cmp': return {mc:['<','>'], correct:String(q.ans)};
@@ -1482,7 +1487,6 @@ function newQuestion(){
   if(!c.gen){
     $('#clockwrap').classList.add('hidden');
     $('#shape3d').classList.add('hidden');
-    $('#speak').classList.add('hidden');
     $('#qText').classList.add('small');
     $('#qText').textContent='Make up your own '+c.nm.toLowerCase()+' questions for Jad at this level.';
     $('#hintText').textContent='Tap ✓ when Jad has passed.';
@@ -1508,20 +1512,15 @@ function newQuestion(){
   if(q.hint) $('#hintText').textContent=q.hint;
   $('#qText').textContent=q.q;
   $('#qText').style.opacity='1';
-  const canSpeak=SPEAKABLE.includes(c.id);
-  $('#speak').classList.toggle('hidden',!canSpeak);
-  const listenOnly = canSpeak && S.audio && S.hideQ;
-  if(listenOnly){ $('#qText').textContent='🎧 Tap to hear'; $('#qText').classList.add('small'); $('#hintText').textContent='Listen, then tell the answer.'; }
-  if(canSpeak && S.audio) speak(q.say||q.q);
   const textOnly = !q.clock && !q.shape3d && !q.measure && !q.svg && !q.noFade;
   clearTimeout(fadeTimer);
-  if(S.who!=='kid' && S.mode==='quiz' && S.fade && textOnly && !listenOnly){ $('#hintText').textContent = q.hint ? q.hint+' · tap to peek' : 'Tap the question to peek again.'; scheduleFade(); }
+  if(S.who!=='kid' && S.mode==='quiz' && S.fade && textOnly){ $('#hintText').textContent = q.hint ? q.hint+' · tap to peek' : 'Tap the question to peek again.'; scheduleFade(); }
   if(S.who!=='kid' && S.mode==='quiz' && S.autoAns) showAns();
   if(S.who==='kid') renderKidEntry(q);
 }
 
 /* ---------- Kid mode: answer entry ---------- */
-let kInputVal='';
+let kMain='', kRem='', kPart=0, kUnitSel='p';
 function applyWho(){
   $('#trackerActions').classList.toggle('hidden',S.who==='kid'||S.mode!=='tracker');
   $('#quizActions').classList.toggle('hidden',S.who==='kid'||S.mode!=='quiz');
@@ -1544,8 +1543,22 @@ function renderKidEntry(q){
     });
   } else {
     pad.classList.remove('hidden');
-    kInputVal=''; $('#kInput').textContent='…'; $('#kUnit').textContent=spec.unit||'';
+    kMain=''; kRem=''; kPart=0; kUnitSel='p';
+    const xr=$('#kXRow');
+    if(spec.money){ xr.classList.remove('hidden'); xr.innerHTML='<button data-u="£">£</button><button data-u="p" class="sel">p</button>';
+      xr.querySelectorAll('button').forEach(b=>b.onclick=()=>kidKey(b.dataset.u)); }
+    else if(spec.rem!==undefined){ xr.classList.remove('hidden'); xr.innerHTML='<button data-u="r">r&nbsp; <small>remainder</small></button>';
+      xr.querySelector('button').onclick=()=>kidKey('r'); }
+    else xr.classList.add('hidden');
+    updateKidDisp();
   }
+}
+function updateKidDisp(){
+  const sp=cur.spec;
+  let txt=kMain||'…';
+  if(sp.rem!==undefined && kPart===1) txt=(kMain||'…')+' r '+(kRem||'…');
+  $('#kInput').textContent=txt;
+  $('#kUnit').textContent = sp.money ? kUnitSel : (sp.unit||'');
 }
 function kidPick(btn,opt){
   if(cur.done) return;
@@ -1564,7 +1577,9 @@ function kidMiss(){
   if(cur.spec.mc){
     $('#kChoices').querySelectorAll('.optbtn').forEach(x=>{ x.disabled=true; if(x.textContent===cur.spec.correct) x.classList.add('ok'); });
   } else {
-    $('#kInput').textContent=String(cur.spec.pad); $('#kUnit').textContent=cur.spec.unit||'';
+    const sp=cur.spec;
+    $('#kInput').textContent = sp.money ? money(sp.pad) : (sp.rem!==undefined ? sp.pad+' r '+sp.rem : String(sp.pad));
+    $('#kUnit').textContent = sp.money ? '' : (sp.unit||'');
   }
   showAns();
   toast('Tap 🧭 Show me how to see it step by step');
@@ -1572,23 +1587,35 @@ function kidMiss(){
 }
 function kidKey(k){
   if(!cur||cur.done||!cur.spec||cur.spec.mc) return;
-  if(k==='del') kInputVal=kInputVal.slice(0,-1);
+  const sp=cur.spec;
+  if(k==='del'){
+    if(sp.rem!==undefined && kPart===1){ if(kRem) kRem=kRem.slice(0,-1); else kPart=0; }
+    else kMain=kMain.slice(0,-1);
+  }
+  else if(k==='r'){ if(sp.rem!==undefined && kMain) kPart=1; }
+  else if(k==='£'||k==='p'){
+    if(sp.money){ kUnitSel=k;
+      document.querySelectorAll('#kXRow button').forEach(b=>b.classList.toggle('sel',b.dataset.u===k)); }
+  }
   else if(k==='ok'){
-    if(!kInputVal) return;
-    if(parseInt(kInputVal,10)===cur.spec.pad){
-      cur.done=true; burst();
-      setTimeout(()=>resolveCorrect(cur.attempts>0),700);
-    } else {
+    if(!kMain) return;
+    if(sp.rem!==undefined && kPart===0){ toast('Add the remainder — tap the r button'); return; }
+    let good;
+    if(sp.money){ const pence = kUnitSel==='£' ? parseInt(kMain,10)*100 : parseInt(kMain,10); good = pence===sp.pad; }
+    else if(sp.rem!==undefined) good = parseInt(kMain,10)===sp.pad && parseInt(kRem||'-1',10)===sp.rem;
+    else good = parseInt(kMain,10)===sp.pad;
+    if(good){ cur.done=true; burst(); setTimeout(()=>resolveCorrect(cur.attempts>0),700); }
+    else {
       const disp=document.querySelector('#kPad .kdisp');
       disp.classList.remove('shake'); void disp.offsetWidth; disp.classList.add('shake');
-      kInputVal='';
+      kMain=''; kRem=''; kPart=0;
       kidMiss();
-      if(!cur.done) $('#kInput').textContent='…';
+      if(!cur.done) updateKidDisp();
       return;
     }
   }
-  else if(kInputVal.length<4) kInputVal+=k;
-  $('#kInput').textContent=kInputVal||'…';
+  else { if(sp.rem!==undefined && kPart===1){ if(kRem.length<3) kRem+=k; } else if(kMain.length<4) kMain+=k; }
+  updateKidDisp();
 }
 
 /* ---------- Show me how overlay ---------- */
@@ -1705,6 +1732,8 @@ function gravitySVG(){return `<svg viewBox="0 0 240 215">
   <polygon points="58,162 50,148 66,148" fill="#ffffff88"/>
   <text x="78" y="116" font-size="12" fill="#cdbff0" text-anchor="start">pull</text>
   <g id="appleDrop" class="tapdrop"><rect x="164" y="58" width="3" height="11" fill="#7a4a22"/><ellipse cx="172" cy="61" rx="6" ry="3" fill="#2fa44e"/><circle cx="165" cy="78" r="15" fill="#ff5e5e"/><circle cx="160" cy="73" r="4.5" fill="#ff9a9a"/></g>
+  <g id="featherDrop"><path d="M96 48 Q104 34 118 30 Q112 46 100 54 Z" fill="#e9e9f5" stroke="#cdbff0" stroke-width="1.5"/><line x1="98" y1="52" x2="116" y2="32" stroke="#b9a8e6" stroke-width="1.5"/></g>
+  <text x="107" y="70" font-size="10" fill="#cdbff0" text-anchor="middle">feather</text>
 </svg>`;}
 function archimedesSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="34" y="70" width="172" height="132" rx="14" fill="none" stroke="#9ec9ff" stroke-width="4"/>
@@ -1738,6 +1767,45 @@ function photosynthesisSVG(){return `<svg viewBox="0 0 240 215">
   <g stroke="#43c2ff" stroke-width="3"><line x1="162" y1="182" x2="162" y2="152"/><polygon points="162,146 156,158 168,158" fill="#43c2ff" stroke="none"/></g>
   <text x="190" y="172" font-size="11" fill="#bfe6ff" text-anchor="middle">water</text>
 </svg>`;}
+function spaceSVG(){return `<svg viewBox="0 0 240 215">
+  <rect width="240" height="215" fill="#0d0a26"/>
+  ${[...Array(34)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,150)}" r="${(Math.random()*1.3+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.7).toFixed(2)}"/>`).join('')}
+  <line id="jumpGuide" x1="91" y1="130" x2="119" y2="130" stroke="#ffd23f" stroke-width="2" stroke-dasharray="4 4"/>
+  <text id="jumpLbl" x="105" y="124" font-size="10" fill="#ffd23f" text-anchor="middle">your normal jump</text>
+  <g id="planets">
+    <g class="planet" data-p="moon"><circle cx="40" cy="172" r="14" fill="#b9b9c9"/><circle cx="35" cy="168" r="3.5" fill="#9a9aad"/><circle cx="45" cy="176" r="2.5" fill="#9a9aad"/><text x="40" y="200" font-size="10" fill="#cdbff0" text-anchor="middle">Moon</text></g>
+    <g class="planet" data-p="earth"><circle cx="105" cy="170" r="19" fill="#3d8fd1"/><path d="M94 164 q8 -6 14 0 q8 4 12 -2 l0 10 q-10 6 -16 2 q-8 -2 -10 -10Z" fill="#3aa856"/><text x="105" y="203" font-size="10" fill="#cdbff0" text-anchor="middle">Earth</text></g>
+    <g class="planet" data-p="mars"><circle cx="163" cy="172" r="15" fill="#d1603d"/><circle cx="158" cy="168" r="3" fill="#b34d2e"/><text x="163" y="201" font-size="10" fill="#cdbff0" text-anchor="middle">Mars</text></g>
+    <g class="planet" data-p="jupiter"><circle cx="216" cy="174" r="22" fill="#d9a05b"/><path d="M194 170 q22 -6 44 0" stroke="#c2854a" stroke-width="4" fill="none"/><path d="M196 180 q20 5 40 0" stroke="#e8bd85" stroke-width="4" fill="none"/><circle cx="222" cy="178" r="4" fill="#c2542e"/><text x="216" y="207" font-size="10" fill="#cdbff0" text-anchor="middle">Jupiter</text></g>
+  </g>
+  <g id="astro" transform="translate(105 0)"><g id="astroBody">
+    <circle cx="0" cy="138" r="6" fill="#e9e9f5"/><rect x="-5" y="143" width="10" height="9" rx="3" fill="#fff"/>
+    <rect x="-8" y="144" width="3" height="7" rx="1.5" fill="#e9e9f5"/><rect x="5" y="144" width="3" height="7" rx="1.5" fill="#e9e9f5"/>
+    <circle cx="1.5" cy="137" r="3" fill="#43c2ff"/>
+  </g></g>
+</svg>`;}
+function wireSpace(){
+  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#planets')) return;
+  const astro=svg.querySelector('#astro'), body=svg.querySelector('#astroBody');
+  const lbl=svg.querySelector('#jumpLbl'), guide=svg.querySelector('#jumpGuide');
+  const data={moon:{x:40,h:110,t:'6× higher than Earth!'},earth:{x:105,h:22,t:'your normal jump'},
+              mars:{x:163,h:62,t:'about 3× higher!'},jupiter:{x:216,h:10,t:'less than half!'}};
+  let busy=false;
+  svg.querySelectorAll('.planet').forEach(pl=>{ pl.style.cursor='pointer';
+    pl.addEventListener('click',()=>{
+      const d=data[pl.dataset.p]; if(!d||busy) return;
+      astro.setAttribute('transform',`translate(${d.x} 0)`);
+      const gy=152-d.h;
+      guide.setAttribute('x1',d.x-14); guide.setAttribute('x2',d.x+14);
+      guide.setAttribute('y1',gy); guide.setAttribute('y2',gy);
+      lbl.setAttribute('x',Math.max(34,Math.min(d.x,196))); lbl.setAttribute('y',gy-6); lbl.textContent=d.t;
+      busy=true;
+      body.style.transition='transform .45s ease-out'; body.style.transform=`translateY(${-d.h}px)`;
+      setTimeout(()=>{ body.style.transition='transform .55s ease-in'; body.style.transform='translateY(0)';
+        setTimeout(()=>busy=false,560); },500);
+    });
+  });
+}
 function magnetsSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="0" y="186" width="240" height="29" fill="#2e2266"/>
   <g id="clip"><rect x="44" y="135" width="28" height="34" rx="13" fill="none" stroke="#cfd6e6" stroke-width="5"/></g>
@@ -1755,7 +1823,7 @@ function magnetsSVG(){return `<svg viewBox="0 0 240 215">
 const TOPICS=[{
   id:'gravity', title:'Gravity', emoji:'🍎', blurb:'Why things fall down',
   tags:['gravity','fall','falling','drop','down','weight','heavy','pull','earth','apple','newton','float','space','moon','air','feather','resistance'],
-  svg:gravitySVG, cap:'👆 Tap the apple to drop it',
+  svg:gravitySVG, cap:'👆 Tap the apple AND the feather — which falls faster?',
   steps:[
     {type:'say', text:'Gravity is an invisible pull. It pulls everything down towards the ground — and it keeps us, the sea and the air held onto planet Earth.'},
     {type:'ask', q:'Which way does gravity pull things?', opts:['Up ⬆️','Down ⬇️','Sideways ➡️'], correct:1, why:'Gravity always pulls things down, towards the ground.'},
@@ -1773,6 +1841,22 @@ const TOPICS=[{
       test:'Scrunch the same paper into a tight ball, then drop it with the Lego.',
       reveal:'Almost together now! Same paper, but scrunched small it catches less air. Gravity never changed — the air did!'},
     {type:'say', emoji:'🎓', title:'Brilliant science!', text:'Gravity pulls everything down the same. Air can slow light, spread‑out things — that’s air resistance. You predicted and tested just like a real scientist!'}
+  ]
+},{
+  id:'space', title:'Space & Planets', emoji:'🚀', blurb:'Jumping on other worlds', keepVis:true,
+  tags:['space','planet','planets','moon','mars','jupiter','astronaut','rocket','jump','solar','system','stars','gravity','saturn','sun'],
+  svg:spaceSVG, cap:'👆 Tap each planet — watch the astronaut jump there!',
+  steps:[
+    {type:'say', text:'Every planet and moon pulls with its own gravity. Small worlds pull gently. Giant worlds pull HARD. Tap the planets above and watch how high the astronaut can jump on each one!'},
+    {type:'ask', q:'The Moon is much smaller than Earth. What do you think its gravity is like?', opts:['Weaker — a gentle pull','Stronger — a huge pull','Exactly the same'], correct:0, why:'Smaller worlds pull more gently. The Moon’s pull is 6 times weaker than Earth’s.'},
+    {type:'ask', q:'On Earth you can jump about 30 cm. On the Moon you’d jump 6 TIMES higher!\n30 × 6 = ?', opts:['180 cm','90 cm','60 cm'], correct:0, why:'Count in 30s: 30, 60, 90, 120, 150, 180. That’s nearly 2 metres — higher than a door handle!'},
+    {type:'ask', q:'Mars is smaller than Earth too — there you’d jump about 3 times higher.\n30 × 3 = ?', opts:['90 cm','60 cm','120 cm'], correct:0, why:'30, 60, 90 — almost a metre high on Mars!'},
+    {type:'ask', q:'Jupiter is a GIANT. Its pull is so strong you could only jump less than HALF your Earth jump. What is half of 30?', opts:['15 cm','20 cm','25 cm'], correct:0, why:'Half of 30 is 15 — and on Jupiter you’d jump even less than that. Legs like lead!'},
+    {type:'predict', predict:'Time to measure YOUR jump! Do you think you can jump higher than 30 cm?', opts:['Yes — higher than 30 cm','Probably less than 30 cm'], correct:0,
+      test:'Stand next to a wall or door frame. Reach up and note where your fingers touch. Now JUMP and touch as high as you can — measure the gap between the two spots with a ruler or tape measure.',
+      reveal:'Whatever you measured — on the Moon it would be 6 times higher! Try multiplying your jump by 6. On Mars, times 3. That’s space maths!'},
+    {type:'ask', q:'Astronauts on the Moon don’t walk — they BOUNCE along in slow motion. Why?', opts:['The Moon’s gentle gravity lets every step lift them high','Their boots have springs inside','They are swimming'], correct:0, why:'Weak gravity = gentle pull = big, slow, bouncy leaps. Every step is a little jump into the sky.'},
+    {type:'say', emoji:'🎓', title:'Space explorer!', text:'Gravity is different on every world: gentle on small ones like the Moon (6× higher jumps!), crushing on giants like Jupiter. You even used your times tables to work out jumps across the Solar System. 🚀'}
   ]
 },{
   id:'floating', title:'Floating & Sinking', emoji:'🛁', blurb:'Archimedes & why boats float',
@@ -1868,6 +1952,7 @@ function openTopic(t){
   $('#topVis').querySelectorAll('.tapdrop').forEach(el=>el.onclick=()=>el.classList.toggle('dropped'));
   const sun=$('#sunTap'); if(sun){ const svg=sun.closest('svg'); sun.style.cursor='pointer'; sun.onclick=()=>svg.classList.toggle('sunny'); }
   if(document.getElementById('magnet')) wireMagnet();
+  wireSpace();
   runStep(0);
   $('#topic').classList.remove('hidden'); $('#topic').scrollTop=0;
 }
@@ -1876,6 +1961,9 @@ function finishTopic(){ S.explored[sciState.t.id]=true; save(); toast('🌟 Topi
 function stepNextBtn(i){ const last=i+1>=sciState.t.steps.length; return last?'Finish ⭐':'Next →'; }
 function runStep(i){
   sciState.idx=i; const s=sciState.t.steps[i], step=$('#topStep');
+  const shrink = i>0 && !sciState.t.keepVis;
+  $('#topVis').classList.toggle('compact',shrink);
+  $('#topCap').classList.toggle('hidden', !sciState.t.cap || shrink);
   if(s.type==='say'){
     step.innerHTML=`<div class="saycard">${s.emoji?`<div class="chstar">${s.emoji}</div>`:''}${s.title?`<h3>${s.title}</h3>`:''}<p class="saytext">${s.text}</p></div><button class="btn correct" id="sNext" style="width:100%;margin-top:14px">${stepNextBtn(i)}</button>`;
     $('#sNext').onclick=()=>nextStep(i);
@@ -1988,7 +2076,7 @@ $('#sciBack').onclick=()=>{ $('#topic').classList.add('hidden'); renderSci($('#s
 })();
 
 // settings
-$('#gear').onclick=()=>{$('#optAuto').checked=S.autoAns;$('#optAudio').checked=S.audio;$('#optHideQ').checked=S.hideQ;$('#optFade').checked=S.fade;$('#optAutoLevel').checked=S.autoLevel;$('#optChallenge').checked=S.challenges;$('#optStars').value=String(S.starsPerTile);renderPicsList();$('#sheet').classList.add('open');};
+$('#gear').onclick=()=>{$('#optAuto').checked=S.autoAns;$('#optFade').checked=S.fade;$('#optAutoLevel').checked=S.autoLevel;$('#optChallenge').checked=S.challenges;$('#optStars').value=String(S.starsPerTile);renderPicsList();$('#sheet').classList.add('open');};
 $('#picUpload').onchange=async e=>{
   const files=[...e.target.files].filter(f=>f.type.startsWith('image/'));
   for(const f of files){ try{ const poster = f.type==='image/gif' ? await makePoster(f) : null; await idbAdd(f,f.name,f.type,poster); }catch(err){ toast('Could not save (storage full?)'); } }
@@ -1997,11 +2085,8 @@ $('#picUpload').onchange=async e=>{
   if(files.length) toast(files.length+' picture(s) added ✨');
 };
 $('#closeSheet').onclick=()=>$('#sheet').classList.remove('open');
-$('#speak').onclick=()=>{ if(cur&&cur.q) speak(cur.q.say||cur.q.q); };
 $('#qText').onclick=()=>{ if(S.who!=='kid' && S.fade && S.mode==='quiz' && cur && cur.q && !cur.q.clock && !cur.q.shape3d && !cur.q.measure && !cur.q.svg) scheduleFade(); };
 $('#optAuto').onchange=e=>{S.autoAns=e.target.checked;save();};
-$('#optAudio').onchange=e=>{S.audio=e.target.checked;save();};
-$('#optHideQ').onchange=e=>{S.hideQ=e.target.checked;save();};
 $('#optFade').onchange=e=>{S.fade=e.target.checked;save();};
 $('#optAutoLevel').onchange=e=>{S.autoLevel=e.target.checked;save();updateStreak();};
 $('#optChallenge').onchange=e=>{S.challenges=e.target.checked;save();};
@@ -2011,7 +2096,7 @@ $('#resetBtn').onclick=()=>{ if(confirm("Reset ALL of Jad's progress? This canno
 
 /* ---------- Boot ---------- */
 (async()=>{
-  load(); initSpeech();
+  load();
   renderHeader(); renderGrid(); renderPicture(); renderPicsList(); setTab(S.tab);
   // pictures load in the background — UI must never wait on network or IndexedDB
   try{ await loadBuiltins(); }catch(e){}

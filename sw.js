@@ -1,5 +1,5 @@
 /* Jad's Maths Quest — offline service worker */
-const CACHE = 'jadquest-v3';
+const CACHE = 'jadquest-v4';
 const ASSETS = [
   './',
   './index.html',
