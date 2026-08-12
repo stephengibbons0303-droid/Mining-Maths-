@@ -13,7 +13,7 @@
 :root{
   --maxw:560px;
   --bg1:#242c36; --bg2:#14181e; --card:#232b34; --card2:#2e3844;
-  --ink:#f2f7f2; --muted:#9aacb9; --line:#3d4a57;
+  --ink:#ffffff; --muted:#a8d9f5; --line:#3d4a57;
   --c-add:#ff5e87; --c-sub:#ffb02e; --c-mul:#37d4a7; --c-div:#43c2ff;
   --c-fra:#c071ff; --c-tim:#ff8a5c; --c-mon:#6ee36e; --c-pla:#ffd23f;
   --c-sha:#7ec8ff; --c-mea:#ff9ed2; --c-sta:#5ad1e6; --c-seq:#ffc14d;
@@ -97,17 +97,17 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 
 .qcard{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px 18px;margin-bottom:14px;text-align:center}
-.qcard .tag{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.qcard .tag{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#58d0ff;margin-bottom:14px;font-weight:800}
 .qcard .q{font-family:'Fredoka';font-size:52px;line-height:1.1;cursor:pointer}
 .qcard .q.small{font-size:30px}
 .qcard .ans{margin-top:18px;font-family:'Fredoka';font-size:30px;color:var(--gold);min-height:38px}
-.qcard .hint{margin-top:10px;font-size:13px;color:var(--muted);max-width:300px}
+.qcard .hint{margin-top:10px;font-size:14px;color:#ffe08a;max-width:320px}
 #clockwrap{margin:6px 0 4px}
 #clockwrap svg{width:190px;height:190px}
 #shape3d{margin:6px 0 4px;display:flex;justify-content:center}
-#measure{margin:6px 0 4px;display:flex;justify-content:center}
+#measure{margin:6px 0 4px;display:flex;justify-content:center;width:100%}
 #measure svg{width:100%;max-width:270px;height:auto}
-#vissvg{margin:6px 0 4px;display:flex;justify-content:center}
+#vissvg{margin:6px 0 4px;display:flex;justify-content:center;width:100%}
 #vissvg svg{width:100%;max-width:300px;height:auto;max-height:220px}
 .scene3d{width:200px;height:200px;perspective:620px;touch-action:none;cursor:grab}
 .scene3d:active{cursor:grabbing}
@@ -166,8 +166,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .topemoji{font-size:54px;text-align:center;line-height:1}
 .topiccard h2{text-align:center;margin:4px 0 10px;font-size:30px;color:var(--ink)}
 #topVis{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;margin-bottom:6px}
-#topVis svg{display:block;width:100%;max-height:250px;margin:0 auto;transition:max-height .4s}
-#topVis.compact svg{max-height:130px}
+#topVis svg{display:block;width:100%;max-height:340px;margin:0 auto;transition:max-height .4s}
+#topVis.compact svg{max-height:150px}
 .topcap{text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px}
 .topintro{font-size:18px;line-height:1.5;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
 .checkq{font-size:21px;font-weight:600;color:var(--ink);margin:6px 0 14px;text-align:center;line-height:1.35}
@@ -225,13 +225,14 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
   .qcard .hint{font-size:15px;max-width:420px}
   .kid-actions,.quiz-actions,.tracker-actions{max-width:600px;width:100%;margin-left:auto;margin-right:auto}
   #streakBar{max-width:600px;width:100%;margin-left:auto;margin-right:auto}
-  #vissvg svg{max-width:380px;max-height:280px}
-  #clockwrap svg{width:230px;height:230px}
-  #measure svg{max-width:330px}
+  #vissvg svg{max-width:470px;max-height:350px}
+  #clockwrap svg{width:270px;height:270px}
+  #measure svg{max-width:380px}
   .stat b{font-size:26px}
   .topiccard{padding-top:6px}
-  #topVis svg{max-height:300px}
-  #topVis.compact svg{max-height:150px}
+  #topVis svg{max-height:540px}
+  #topVis.compact svg{max-height:190px}
+  .topcap{font-size:15px}
 }
 
 /* Kid mode answer entry */
@@ -241,7 +242,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 #kChoices .optbtn.wide{grid-column:1/-1}
 .kdisp{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--card);border:1px solid var(--line);
   border-radius:14px;min-height:58px;font-family:'Fredoka';font-size:32px;padding:6px 12px}
-.kdisp .kunit{font-size:20px;color:var(--muted)}
+.kdisp .kunit{font-size:20px;color:#ffd23f}
 .kdisp.shake{animation:kshake .4s}
 @keyframes kshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 .kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -485,7 +486,7 @@ window.addEventListener('unhandledrejection',function(e){
     </select></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v9</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v10</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -616,10 +617,10 @@ function columnSVG(a,b,op){
   const dig=v=> three?[Math.floor(v/100),Math.floor(v/10)%10,v%10]:[Math.floor(v/10),v%10];
   const A=dig(a),B=dig(b), colW=56, gap=4, leftPad=46, W=leftPad+n*(colW+gap)+14;
   const cx=i=>leftPad+8+i*(colW+gap)+colW/2;
-  const big=(x,y,t)=>`<text x="${x}" y="${y}" font-size="44" fill="#f2f7f2" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700">${t}</text>`;
+  const big=(x,y,t)=>`<text x="${x}" y="${y}" font-size="44" fill="#ffffff" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700">${t}</text>`;
   let s='';
   heads.forEach((h,i)=>{const x=cx(i);
-    s+=`<text x="${x}" y="24" font-size="13" fill="#8fa1af" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">${h}</text>`;
+    s+=`<text x="${x}" y="24" font-size="13" fill="#58d0ff" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">${h}</text>`;
     if(i>0){const lx=x-colW/2-gap/2; s+=`<line x1="${lx}" y1="14" x2="${lx}" y2="150" stroke="#ffffff14" stroke-width="2"/>`;}
     s+=big(x,80,A[i]);
     s+=big(x,134,(three&&i===0&&B[0]===0)?'':B[i]);});
@@ -705,7 +706,7 @@ function shareSVG(total,groups){
   for(let i=0;i<total;i++){const rr=Math.floor(i/perRow),c=i%perRow;
     s+=`<circle cx="${sx+c*gap}" cy="${16+rr*gap}" r="${r}" fill="#7ec8ff"/>`;}
   const topH=rows*gap+8;
-  s+=`<text x="${W/2}" y="${topH+12}" font-size="11" fill="#a9b8c6" text-anchor="middle">share equally into ${groups} groups</text>`;
+  s+=`<text x="${W/2}" y="${topH+12}" font-size="11" fill="#cfeaff" text-anchor="middle">share equally into ${groups} groups</text>`;
   const ringR=26, ry=topH+30+ringR, g2=Math.min(78,(W-30)/groups), gx=(W-(groups-1)*g2)/2;
   for(let g=0;g<groups;g++) s+=`<circle cx="${gx+g*g2}" cy="${ry}" r="${ringR}" fill="none" stroke="#5a6b7d" stroke-width="3"/>`;
   return `<svg viewBox="0 0 ${W} ${ry+ringR+12}">${s}</svg>`;
@@ -1125,15 +1126,15 @@ function thermSVG(val,max,min,tick){
   let ticks='';
   for(let v=min;v<=max;v+=tick){const y=bot-((v-min)/(max-min))*h;
     const zero=(v===0&&min<0);
-    ticks+=`<line x1="${cx+tw/2}" y1="${y}" x2="${cx+tw/2+8}" y2="${y}" stroke="${zero?'#7fc8ff':'#a9b8c6'}" stroke-width="${zero?2.5:1.5}"/>`;
-    ticks+=`<text x="${cx+tw/2+11}" y="${y+3}" font-size="9" fill="${zero?'#7fc8ff':'#a9b8c6'}" font-weight="${zero?'800':'400'}">${v}</text>`;
+    ticks+=`<line x1="${cx+tw/2}" y1="${y}" x2="${cx+tw/2+8}" y2="${y}" stroke="${zero?'#7fc8ff':'#cfeaff'}" stroke-width="${zero?2.5:1.5}"/>`;
+    ticks+=`<text x="${cx+tw/2+11}" y="${y+3}" font-size="9" fill="${zero?'#7fc8ff':'#cfeaff'}" font-weight="${zero?'800':'400'}">${v}</text>`;
     if(zero) ticks+=`<line x1="${cx-tw/2-8}" y1="${y}" x2="${cx+tw/2}" y2="${y}" stroke="#7fc8ff" stroke-width="1.5" stroke-dasharray="3 3"/>`;}
   return `<svg viewBox="0 0 ${W} ${H}">
     <rect x="${cx-tw/2}" y="${top}" width="${tw}" height="${h}" rx="${tw/2}" fill="#2e2266" stroke="#e9e9f5" stroke-width="2"/>
     <rect x="${cx-tw/2+3}" y="${fy}" width="${tw-6}" height="${bot-fy}" fill="#ff5e5e"/>
     <circle cx="${cx}" cy="${bot+16}" r="17" fill="#ff5e5e" stroke="#e9e9f5" stroke-width="2"/>
     ${ticks}
-    <text x="${cx}" y="${H-2}" font-size="11" fill="#a9b8c6" text-anchor="middle">°C</text>
+    <text x="${cx}" y="${H-2}" font-size="11" fill="#cfeaff" text-anchor="middle">°C</text>
   </svg>`;
 }
 function rulerSVG(n,maxCm){
@@ -1141,7 +1142,7 @@ function rulerSVG(n,maxCm){
   let ticks='';
   for(let i=0;i<=maxCm;i++){const x=L+i*ppc,tall=(i%5===0);
     ticks+=`<line x1="${x}" y1="78" x2="${x}" y2="${tall?98:90}" stroke="#7a6a3a" stroke-width="${tall?2:1}"/>`;
-    if(maxCm<=10||i%2===0) ticks+=`<text x="${x}" y="113" font-size="10" fill="#a9b8c6" text-anchor="middle">${i}</text>`;}
+    if(maxCm<=10||i%2===0) ticks+=`<text x="${x}" y="113" font-size="10" fill="#cfeaff" text-anchor="middle">${i}</text>`;}
   const ow=n*ppc;
   return `<svg viewBox="0 0 ${W} ${H}">
     <rect x="${L}" y="78" width="${usable}" height="26" rx="4" fill="#fff3c9" stroke="#caa94a"/>
@@ -1153,15 +1154,15 @@ function jugSVG(level,max,step){
   const W=180,H=200,top=26,bot=180,h=bot-top,lx=58,rx=124,cx=(lx+rx)/2,fillH=(level/max)*h,wy=bot-fillH;
   let marks='';
   for(let v=step;v<=max;v+=step){const y=bot-(v/max)*h;
-    marks+=`<line x1="${rx}" y1="${y}" x2="${rx+8}" y2="${y}" stroke="#a9b8c6" stroke-width="1.5"/>`;
-    marks+=`<text x="${rx+11}" y="${y+3}" font-size="9" fill="#a9b8c6">${v}</text>`;}
+    marks+=`<line x1="${rx}" y1="${y}" x2="${rx+8}" y2="${y}" stroke="#cfeaff" stroke-width="1.5"/>`;
+    marks+=`<text x="${rx+11}" y="${y+3}" font-size="9" fill="#cfeaff">${v}</text>`;}
   return `<svg viewBox="0 0 ${W} ${H}">
     <rect x="${lx}" y="${wy}" width="${rx-lx}" height="${bot-wy}" fill="#43c2ff" opacity=".72"/>
     <ellipse cx="${cx}" cy="${wy}" rx="${(rx-lx)/2}" ry="4" fill="#6ed0ff"/>
     <path d="M${lx} ${top} L${lx} ${bot} L${rx} ${bot} L${rx} ${top}" fill="none" stroke="#e9e9f5" stroke-width="3" stroke-linecap="round"/>
     <ellipse cx="${cx}" cy="${top}" rx="${(rx-lx)/2}" ry="6" fill="none" stroke="#e9e9f5" stroke-width="3"/>
     ${marks}
-    <text x="${cx}" y="196" font-size="10" fill="#a9b8c6" text-anchor="middle">ml</text>
+    <text x="${cx}" y="196" font-size="10" fill="#cfeaff" text-anchor="middle">ml</text>
   </svg>`;
 }
 function dialSVG(val,max,step){
@@ -1169,16 +1170,16 @@ function dialSVG(val,max,step){
   let ticks='';
   for(let v=0;v<=max;v+=step){const f=v/max,a=(start+f*sweep)*Math.PI/180;
     const x1=cx+Math.sin(a)*r,y1=cy-Math.cos(a)*r,x2=cx+Math.sin(a)*(r-9),y2=cy-Math.cos(a)*(r-9);
-    ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#a9b8c6" stroke-width="2"/>`;
+    ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#cfeaff" stroke-width="2"/>`;
     if(v%(step*2)===0){const lx=cx+Math.sin(a)*(r-22),ly=cy-Math.cos(a)*(r-22);
-      ticks+=`<text x="${lx}" y="${ly+3}" font-size="9" fill="#a9b8c6" text-anchor="middle">${v}</text>`;}}
+      ticks+=`<text x="${lx}" y="${ly+3}" font-size="9" fill="#cfeaff" text-anchor="middle">${v}</text>`;}}
   const fa=(start+(val/max)*sweep)*Math.PI/180,nx=cx+Math.sin(fa)*(r-16),ny=cy-Math.cos(fa)*(r-16);
   return `<svg viewBox="0 0 180 180">
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="#16113a" stroke="#37d4a7" stroke-width="4"/>
     ${ticks}
     <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#ff5e87" stroke-width="4" stroke-linecap="round"/>
     <circle cx="${cx}" cy="${cy}" r="5" fill="#ffd23f"/>
-    <text x="${cx}" y="${cy+62}" font-size="10" fill="#a9b8c6" text-anchor="middle">grams</text>
+    <text x="${cx}" y="${cy+62}" font-size="10" fill="#cfeaff" text-anchor="middle">grams</text>
   </svg>`;
 }
 
@@ -1192,7 +1193,7 @@ function barChartSVG(data){
   const cols=['#ff5e87','#ffb02e','#37d4a7','#43c2ff','#c071ff']; let s='';
   for(let v=0;v<=maxV;v++){const y=baseY-(v/maxV)*chartH;
     s+=`<line x1="${padL}" y1="${y}" x2="${W-12}" y2="${y}" stroke="#ffffff14"/>`;
-    s+=`<text x="${padL-3}" y="${y+3}" font-size="8" fill="#a9b8c6" text-anchor="end">${v}</text>`;}
+    s+=`<text x="${padL-3}" y="${y+3}" font-size="8" fill="#cfeaff" text-anchor="end">${v}</text>`;}
   data.forEach((d,i)=>{const x=padL+i*(bw+gap),bh=(d.value/maxV)*chartH,y=baseY-bh;
     s+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${cols[i%cols.length]}"/>`;
     s+=`<text x="${x+bw/2}" y="${baseY+14}" font-size="10" fill="#fef7ff" text-anchor="middle">${d.label}</text>`;});
@@ -1201,7 +1202,7 @@ function barChartSVG(data){
 }
 function pictogramSVG(labels,counts,sym,scale){
   const rowH=34,W=300,H=labels.length*rowH+34;
-  let s=`<text x="6" y="16" font-size="11" fill="#a9b8c6">Key: ${sym} = ${scale}</text>`;
+  let s=`<text x="6" y="16" font-size="11" fill="#cfeaff">Key: ${sym} = ${scale}</text>`;
   labels.forEach((lb,i)=>{const y=38+i*rowH;
     s+=`<text x="6" y="${y+6}" font-size="11" fill="#fef7ff">${lb}</text>`;
     s+=`<text x="92" y="${y+9}" font-size="18">${sym.repeat(counts[i])}</text>`;});
@@ -1308,7 +1309,7 @@ function geomFor(key){
 }
 function show3D(key){
   ensure3D();
-  if(!R3){ const d=document.createElement('div'); d.style.cssText='color:#a9b8c6;font-size:13px;padding:30px;text-align:center'; d.textContent='3D view loads when the app is online once (it then works offline).'; return d; }
+  if(!R3){ const d=document.createElement('div'); d.style.cssText='color:#cfeaff;font-size:13px;padding:30px;text-align:center'; d.textContent='3D view loads when the app is online once (it then works offline).'; return d; }
   if(R3.mesh){ R3.scene.remove(R3.mesh); R3.mesh.traverse(o=>{o.geometry&&o.geometry.dispose&&o.geometry.dispose();}); }
   const geo=geomFor(key);
   const mat=new THREE.MeshPhongMaterial({color:0x4fb8d9,flatShading:true,shininess:30});
@@ -1845,10 +1846,10 @@ function gravitySVG(){return `<svg viewBox="0 0 240 215">
   <circle cx="198" cy="42" r="18" fill="#34b455"/>
   <line x1="58" y1="74" x2="58" y2="150" stroke="#ffffff55" stroke-width="3" stroke-dasharray="7 7"/>
   <polygon points="58,162 50,148 66,148" fill="#ffffff88"/>
-  <text x="78" y="116" font-size="12" fill="#a9b8c6" text-anchor="start">pull</text>
+  <text x="78" y="116" font-size="12" fill="#cfeaff" text-anchor="start">pull</text>
   <g id="appleDrop" class="tapdrop"><rect x="164" y="58" width="3" height="11" fill="#7a4a22"/><ellipse cx="172" cy="61" rx="6" ry="3" fill="#2fa44e"/><circle cx="165" cy="78" r="15" fill="#ff5e5e"/><circle cx="160" cy="73" r="4.5" fill="#ff9a9a"/></g>
-  <g id="featherDrop"><path d="M96 48 Q104 34 118 30 Q112 46 100 54 Z" fill="#e9e9f5" stroke="#a9b8c6" stroke-width="1.5"/><line x1="98" y1="52" x2="116" y2="32" stroke="#b9a8e6" stroke-width="1.5"/></g>
-  <text x="107" y="70" font-size="10" fill="#a9b8c6" text-anchor="middle">feather</text>
+  <g id="featherDrop"><path d="M96 48 Q104 34 118 30 Q112 46 100 54 Z" fill="#e9e9f5" stroke="#cfeaff" stroke-width="1.5"/><line x1="98" y1="52" x2="116" y2="32" stroke="#b9a8e6" stroke-width="1.5"/></g>
+  <text x="107" y="70" font-size="10" fill="#cfeaff" text-anchor="middle">feather</text>
 </svg>`;}
 function archimedesSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="34" y="70" width="172" height="132" rx="14" fill="none" stroke="#9ec9ff" stroke-width="4"/>
@@ -1884,33 +1885,33 @@ function photosynthesisSVG(){return `<svg viewBox="0 0 240 215">
 </svg>`;}
 function spaceSVG(){
   const BODIES=[
-    {id:'mercury',nm:'Mercury',x:16,r:5,c:'#b5a08a'},
-    {id:'venus',nm:'Venus',x:40,r:7,c:'#e8c37a'},
-    {id:'earth',nm:'Earth',x:64,r:7,c:'#3d8fd1'},
-    {id:'moon',nm:'Moon',x:85,r:3.5,c:'#b9b9c9'},
-    {id:'mars',nm:'Mars',x:105,r:5.5,c:'#d1603d'},
-    {id:'jupiter',nm:'Jupiter',x:136,r:13,c:'#d9a05b'},
-    {id:'saturn',nm:'Saturn',x:170,r:10,c:'#e5c37f'},
-    {id:'uranus',nm:'Uranus',x:199,r:7.5,c:'#8fd8e0'},
-    {id:'neptune',nm:'Neptune',x:223,r:7.5,c:'#4a6fd1'}];
-  return `<svg viewBox="0 0 240 248">
-  <rect width="240" height="248" fill="#0d0a26"/>
-  ${[...Array(30)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,140)}" r="${(Math.random()*1.2+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.7).toFixed(2)}"/>`).join('')}
-  <line x1="14" y1="152" x2="226" y2="152" stroke="#3d4a57" stroke-width="3" stroke-linecap="round"/>
-  <line id="jumpGuide" x1="106" y1="128" x2="134" y2="128" stroke="#ffd23f" stroke-width="2" stroke-dasharray="4 4"/>
-  <text id="jumpLbl" x="120" y="122" font-size="10" fill="#ffd23f" text-anchor="middle">your Earth jump</text>
-  <text id="standLbl" x="120" y="168" font-size="9" fill="#a9b8c6" text-anchor="middle">standing on: Earth</text>
-  <g id="astro" transform="translate(120 0)"><g id="astroBody">
-    <circle cx="0" cy="138" r="6" fill="#e9e9f5"/><rect x="-5" y="143" width="10" height="9" rx="3" fill="#fff"/>
-    <rect x="-8" y="144" width="3" height="7" rx="1.5" fill="#e9e9f5"/><rect x="5" y="144" width="3" height="7" rx="1.5" fill="#e9e9f5"/>
-    <circle cx="1.5" cy="137" r="3" fill="#43c2ff"/>
+    {id:'mercury',nm:'Mercury',x:30,r:8,c:'#b5a08a'},
+    {id:'venus',nm:'Venus',x:78,r:11,c:'#e8c37a'},
+    {id:'earth',nm:'Earth',x:126,r:11,c:'#3d8fd1'},
+    {id:'moon',nm:'Moon',x:163,r:6,c:'#b9b9c9'},
+    {id:'mars',nm:'Mars',x:198,r:9,c:'#d1603d'},
+    {id:'jupiter',nm:'Jupiter',x:252,r:20,c:'#d9a05b'},
+    {id:'saturn',nm:'Saturn',x:312,r:16,c:'#e5c37f'},
+    {id:'uranus',nm:'Uranus',x:360,r:12,c:'#8fd8e0'},
+    {id:'neptune',nm:'Neptune',x:400,r:12,c:'#4a6fd1'}];
+  return `<svg viewBox="0 0 420 252">
+  <rect width="420" height="252" fill="#0d0a26"/>
+  ${[...Array(46)].map(()=>`<circle cx="${rand(0,420)}" cy="${rand(0,140)}" r="${(Math.random()*1.4+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.7).toFixed(2)}"/>`).join('')}
+  <line x1="24" y1="152" x2="396" y2="152" stroke="#3d4a57" stroke-width="3" stroke-linecap="round"/>
+  <line id="jumpGuide" x1="192" y1="128" x2="228" y2="128" stroke="#ffd23f" stroke-width="2.5" stroke-dasharray="5 5"/>
+  <text id="jumpLbl" x="210" y="121" font-size="12" fill="#ffd23f" text-anchor="middle">your Earth jump</text>
+  <text id="standLbl" x="210" y="170" font-size="11" fill="#cfeaff" text-anchor="middle">standing on: Earth</text>
+  <g id="astro" transform="translate(210 0)"><g id="astroBody">
+    <circle cx="0" cy="136" r="7.5" fill="#e9e9f5"/><rect x="-6.5" y="142" width="13" height="11" rx="4" fill="#fff"/>
+    <rect x="-10" y="143" width="4" height="9" rx="2" fill="#e9e9f5"/><rect x="6" y="143" width="4" height="9" rx="2" fill="#e9e9f5"/>
+    <circle cx="2" cy="135" r="4" fill="#43c2ff"/>
   </g></g>
   <g id="planets">
     ${BODIES.map(b=>`<g class="planet" data-p="${b.id}">
-      <rect x="${b.x-12}" y="178" width="24" height="52" fill="#fff" opacity="0.001"/>
-      ${b.id==='saturn'?`<ellipse cx="${b.x}" cy="202" rx="${b.r+6.5}" ry="3.4" fill="none" stroke="#c9a55f" stroke-width="1.6"/>`:''}
-      <circle cx="${b.x}" cy="202" r="${b.r}" fill="${b.c}"/>
-      <text x="${b.x}" y="228" font-size="6.6" fill="#a9b8c6" text-anchor="middle">${b.nm}</text>
+      <rect x="${b.x-20}" y="178" width="40" height="66" fill="#fff" opacity="0.001"/>
+      ${b.id==='saturn'?`<ellipse cx="${b.x}" cy="206" rx="${b.r+10}" ry="5" fill="none" stroke="#c9a55f" stroke-width="2.4"/>`:''}
+      <circle cx="${b.x}" cy="206" r="${b.r}" fill="${b.c}"/>
+      <text x="${b.x}" y="240" font-size="9.5" fill="#cfeaff" text-anchor="middle">${b.nm}</text>
     </g>`).join('')}
   </g>
 </svg>`;}
@@ -1989,7 +1990,7 @@ function bodySVG(){return `<svg viewBox="0 0 240 215">
     <path d="M96 92 l14 0 l6 -14 l8 24 l6 -10 l14 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <text id="beatCount" x="120" y="185" font-size="14" fill="#ffd6de" text-anchor="middle" font-family="Fredoka,sans-serif">beats: 0</text>
-  <text x="120" y="205" font-size="10" fill="#a9b8c6" text-anchor="middle">tap the heart to make it beat</text>
+  <text x="120" y="205" font-size="10" fill="#cfeaff" text-anchor="middle">tap the heart to make it beat</text>
 </svg>`;}
 function wireBody(){
   const svg=$('#topVis svg'); if(!svg||!svg.querySelector('#heartG')) return;
@@ -2007,7 +2008,7 @@ function circuitSVG(){return `<svg viewBox="0 0 240 215" id="circuitSvg">
     <rect x="86" y="126" width="68" height="66" fill="#fff" opacity="0.001"/>
     <circle cx="100" cy="160" r="5" fill="#e9e9f5"/><circle cx="140" cy="160" r="5" fill="#e9e9f5"/>
     <line id="switchArm" x1="100" y1="160" x2="132" y2="136" stroke="#e9e9f5" stroke-width="5" stroke-linecap="round" style="transition:all .25s"/>
-    <text x="120" y="188" font-size="11" fill="#a9b8c6" text-anchor="middle">switch</text>
+    <text x="120" y="188" font-size="11" fill="#cfeaff" text-anchor="middle">switch</text>
   </g>
   <g id="bulbG">
     <circle id="bulbGlow" cx="120" cy="70" r="26" fill="#ffd23f" opacity="0" style="transition:opacity .3s;filter:blur(6px)"/>
@@ -2017,7 +2018,7 @@ function circuitSVG(){return `<svg viewBox="0 0 240 215" id="circuitSvg">
   </g>
   <g id="battG"><rect x="46" y="100" width="28" height="44" rx="4" fill="#37d4a7"/><rect x="54" y="92" width="12" height="8" fill="#cdd0d2"/>
     <text x="60" y="127" font-size="16" fill="#06251c" text-anchor="middle" font-weight="700">+</text>
-    <text x="60" y="188" font-size="11" fill="#a9b8c6" text-anchor="middle">battery</text></g>
+    <text x="60" y="188" font-size="11" fill="#cfeaff" text-anchor="middle">battery</text></g>
 </svg>`;}
 function wireCircuit(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='circuitSvg') return;
@@ -2029,33 +2030,33 @@ function wireCircuit(){
     svg.querySelector('#bulbGlow').setAttribute('opacity', closed?'0.85':'0');
   });
 }
-function ziplineSVG(){return `<svg viewBox="0 0 240 215" id="zipSvg">
-  <rect width="240" height="215" fill="#1c2a3e"/>
-  <circle cx="204" cy="34" r="16" fill="#ffd23f"/>
-  <rect y="188" width="240" height="27" fill="#2c4a38"/>
+function ziplineSVG(){return `<svg viewBox="0 0 420 230" id="zipSvg">
+  <rect width="420" height="230" fill="#1c2a3e"/>
+  <circle cx="372" cy="38" r="22" fill="#ffd23f"/>
+  <rect y="200" width="420" height="30" fill="#2c4a38"/>
   <g id="zipPostL" style="cursor:pointer">
-    <rect x="26" y="40" width="20" height="148" fill="#fff" opacity="0.001"/>
-    <rect x="32" y="40" width="8" height="148" rx="3" fill="#7a5a38"/>
-    <text x="36" y="32" font-size="9" fill="#ffd23f" text-anchor="middle">tap post!</text>
+    <rect x="28" y="42" width="30" height="158" fill="#fff" opacity="0.001"/>
+    <rect x="38" y="42" width="10" height="158" rx="4" fill="#7a5a38"/>
+    <text x="43" y="32" font-size="12" fill="#ffd23f" text-anchor="middle">tap post!</text>
   </g>
-  <rect x="200" y="122" width="8" height="66" rx="3" fill="#7a5a38"/>
-  <line id="zipLine" x1="40" y1="88" x2="200" y2="150" stroke="#d9d9e5" stroke-width="2.5"/>
+  <rect x="374" y="128" width="10" height="72" rx="4" fill="#7a5a38"/>
+  <line id="zipLine" x1="48" y1="100" x2="376" y2="158" stroke="#d9d9e5" stroke-width="3"/>
   <g id="zipToy" style="cursor:pointer">
-    <rect x="-10" y="-6" width="20" height="32" fill="#fff" opacity="0.001"/>
-    <line x1="0" y1="0" x2="0" y2="10" stroke="#d9b54a" stroke-width="3"/>
-    <circle cx="0" cy="-3" r="5" fill="#ffd23f"/>
-    <rect x="-7" y="10" width="14" height="12" rx="4" fill="#ff5e87"/>
-    <circle cx="-3" cy="15" r="2" fill="#fff"/><circle cx="3" cy="15" r="2" fill="#fff"/>
+    <rect x="-13" y="-8" width="26" height="40" fill="#fff" opacity="0.001"/>
+    <line x1="0" y1="0" x2="0" y2="12" stroke="#d9b54a" stroke-width="3.5"/>
+    <circle cx="0" cy="-4" r="6.5" fill="#ffd23f"/>
+    <rect x="-9" y="12" width="18" height="15" rx="5" fill="#ff5e87"/>
+    <circle cx="-4" cy="18" r="2.5" fill="#fff"/><circle cx="4" cy="18" r="2.5" fill="#fff"/>
   </g>
-  <text id="zipTime" x="120" y="207" font-size="11" fill="#ffe89a" text-anchor="middle">tap the toy to launch!</text>
+  <text id="zipTime" x="210" y="222" font-size="13" fill="#ffe89a" text-anchor="middle">tap the toy to launch!</text>
 </svg>`;}
 function wireZip(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='zipSvg') return;
   const toy=svg.querySelector('#zipToy'), line=svg.querySelector('#zipLine'), tlbl=svg.querySelector('#zipTime');
   let steep=false, running=false;
-  const startY=()=>steep?52:88;
+  const startY=()=>steep?56:100;
   // toy starts a little way down the line so it never covers the post's tap area
-  const place=()=>{ line.setAttribute('y1',startY()); toy.style.transition='none'; toy.style.transform=`translate(56px,${steep?62:94}px)`; };
+  const place=()=>{ line.setAttribute('y1',startY()); toy.style.transition='none'; toy.style.transform=`translate(76px,${steep?65:105}px)`; };
   place();
   svg.querySelector('#zipPostL').addEventListener('click',()=>{ if(running) return; steep=!steep; place();
     tlbl.textContent= steep?'steep start — launch it!':'gentle start — launch it!'; });
@@ -2063,40 +2064,40 @@ function wireZip(){
     const dur= steep?1.1:2.3;
     tlbl.textContent='wheee!';
     toy.style.transition=`transform ${dur}s cubic-bezier(.45,0,.9,1)`;
-    toy.style.transform='translate(200px,150px)';
+    toy.style.transform='translate(370px,157px)';
     setTimeout(()=>{ tlbl.textContent= steep?'about 1 second — FAST! ⚡':'about 2 seconds — slower 🐌';
       setTimeout(()=>{ place(); running=false; },1000);
     }, dur*1000+60);
   });
 }
-function lightSVG(){return `<svg viewBox="0 0 240 215" id="lightSvg">
-  <rect width="240" height="215" fill="#0d0a26"/>
-  ${[...Array(26)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,215)}" r="${(Math.random()*1.2+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.6).toFixed(2)}"/>`).join('')}
-  <circle cx="2" cy="108" r="30" fill="#ffd23f"/><circle cx="8" cy="98" r="7" fill="#ffe89a"/>
+function lightSVG(){return `<svg viewBox="0 0 420 230" id="lightSvg">
+  <rect width="420" height="230" fill="#0d0a26"/>
+  ${[...Array(40)].map(()=>`<circle cx="${rand(0,420)}" cy="${rand(0,230)}" r="${(Math.random()*1.3+0.3).toFixed(1)}" fill="#fff" opacity="${(0.3+Math.random()*0.6).toFixed(2)}"/>`).join('')}
+  <circle cx="4" cy="115" r="46" fill="#ffd23f"/><circle cx="14" cy="100" r="10" fill="#ffe89a"/>
   <g id="lightBodies">
-    <g class="lp" data-i="0"><rect x="52" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="63" cy="108" r="4" fill="#b5a08a"/></g>
-    <g class="lp" data-i="1"><rect x="76" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="87" cy="108" r="5.5" fill="#e8c37a"/></g>
-    <g class="lp" data-i="2"><rect x="100" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="111" cy="108" r="5.5" fill="#3d8fd1"/></g>
-    <g class="lp" data-i="3"><rect x="124" y="88" width="22" height="40" fill="#fff" opacity="0.001"/><circle cx="135" cy="108" r="4.5" fill="#d1603d"/></g>
-    <g class="lp" data-i="4"><rect x="148" y="88" width="24" height="40" fill="#fff" opacity="0.001"/><circle cx="160" cy="108" r="9" fill="#d9a05b"/></g>
-    <g class="lp" data-i="5"><rect x="176" y="88" width="24" height="40" fill="#fff" opacity="0.001"/><ellipse cx="188" cy="108" rx="12" ry="2.6" fill="none" stroke="#c9a55f" stroke-width="1.4"/><circle cx="188" cy="108" r="7.5" fill="#e5c37f"/></g>
-    <g class="lp" data-i="6"><rect x="202" y="88" width="18" height="40" fill="#fff" opacity="0.001"/><circle cx="211" cy="108" r="5.5" fill="#8fd8e0"/></g>
-    <g class="lp" data-i="7"><rect x="222" y="88" width="18" height="40" fill="#fff" opacity="0.001"/><circle cx="230" cy="108" r="5.5" fill="#4a6fd1"/></g>
+    <g class="lp" data-i="0"><rect x="90" y="86" width="34" height="58" fill="#fff" opacity="0.001"/><circle cx="107" cy="115" r="6" fill="#b5a08a"/><text x="107" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Mercury</text></g>
+    <g class="lp" data-i="1"><rect x="126" y="86" width="34" height="58" fill="#fff" opacity="0.001"/><circle cx="143" cy="115" r="8.5" fill="#e8c37a"/><text x="143" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Venus</text></g>
+    <g class="lp" data-i="2"><rect x="162" y="86" width="34" height="58" fill="#fff" opacity="0.001"/><circle cx="179" cy="115" r="8.5" fill="#3d8fd1"/><text x="179" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Earth</text></g>
+    <g class="lp" data-i="3"><rect x="198" y="86" width="34" height="58" fill="#fff" opacity="0.001"/><circle cx="215" cy="115" r="7" fill="#d1603d"/><text x="215" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Mars</text></g>
+    <g class="lp" data-i="4"><rect x="236" y="86" width="40" height="58" fill="#fff" opacity="0.001"/><circle cx="256" cy="115" r="14" fill="#d9a05b"/><text x="256" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Jupiter</text></g>
+    <g class="lp" data-i="5"><rect x="282" y="86" width="42" height="58" fill="#fff" opacity="0.001"/><ellipse cx="303" cy="115" rx="19" ry="4.5" fill="none" stroke="#c9a55f" stroke-width="2"/><circle cx="303" cy="115" r="11.5" fill="#e5c37f"/><text x="303" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Saturn</text></g>
+    <g class="lp" data-i="6"><rect x="330" y="86" width="32" height="58" fill="#fff" opacity="0.001"/><circle cx="346" cy="115" r="9" fill="#8fd8e0"/><text x="346" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Uranus</text></g>
+    <g class="lp" data-i="7"><rect x="366" y="86" width="32" height="58" fill="#fff" opacity="0.001"/><circle cx="382" cy="115" r="9" fill="#4a6fd1"/><text x="382" y="146" font-size="8.5" fill="#cfeaff" text-anchor="middle">Neptune</text></g>
   </g>
-  <g id="voyagerG" style="cursor:pointer"><rect x="204" y="26" width="34" height="34" fill="#fff" opacity="0.001"/>
-    <text x="221" y="46" font-size="13" text-anchor="middle">🛰️</text>
-    <text x="221" y="58" font-size="6.5" fill="#a9b8c6" text-anchor="middle">Voyager 1</text></g>
-  <g id="lightPulse" opacity="0"><circle cx="0" cy="0" r="7" fill="#fff" opacity="0.35"/><circle cx="0" cy="0" r="3.5" fill="#fff"/></g>
-  <text id="lightLbl" x="120" y="196" font-size="10.5" fill="#ffe89a" text-anchor="middle">tap a planet — race a beam of sunlight!</text>
+  <g id="voyagerG" style="cursor:pointer"><rect x="376" y="18" width="44" height="44" fill="#fff" opacity="0.001"/>
+    <text x="396" y="42" font-size="17" text-anchor="middle">🛰️</text>
+    <text x="396" y="56" font-size="8.5" fill="#cfeaff" text-anchor="middle">Voyager 1</text></g>
+  <g id="lightPulse" opacity="0"><circle cx="0" cy="0" r="9" fill="#fff" opacity="0.35"/><circle cx="0" cy="0" r="4.5" fill="#fff"/></g>
+  <text id="lightLbl" x="210" y="212" font-size="13" fill="#ffe89a" text-anchor="middle">tap a planet — race a beam of sunlight!</text>
 </svg>`;}
 function wireLight(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='lightSvg') return;
   const pulse=svg.querySelector('#lightPulse'), lbl=svg.querySelector('#lightLbl');
-  const P=[{nm:'Mercury',x:63,t:'3 minutes'},{nm:'Venus',x:87,t:'6 minutes'},{nm:'Earth',x:111,t:'8 minutes'},{nm:'Mars',x:135,t:'13 minutes'},
-    {nm:'Jupiter',x:160,t:'43 minutes'},{nm:'Saturn',x:188,t:'1 hour 20 min'},{nm:'Uranus',x:211,t:'2 hours 40 min'},{nm:'Neptune',x:230,t:'4 whole hours'}];
+  const P=[{nm:'Mercury',x:107,t:'3 minutes'},{nm:'Venus',x:143,t:'6 minutes'},{nm:'Earth',x:179,t:'8 minutes'},{nm:'Mars',x:215,t:'13 minutes'},
+    {nm:'Jupiter',x:256,t:'43 minutes'},{nm:'Saturn',x:303,t:'1 hour 20 min'},{nm:'Uranus',x:346,t:'2 hours 40 min'},{nm:'Neptune',x:382,t:'4 whole hours'}];
   let busy=false;
   const race=(x,y,dur,done)=>{ if(busy) return; busy=true;
-    pulse.style.transition='none'; pulse.style.transform='translate(30px,108px)'; pulse.setAttribute('opacity','1');
+    pulse.style.transition='none'; pulse.style.transform='translate(56px,115px)'; pulse.setAttribute('opacity','1');
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       pulse.style.transition=`transform ${dur}s linear`; pulse.style.transform=`translate(${x}px,${y}px)`;
       setTimeout(()=>{ pulse.setAttribute('opacity','0'); done(); busy=false; }, dur*1000+80);
@@ -2105,37 +2106,37 @@ function wireLight(){
   svg.querySelectorAll('.lp').forEach(g=>{ g.style.cursor='pointer';
     g.addEventListener('click',()=>{ const d=P[+g.dataset.i];
       lbl.textContent='light is racing to '+d.nm+'…';
-      race(d.x,108, 0.5+(+g.dataset.i)*0.28, ()=>{ lbl.textContent=`Sun → ${d.nm}: ${d.t} at LIGHT SPEED`; });
+      race(d.x,115, 0.5+(+g.dataset.i)*0.28, ()=>{ lbl.textContent=`Sun → ${d.nm}: ${d.t} at LIGHT SPEED`; });
     });
   });
   svg.querySelector('#voyagerG').addEventListener('click',()=>{
     lbl.textContent='racing to Voyager… so far away…';
-    race(221,44, 3.2, ()=>{ lbl.textContent='Sun → Voyager 1: almost a whole DAY!'; });
+    race(396,40, 3.2, ()=>{ lbl.textContent='Sun → Voyager 1: almost a whole DAY!'; });
   });
 }
-function machinesSVG(){return `<svg viewBox="0 0 240 215" id="machSvg">
-  <rect width="240" height="215" fill="#233042"/>
-  <rect y="182" width="240" height="33" fill="#2c4a38"/>
-  <polygon points="12,182 112,182 112,122" fill="#5a4632"/>
+function machinesSVG(){return `<svg viewBox="0 0 420 230" id="machSvg">
+  <rect width="420" height="230" fill="#233042"/>
+  <rect y="198" width="420" height="32" fill="#2c4a38"/>
+  <polygon points="20,198 196,198 196,108" fill="#5a4632"/>
   <g id="rampBox" style="cursor:pointer">
-    <rect x="-14" y="-26" width="28" height="26" fill="#fff" opacity="0.001"/>
-    <rect x="-11" y="-22" width="22" height="22" rx="3" fill="#d9a520"/><rect x="-11" y="-22" width="22" height="7" fill="#b8860b"/>
+    <rect x="-18" y="-32" width="36" height="34" fill="#fff" opacity="0.001"/>
+    <rect x="-14" y="-28" width="28" height="28" rx="4" fill="#d9a520"/><rect x="-14" y="-28" width="28" height="9" fill="#b8860b"/>
   </g>
-  <text x="58" y="200" font-size="10" fill="#a9b8c6" text-anchor="middle">ramp — tap the box</text>
-  <rect x="146" y="26" width="88" height="8" rx="3" fill="#5a4632"/>
-  <g id="wheelG"><circle cx="188" cy="50" r="12" fill="#8a97a5" stroke="#e9e9f5" stroke-width="3"/>
-    <line x1="188" y1="40" x2="188" y2="60" stroke="#e9e9f5" stroke-width="2"/>
-    <line x1="178" y1="50" x2="198" y2="50" stroke="#e9e9f5" stroke-width="2"/></g>
-  <line id="ropeA" x1="180" y1="52" x2="180" y2="132" stroke="#d9b54a" stroke-width="2.5"/>
-  <line id="ropeB" x1="196" y1="52" x2="196" y2="118" stroke="#d9b54a" stroke-width="2.5"/>
-  <text id="pullLbl" x="212" y="128" font-size="12" fill="#ffd23f">⬇</text>
-  <g id="crateG" style="cursor:pointer" transform="translate(180 156)">
-    <rect x="-16" y="-28" width="32" height="32" fill="#fff" opacity="0.001"/>
-    <rect x="-13" y="-24" width="26" height="24" rx="3" fill="#a06a3a"/>
-    <line x1="-13" y1="-12" x2="13" y2="-12" stroke="#7a4e28" stroke-width="2"/>
-    <line x1="0" y1="-24" x2="0" y2="0" stroke="#7a4e28" stroke-width="2"/>
+  <text x="100" y="220" font-size="13" fill="#cfeaff" text-anchor="middle">ramp — tap the box</text>
+  <rect x="252" y="24" width="150" height="10" rx="4" fill="#5a4632"/>
+  <g id="wheelG"><circle cx="330" cy="56" r="16" fill="#8a97a5" stroke="#e9e9f5" stroke-width="4"/>
+    <line x1="330" y1="43" x2="330" y2="69" stroke="#e9e9f5" stroke-width="2.5"/>
+    <line x1="317" y1="56" x2="343" y2="56" stroke="#e9e9f5" stroke-width="2.5"/></g>
+  <line id="ropeA" x1="320" y1="58" x2="320" y2="146" stroke="#d9b54a" stroke-width="3"/>
+  <line id="ropeB" x1="340" y1="58" x2="340" y2="128" stroke="#d9b54a" stroke-width="3"/>
+  <text id="pullLbl" x="358" y="140" font-size="16" fill="#ffd23f">⬇</text>
+  <g id="crateG" style="cursor:pointer" transform="translate(320 172)">
+    <rect x="-21" y="-34" width="42" height="40" fill="#fff" opacity="0.001"/>
+    <rect x="-17" y="-30" width="34" height="30" rx="4" fill="#a06a3a"/>
+    <line x1="-17" y1="-15" x2="17" y2="-15" stroke="#7a4e28" stroke-width="2.5"/>
+    <line x1="0" y1="-30" x2="0" y2="0" stroke="#7a4e28" stroke-width="2.5"/>
   </g>
-  <text x="188" y="200" font-size="10" fill="#a9b8c6" text-anchor="middle">pulley — tap the crate</text>
+  <text x="330" y="220" font-size="13" fill="#cfeaff" text-anchor="middle">pulley — tap the crate</text>
 </svg>`;}
 function wireMachines(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='machSvg') return;
@@ -2143,47 +2144,47 @@ function wireMachines(){
   const ropeA=svg.querySelector('#ropeA'), ropeB=svg.querySelector('#ropeB'), wheel=svg.querySelector('#wheelG');
   const ease=k=>k*k*(3-2*k);
   let busyR=false, busyP=false;
-  box.style.transform='translate(30px,182px)';
+  box.style.transform='translate(48px,198px)';
   box.addEventListener('click',()=>{ if(busyR) return; busyR=true;
-    box.style.transition='transform 1.2s ease-in-out';
-    box.style.transform='translate(100px,124px)';
-    setTimeout(()=>{ box.style.transition='transform .9s ease-in'; box.style.transform='translate(30px,182px)';
-      setTimeout(()=>busyR=false,950); },1500);
+    box.style.transition='transform 1.3s ease-in-out';
+    box.style.transform='translate(180px,112px)';
+    setTimeout(()=>{ box.style.transition='transform .9s ease-in'; box.style.transform='translate(48px,198px)';
+      setTimeout(()=>busyR=false,950); },1700);
   });
   crate.addEventListener('click',()=>{ if(busyP) return; busyP=true;
-    const t0=performance.now(), dur=1100;
+    const t0=performance.now(), dur=1100, y0=172, rise=64;
     (function up(t){ const k=ease(Math.min(1,(t-t0)/dur));
-      const y=156-52*k;
-      crate.setAttribute('transform',`translate(180 ${y})`);
-      ropeA.setAttribute('y2',y-24);
-      ropeB.setAttribute('y2',118+52*k);
-      wheel.setAttribute('transform',`rotate(${-k*200} 188 50)`);
+      const y=y0-rise*k;
+      crate.setAttribute('transform',`translate(320 ${y})`);
+      ropeA.setAttribute('y2',y-30);
+      ropeB.setAttribute('y2',128+rise*k);
+      wheel.setAttribute('transform',`rotate(${-k*220} 330 56)`);
       if(k<1) requestAnimationFrame(up);
       else setTimeout(()=>{ const t1=performance.now();
-        (function down(t){ const k2=ease(Math.min(1,(t-t1)/800)), y2=104+52*k2;
-          crate.setAttribute('transform',`translate(180 ${y2})`);
-          ropeA.setAttribute('y2',y2-24);
-          ropeB.setAttribute('y2',170-52*k2);
-          wheel.setAttribute('transform',`rotate(${-200+k2*200} 188 50)`);
+        (function down(t){ const k2=ease(Math.min(1,(t-t1)/800)), y2=y0-rise+rise*k2;
+          crate.setAttribute('transform',`translate(320 ${y2})`);
+          ropeA.setAttribute('y2',y2-30);
+          ropeB.setAttribute('y2',128+rise-rise*k2);
+          wheel.setAttribute('transform',`rotate(${-220+k2*220} 330 56)`);
           if(k2<1) requestAnimationFrame(down); else busyP=false;
         })(t1); },900);
     })(t0);
   });
 }
-function soundSVG(){return `<svg viewBox="0 0 240 215" id="soundSvg">
-  <rect width="240" height="108" fill="#1c2a5e"/>
-  ${[...Array(14)].map(()=>`<circle cx="${rand(0,240)}" cy="${rand(0,60)}" r="${(Math.random()*1+0.3).toFixed(1)}" fill="#fff" opacity="0.7"/>`).join('')}
-  <circle cx="210" cy="22" r="12" fill="#f2f0d8"/>
-  <rect y="108" width="240" height="107" fill="#123a55"/>
-  <g id="batG" style="cursor:pointer"><rect x="18" y="30" width="44" height="44" fill="#fff" opacity="0.001"/>
-    <text x="40" y="62" font-size="24" text-anchor="middle">🦇</text></g>
-  <text x="200" y="58" font-size="15" text-anchor="middle">🦋</text>
-  <g id="whaleG" style="cursor:pointer"><rect x="16" y="146" width="52" height="46" fill="#fff" opacity="0.001"/>
-    <text x="42" y="182" font-size="28" text-anchor="middle">🐋</text></g>
-  <text x="204" y="180" font-size="16" text-anchor="middle">🐟</text>
-  <g id="airPing" opacity="0"><circle cx="0" cy="0" r="6" fill="#ffd23f" opacity="0.4"/><circle cx="0" cy="0" r="3" fill="#ffd23f"/></g>
-  <g id="seaPing" opacity="0"><circle cx="0" cy="0" r="6" fill="#7fc8ff" opacity="0.4"/><circle cx="0" cy="0" r="3" fill="#7fc8ff"/></g>
-  <text id="sndLbl" x="120" y="104" font-size="10.5" fill="#ffe89a" text-anchor="middle">tap the bat, then tap the whale!</text>
+function soundSVG(){return `<svg viewBox="0 0 420 230" id="soundSvg">
+  <rect width="420" height="116" fill="#1c2a5e"/>
+  ${[...Array(24)].map(()=>`<circle cx="${rand(0,420)}" cy="${rand(0,66)}" r="${(Math.random()*1.1+0.3).toFixed(1)}" fill="#fff" opacity="0.7"/>`).join('')}
+  <circle cx="376" cy="26" r="15" fill="#f2f0d8"/>
+  <rect y="116" width="420" height="114" fill="#123a55"/>
+  <g id="batG" style="cursor:pointer"><rect x="26" y="28" width="60" height="56" fill="#fff" opacity="0.001"/>
+    <text x="56" y="70" font-size="32" text-anchor="middle">🦇</text></g>
+  <text x="380" y="64" font-size="20" text-anchor="middle">🦋</text>
+  <g id="whaleG" style="cursor:pointer"><rect x="22" y="152" width="70" height="58" fill="#fff" opacity="0.001"/>
+    <text x="57" y="198" font-size="38" text-anchor="middle">🐋</text></g>
+  <text x="384" y="194" font-size="21" text-anchor="middle">🐟</text>
+  <g id="airPing" opacity="0"><circle cx="0" cy="0" r="8" fill="#ffd23f" opacity="0.4"/><circle cx="0" cy="0" r="4" fill="#ffd23f"/></g>
+  <g id="seaPing" opacity="0"><circle cx="0" cy="0" r="8" fill="#7fc8ff" opacity="0.4"/><circle cx="0" cy="0" r="4" fill="#7fc8ff"/></g>
+  <text id="sndLbl" x="210" y="110" font-size="13" fill="#ffe89a" text-anchor="middle">tap the bat, then tap the whale!</text>
 </svg>`;}
 function wireSound(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='soundSvg') return;
@@ -2199,9 +2200,9 @@ function wireSound(){
       }, dur*1000+40);
     }));
   };
-  svg.querySelector('#batG').addEventListener('click',()=>bounce(svg.querySelector('#airPing'),58,50,188,0.7,
+  svg.querySelector('#batG').addEventListener('click',()=>bounce(svg.querySelector('#airPing'),84,56,366,0.8,
     'squeak! …the sound flies out…','…ECHO! The bat “sees” the moth with its ears! 🦇'));
-  svg.querySelector('#whaleG').addEventListener('click',()=>bounce(svg.querySelector('#seaPing'),66,170,192,0.22,
+  svg.querySelector('#whaleG').addEventListener('click',()=>bounce(svg.querySelector('#seaPing'),94,182,368,0.26,
     'CLICK!','So fast! Sound travels about 4× FASTER in water! 🐋'));
 }
 function magnetsSVG(){return `<svg viewBox="0 0 240 215">
