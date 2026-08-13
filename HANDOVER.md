@@ -1,7 +1,8 @@
 # Handover — Jad's Maths Quest
 
-Working notes for the next session. Read this first; it captures project state and the
-agreed design for the next major feature (Castle Siege).
+Working notes for the next session. Read this first; it captures project state,
+conventions, testing traps, and the agreed next feature (Castle Siege v2
+pass-and-play). For the release-by-release history see `PROGRESS.md`.
 
 ## Project snapshot
 
@@ -15,7 +16,7 @@ agreed design for the next major feature (Castle Siege).
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v17.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v19.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Usage pattern**: Jad uses the tablet roughly **every other day**, not daily.
 - **COPY RULE (Stephen, v17)**: never convey time windows or deadlines to Jad —
@@ -35,8 +36,13 @@ agreed design for the next major feature (Castle Siege).
   ephemeral scratchpad). Run: `python3 -m http.server 8901` from repo root, then
   `cd tests && npm install playwright && node test.js` (chromium at
   `/opt/pw-browsers/chromium` in the cloud env; locally let Playwright download).
-- Suites: `test.js` (core kid/dad/retry/steps), `test-v4/v5/v9/v12.js` (features).
-  All green at v12. `survey.js` measures scene sizes.
+- Suites: `test.js` (core kid/dad/retry/steps), `test-v4/v5/v9/v12.js` (feature
+  eras), `test-v16.js` (quests/tokens/badges), `test-v17.js` (time-free copy,
+  gap-tolerant streak, landscape layouts), `test-siege.js` (full match to
+  throne capture), `test-editor.js` (castle editor). All green at v19.
+  `survey.js` measures scene sizes. Note: the local `http.server 8901` dies
+  between shell commands in the cloud env and must be started from the REPO
+  ROOT (wrong cwd = silent 404s).
 - **Touch lesson (v13)**: Chromium honours `touch-action` only on the **SVG root**,
   not inner elements — per-element `touchAction='none'` works for mouse but real
   touchscreens hijack the gesture for scrolling/pull-to-refresh. Fix lives in CSS
@@ -170,6 +176,11 @@ sets up v2 pass-and-play nicely (both players see the whole field).
   theme toggle (if slate wears thin), second picture pack.
 - **Watchpoint**: if Jad leans on "🧱 Show columns" every question, consider a small
   cost for it. If he spams through reading gates, consider comprehension checks.
+- **Editor watchpoints (v19)**: does the 40-block budget feel generous or
+  stingy once Jad builds? Does he ask for more piece types (gold blocks,
+  windows, gate)? Both are one-line tunes (`ED_BUDGET`, `ED_COST` + a draw
+  case). If he builds a 1-block "castle" and gets flattened, that's his
+  lesson to keep — don't guard against it.
 
 ## Conventions
 - Commits pushed straight to the branch above (no PRs). Playwright-test each release.
