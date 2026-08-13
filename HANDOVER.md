@@ -15,7 +15,7 @@ agreed design for the next major feature (Castle Siege).
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v13.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v14.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Design language**: dark slate bg, ice-blue `#cfeaff` labels, sunny yellow `#ffe89a`
   guidance, cyan `#58d0ff` headings, gold stars, white numbers. Scenes are wide
@@ -42,11 +42,17 @@ agreed design for the next major feature (Castle Siege).
   and ziplineSVG — careless slicing has deleted them twice. Always `node --check` the
   extracted script AND load the page (the on-page red `#errbar` reports runtime errors).
 
-## NEXT FEATURE (agreed): "Castle Siege" — crossbows & catapults maths game
+## Castle Siege — v1 SHIPPED (v14). Next: v2 pass-and-play, v3 castle editor.
 
-Stephen's instinct: this is the most fruitful of the game ideas discussed
-(vs 3D Jenga tower and Tetris/Drop-Match — see backlog). **Awaiting Jad's input
-before building** — Stephen is asking him. Then build.
+v1 is live: solo vs AI, 🏰 button in the games row. Implementation notes:
+`startSiege()/SG` state, `siegeField()` draws battlefield (tape 0–100 m,
+`sgX(m)` maps metres→svg x), `playerFire`/`enemyTurn` turn loop,
+`sgCrumble` scripted block tumble, correction mode = ＋/− delta input.
+v1 decisions taken (Stephen can veto): castle distance UNLABELLED (first
+shot = tape estimation), hit tolerance = castle footprint ±6 m, power maps
+1:1 to metres, castle rebuilds at a new distance after every hit (churn),
+enemy accuracy tightens per shot [±16,±10,±5,0], stars: +2/hit, +5 win.
+`tests/test-siege.js` plays a full match to victory.
 
 ### Core design principle (the whole game hangs on this)
 Angry-Birds-style drag-to-aim makes ballistics **instinctive** — motor calibration,
@@ -85,13 +91,11 @@ the instinct channel.
 2. Verdict on Jenga tower / Drop-Match: not yet given — ask again later.
 3. His own ideas: none captured yet.
 
-### Suggested first build slice (once Jad answers)
-Solo vs simple AI, one projectile weight + one castle layout, numeric power dial only
-(fixed 45° angle), tape + landing marker + "how far short?" correction input,
-scripted crumble, win/lose fanfare, ★ rewards wired into existing `award()`.
-Then layer: weights, wind, angle, platforms, 2-player, castle editor — in whatever
-order Jad's answers dictate. Entry point: add to the 🎮 row (sprint button pattern,
-`#sprintBtn` / `startSprint()` as the template).
+### v2/v3 roadmap
+v2 pass-and-play: two catapults + two castles, alternate real players (name
+prompts, Jad vs Rai vs Dad), same correction maths both ways. v3 castle
+editor: place-your-own-blocks before battle (geometry). Then layer weights
+(double/halve), wind (signed adjustment), angle as a second number.
 
 ## Backlog (agreed or parked)
 - **3D Jenga tower** — parked pending Jad. If built: faux physics (stability meter +

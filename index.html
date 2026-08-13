@@ -192,6 +192,21 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .sayline{margin:0 0 10px;animation:howin .35s ease;text-align:left}
 .btn:disabled{opacity:.4}
 
+/* Games row */
+.gamesrow{display:flex;gap:10px;margin:0 0 12px}
+.gamesrow .newpic{margin:0;flex:1}
+
+/* Castle Siege */
+#siege{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:14px;overflow:auto}
+#siege.hidden{display:none}
+.siegecard{max-width:640px;margin:0 auto}
+#siegeSvg{display:block;width:100%;touch-action:none;-webkit-user-select:none;user-select:none}
+#siegeMsg{text-align:center;font-size:16px;font-weight:700;color:#ffe89a;min-height:44px;margin:8px 0;line-height:1.4}
+#siegeCtl .kgrid{max-width:420px;margin:0 auto}
+#siegeCtl .kdisp{max-width:420px;margin:0 auto 10px}
+#siegeCtl .kxrow{max-width:420px;margin:0 auto 8px}
+.sgtag{text-align:center;font-size:13px;color:#58d0ff;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px}
+
 /* Times-table sprint */
 #sprint{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:16px;overflow:auto}
 #sprint.hidden{display:none}
@@ -313,7 +328,10 @@ window.addEventListener('unhandledrejection',function(e){
 
 <div id="views">
   <div id="mathsView">
-    <button class="newpic" id="sprintBtn" style="margin:0 0 12px">⚡ Times-Table Sprint</button>
+    <div class="gamesrow">
+      <button class="newpic" id="sprintBtn">⚡ Sprint</button>
+      <button class="newpic" id="siegeBtn" style="background:linear-gradient(135deg,#8fd8e0,#3d8fd1);color:#08222e">🏰 Castle Siege</button>
+    </div>
     <div class="grid" id="catGrid"></div>
   </div>
   <div id="scienceView" class="hidden">
@@ -384,6 +402,19 @@ window.addEventListener('unhandledrejection',function(e){
       <button class="btn ghost" id="howK">🧭 Show me how</button>
       <button class="btn next hidden" id="kNext">Next →</button>
     </div>
+  </div>
+</div>
+
+<div id="siege" class="hidden">
+  <div class="siegecard">
+    <div class="actbar">
+      <button class="back" id="siegeQuit">✕ Quit</button>
+      <b style="font-family:'Fredoka';font-size:20px">🏰 Castle Siege</b>
+      <b id="siegeShots" style="font-family:'Fredoka';font-size:15px;color:var(--gold)">shot 1</b>
+    </div>
+    <svg id="siegeSvg" viewBox="0 0 420 262"></svg>
+    <div id="siegeMsg">Look at the tape. How many metres to the enemy castle?</div>
+    <div id="siegeCtl"></div>
   </div>
 </div>
 
@@ -489,7 +520,7 @@ window.addEventListener('unhandledrejection',function(e){
     </select></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v13</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v14</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -1537,7 +1568,7 @@ function renderHeader(){
   $('#parentModeRow').style.display = S.who==='parent'?'':'none';
 }
 function renderGrid(){
-  $('#sprintBtn').textContent='⚡ Times-Table Sprint'+(S.sprintBest?` · best ${S.sprintBest}`:'');
+  $('#sprintBtn').textContent='⚡ Sprint'+(S.sprintBest?` · ${S.sprintBest}`:'');
   const g=$('#catGrid'); g.innerHTML='';
   CATS.forEach(c=>{
     const lvl=S.levels[c.id], mastered=S.mastered[c.id];
@@ -2722,6 +2753,180 @@ function setTab(n){
   if(n==='science') renderSci($('#sciSearch').value);
 }
 
+/* ---------- Castle Siege ---------- */
+let SG=null;
+const sgX=m=>20+m*3.8;
+function siegeField(){
+  const D=SG.D;
+  let ticks='';
+  for(let m=0;m<=100;m+=10){
+    const x=sgX(m);
+    ticks+=`<line x1="${x}" y1="206" x2="${x}" y2="${m%20?214:218}" stroke="#cfeaff" stroke-width="${m%20?1.5:2.5}"/>`;
+    if(m%20===0) ticks+=`<text x="${x}" y="232" font-size="10" fill="#cfeaff" text-anchor="middle">${m}</text>`;
+  }
+  const block=(x,y,w,h,c1,c2)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c1}" stroke="${c2}" stroke-width="1.5"/>`;
+  const castle=(cm,id,rows)=>{
+    const cw=44, x0=sgX(cm)-cw/2;
+    let g='';
+    for(let r=0;r<rows;r++){
+      let row='';
+      const y=190-r*16;
+      for(let b=0;b<3;b++) row+=block(x0+b*15,y,14,15,r===rows-1?'#7a8794':'#8a97a5','#4d5a68');
+      if(r===rows-1) row+=`<polygon points="${x0},${y} ${x0+7},${y-9} ${x0+14},${y}" fill="#5ec93e"/><polygon points="${x0+30},${y} ${x0+37},${y-9} ${x0+44},${y}" fill="#5ec93e"/>`;
+      g+=`<g class="crow" data-r="${r}">${row}</g>`;
+    }
+    return `<g id="${id}">${g}</g>`;
+  };
+  return `
+  <rect width="420" height="262" fill="#1c2a3e"/>
+  <circle cx="382" cy="34" r="20" fill="#ffd23f"/>
+  ${[...Array(14)].map(()=>`<circle cx="${rand(0,420)}" cy="${rand(0,90)}" r="${(Math.random()*1+0.3).toFixed(1)}" fill="#fff" opacity="0.5"/>`).join('')}
+  <rect y="200" width="420" height="62" fill="#2c4a38"/>
+  <line x1="14" y1="206" x2="406" y2="206" stroke="#cfeaff" stroke-width="2"/>
+  ${ticks}
+  <text x="210" y="252" font-size="10" fill="#8fb8d0" text-anchor="middle">metres</text>
+  ${castle(4,'castleP',SG.pHP)}
+  <g id="cata" transform="translate(${sgX(12)} 0)">
+    <rect x="-12" y="186" width="24" height="8" rx="2" fill="#7a5a38"/>
+    <circle cx="-8" cy="196" r="5" fill="#4d5a68"/><circle cx="8" cy="196" r="5" fill="#4d5a68"/>
+    <line x1="-6" y1="188" x2="10" y2="168" stroke="#a06a3a" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="11" cy="166" r="5" fill="#d9b54a"/>
+  </g>
+  ${castle(D,'castleE',SG.eHP)}
+  <g id="sgBall" opacity="0"><circle r="5.5" fill="#d9b54a" stroke="#8a5a28" stroke-width="1.5"/></g>
+  <g id="sgFlag" opacity="0"><line x1="0" y1="0" x2="0" y2="-18" stroke="#ff5e87" stroke-width="2.5"/><polygon points="0,-18 14,-13 0,-8" fill="#ff5e87"/><text class="flagT" y="-24" font-size="11" fill="#ffe89a" text-anchor="middle" font-weight="800"></text></g>`;
+}
+function startSiege(){
+  SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, sign:1, val:'', mode:'aim', busy:false};
+  $('#siege').classList.remove('hidden');
+  $('#siegeSvg').innerHTML=siegeField();
+  $('#siegeShots').textContent='shot 1';
+  $('#siegeMsg').innerHTML='Read the tape — <b>how many metres</b> to the enemy castle? Set your power!';
+  sgControls();
+}
+function sgControls(){
+  const c=$('#siegeCtl');
+  const padHTML=`<div class="kdisp"><span id="sgIn">…</span><span class="kunit">${SG.mode==='aim'?'m of power':'m'}</span></div>
+    <div class="kgrid" id="sgPad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="kdel" data-k="del">⌫</button><button data-k="0">0</button><button class="kok" data-k="ok">🎯</button>
+    </div>`;
+  if(SG.mode==='aim'){
+    c.innerHTML=`<div class="sgtag">catapult power = metres flown</div>${padHTML}`;
+  } else {
+    c.innerHTML=`<div class="sgtag">last power: ${SG.lastPow} · adjust it!</div>
+      <div class="kxrow" id="sgSign">
+        <button data-s="1" class="${SG.sign>0?'sel':''}">＋ more power</button>
+        <button data-s="-1" class="${SG.sign<0?'sel':''}">－ less power</button>
+      </div>${padHTML}`;
+    c.querySelectorAll('#sgSign button').forEach(b=>b.onclick=()=>{ SG.sign=+b.dataset.s;
+      c.querySelectorAll('#sgSign button').forEach(x=>x.classList.toggle('sel',x===b)); sgDisp(); });
+  }
+  SG.val='';
+  c.querySelectorAll('#sgPad button').forEach(b=>b.onclick=()=>sgKey(b.dataset.k));
+  sgDisp();
+}
+function sgDisp(){
+  const t=SG.val||'…';
+  $('#sgIn').textContent = SG.mode==='correct' ? (SG.sign>0?'＋':'－')+t : t;
+}
+function sgKey(k){
+  if(!SG||SG.busy) return;
+  if(k==='del') SG.val=SG.val.slice(0,-1);
+  else if(k==='ok'){
+    if(!SG.val) return;
+    let pow;
+    if(SG.mode==='aim') pow=parseInt(SG.val,10);
+    else pow=SG.lastPow+SG.sign*parseInt(SG.val,10);
+    if(pow<1||pow>100){ toast('Power must land between 1 and 100 m!'); SG.val=''; sgDisp(); return; }
+    playerFire(pow);
+    return;
+  }
+  else if(SG.val.length<3) SG.val+=k;
+  sgDisp();
+}
+function sgFly(fromM,toM,who,done){
+  const ball=$('#siegeSvg').querySelector('#sgBall');
+  const x0=sgX(fromM), x1=sgX(toM), range=Math.abs(x1-x0);
+  const apex=Math.max(30,range/4), dur=700+range*2.2;
+  ball.setAttribute('opacity','1');
+  tween(k=>{
+    const x=x0+(x1-x0)*k, y=192-4*apex*k*(1-k);
+    ball.setAttribute('transform',`translate(${x} ${y})`);
+  },dur,()=>{ ball.setAttribute('opacity','0'); done(); });
+}
+function sgCrumble(castleId,hp){
+  const cast=$('#siegeSvg').querySelector('#'+castleId);
+  const rows=cast.querySelectorAll('.crow');
+  const top=rows[hp-1];
+  if(!top) return;
+  [...top.querySelectorAll('rect,polygon')].forEach((b,i)=>{
+    const dx=(i-1.5)*14+rand(-6,6), rot=rand(-160,160);
+    b.style.transformBox='fill-box'; b.style.transformOrigin='center';
+    tween(k=>{ b.style.transform=`translate(${dx*k}px,${(60*k*k)}px) rotate(${rot*k}deg)`; b.style.opacity=String(1-k*0.9); },800,()=>b.remove());
+  });
+  setTimeout(()=>top.remove(),850);
+}
+function sgLandFlag(m,txt){
+  const f=$('#siegeSvg').querySelector('#sgFlag');
+  f.setAttribute('transform',`translate(${sgX(m)} 200)`);
+  f.querySelector('.flagT').textContent=txt;
+  f.setAttribute('opacity','1');
+}
+function playerFire(pow){
+  SG.busy=true; SG.lastPow=pow;
+  $('#siegeMsg').textContent='Firing at power '+pow+'…';
+  sgFly(12,pow,'p',()=>{
+    const diff=SG.D-pow;
+    if(Math.abs(diff)<=6){
+      sgCrumble('castleE',SG.eHP); SG.eHP--; award(2); burst();
+      if(SG.eHP<=0){ siegeEnd(true); return; }
+      $('#siegeMsg').innerHTML=`💥 <b>HIT!</b> +2 ★ — ${SG.eHP} wall${SG.eHP>1?'s':''} left. The castle rebuilds further away…`;
+      SG.D=rand(35,90); 
+      setTimeout(()=>{ redrawSiege(); enemyTurn(); },1600);
+    } else {
+      sgLandFlag(pow, pow+' m');
+      $('#siegeMsg').innerHTML=`Landed at <b>${pow} m</b> — the castle sits at <b>${SG.D} m</b>. ${diff>0?'How much FURTHER?':'How much LESS?'}`;
+      setTimeout(enemyTurn,1400);
+    }
+  });
+}
+function enemyTurn(){
+  const errs=[16,10,5,0], err=errs[Math.min(SG.shot-1,3)]*(Math.random()<0.5?-1:1);
+  const land=Math.max(1,4+err);
+  $('#siegeMsg').innerHTML+=' <br>☄️ Enemy fires back!';
+  setTimeout(()=>{
+    sgFly(SG.D,land,'e',()=>{
+      if(Math.abs(land-4)<=6){
+        sgCrumble('castleP',SG.pHP); SG.pHP--;
+        if(SG.pHP<=0){ siegeEnd(false); return; }
+        $('#siegeMsg').innerHTML=`😬 They hit your castle! ${SG.pHP} wall${SG.pHP>1?'s':''} left. Your turn — adjust your power!`;
+      } else {
+        $('#siegeMsg').innerHTML=`Their shot missed! Your turn — <b>adjust your power</b>.`;
+      }
+      SG.shot++; $('#siegeShots').textContent='shot '+SG.shot;
+      SG.mode='correct'; SG.sign = SG.D-SG.lastPow>0?1:-1; SG.busy=false;
+      sgControls();
+    });
+  },700);
+}
+function redrawSiege(){
+  $('#siegeSvg').innerHTML=siegeField();
+}
+function siegeEnd(win){
+  SG.busy=true;
+  if(win){ award(5); burst(); }
+  $('#siegeMsg').innerHTML = win
+    ? '🏆 <b>CASTLE DOWN — YOU WIN!</b> +5 ★ bonus!'
+    : '😅 Your castle fell! Sharpen your maths and strike back!';
+  $('#siegeCtl').innerHTML=`<button class="btn correct" id="sgAgain" style="width:100%">🏰 Play again</button>
+    <button class="btn ghost" id="sgDone" style="width:100%;margin-top:8px">Done</button>`;
+  $('#sgAgain').onclick=startSiege;
+  $('#sgDone').onclick=()=>{ $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
+}
+
 /* ---------- Times-table sprint ---------- */
 let spr={run:false,t:60,score:0,ans:0,val:'',iv:null};
 function sprintQnew(){
@@ -2835,6 +3040,8 @@ $('#howT').onclick=openHow; $('#howQ').onclick=openHow; $('#howK').onclick=openH
 $('#colBtn').onclick=()=>{ const q=cur&&cur.q; if(!q||!q.colSvg) return;
   $('#vissvg').classList.remove('hidden'); $('#vissvg').innerHTML=q.colSvg; $('#colBtn').classList.add('hidden'); };
 $('#sprintBtn').onclick=startSprint;
+$('#siegeBtn').onclick=startSiege;
+$('#siegeQuit').onclick=()=>{ $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
 $('#sprintQuit').onclick=()=>{ clearInterval(spr.iv); spr.run=false; $('#sprint').classList.add('hidden'); };
 document.querySelectorAll('#sprintPad button').forEach(b=>b.onclick=()=>sprintKey(b.dataset.k));
 $('#certPrint').onclick=()=>window.print();
