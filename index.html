@@ -488,7 +488,7 @@ window.addEventListener('unhandledrejection',function(e){
     </select></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v11</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v12</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -1853,18 +1853,40 @@ function gravitySVG(){return `<svg viewBox="0 0 240 215">
   <g id="featherDrop"><path d="M96 48 Q104 34 118 30 Q112 46 100 54 Z" fill="#e9e9f5" stroke="#cfeaff" stroke-width="1.5"/><line x1="98" y1="52" x2="116" y2="32" stroke="#b9a8e6" stroke-width="1.5"/></g>
   <text x="107" y="70" font-size="10" fill="#cfeaff" text-anchor="middle">feather</text>
 </svg>`;}
-function archimedesSVG(){return `<svg viewBox="0 0 240 215">
-  <rect x="34" y="70" width="172" height="132" rx="14" fill="none" stroke="#9ec9ff" stroke-width="4"/>
-  <rect x="38" y="112" width="164" height="86" rx="5" fill="#2f8fd0" opacity="0.85"/>
-  <rect x="38" y="108" width="164" height="8" rx="4" fill="#7fc8ff"/>
-  <g stroke="#cfeaff" stroke-width="3">
-    <line x1="72" y1="182" x2="72" y2="152"/><polygon points="72,144 66,156 78,156" fill="#cfeaff" stroke="none"/>
-    <line x1="120" y1="186" x2="120" y2="156"/><polygon points="120,148 114,160 126,160" fill="#cfeaff" stroke="none"/>
-    <line x1="168" y1="182" x2="168" y2="152"/><polygon points="168,144 162,156 174,156" fill="#cfeaff" stroke="none"/>
-  </g>
-  <text x="120" y="196" font-size="11" fill="#eaf4ff" text-anchor="middle">water pushes up</text>
-  <g id="dropBall" class="tapdrop"><circle cx="120" cy="44" r="17" fill="#ffcf5e"/><circle cx="113" cy="38" r="5" fill="#ffe39a"/></g>
+function floatSVG(){return `<svg viewBox="0 0 420 230" id="floatSvg">
+  <rect width="420" height="230" fill="#1c2a3e"/>
+  <text id="floatLbl" x="210" y="80" font-size="12.5" fill="#ffe89a" text-anchor="middle">drag each thing into the water — float or sink?</text>
+  <path d="M70 92 L70 208 L350 208 L350 92" fill="none" stroke="#9ec9ff" stroke-width="4" stroke-linecap="round"/>
+  <rect x="74" y="110" width="272" height="94" fill="#2f8fd0" opacity="0.8"/>
+  <rect x="74" y="106" width="272" height="8" rx="4" fill="#7fc8ff"/>
+  <g class="fitem" data-f="0" data-nm="the coin" transform="translate(80 34)"><rect x="-28" y="-20" width="56" height="44" fill="#fff" opacity="0.001"/><text font-size="20" text-anchor="middle" y="6">🪙</text><text y="24" font-size="8.5" fill="#cfeaff" text-anchor="middle">coin</text></g>
+  <g class="fitem" data-f="1" data-nm="the orange" transform="translate(170 34)"><rect x="-28" y="-20" width="56" height="44" fill="#fff" opacity="0.001"/><text font-size="20" text-anchor="middle" y="6">🍊</text><text y="24" font-size="8.5" fill="#cfeaff" text-anchor="middle">orange</text></g>
+  <g class="fitem" data-f="0" data-nm="the foil ball" transform="translate(260 34)"><rect x="-28" y="-20" width="56" height="44" fill="#fff" opacity="0.001"/><circle r="9" fill="#cdd0d2" stroke="#9aa0a4" stroke-width="1.5"/><text y="24" font-size="8.5" fill="#cfeaff" text-anchor="middle">foil ball</text></g>
+  <g class="fitem" data-f="1" data-nm="the foil boat" transform="translate(350 34)"><rect x="-28" y="-20" width="56" height="44" fill="#fff" opacity="0.001"/><path d="M-15 -2 L15 -2 L9 8 L-9 8 Z" fill="#cdd0d2" stroke="#9aa0a4" stroke-width="1.5"/><text y="24" font-size="8.5" fill="#cfeaff" text-anchor="middle">foil boat</text></g>
 </svg>`;}
+function wireFloat(){
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='floatSvg') return;
+  const lbl=svg.querySelector('#floatLbl');
+  const homes=new Map();
+  svg.querySelectorAll('.fitem').forEach(it=>{
+    homes.set(it, it.getAttribute('transform'));
+    it.style.cursor='grab'; it.style.touchAction='none';
+    let drag=false;
+    it.addEventListener('pointerdown',e=>{ drag=true; e.preventDefault(); try{it.setPointerCapture(e.pointerId)}catch(_){}
+      svg.appendChild(it); });
+    it.addEventListener('pointermove',e=>{ if(!drag) return; e.preventDefault();
+      const pt=svgPt(svg,e); if(pt) it.setAttribute('transform',`translate(${pt.x} ${pt.y})`); });
+    it.addEventListener('pointerup',e=>{ if(!drag) return; drag=false; try{it.releasePointerCapture(e.pointerId)}catch(_){}
+      const pt=svgPt(svg,e);
+      if(pt && pt.x>84 && pt.x<336 && pt.y>92 && pt.y<208){
+        const floats=it.dataset.f==='1';
+        const x=Math.max(96,Math.min(324,pt.x)), y0=pt.y, y1=floats?104:194;
+        tween(k=>it.setAttribute('transform',`translate(${x} ${y0+(y1-y0)*k})`), floats?450:650);
+        lbl.textContent=it.dataset.nm+(floats?' FLOATS! 🎈':' SINKS! 🪨');
+      } else it.setAttribute('transform',homes.get(it));
+    });
+  });
+}
 function photosynthesisSVG(){return `<svg viewBox="0 0 240 215">
   <rect x="0" y="186" width="240" height="29" fill="#6b4a2b"/>
   <rect x="0" y="184" width="240" height="5" fill="#3aa856"/>
@@ -1949,28 +1971,40 @@ function wireSpace(){
     });
   });
 }
-function shadowsSVG(){return `<svg viewBox="0 0 240 215">
-  <rect width="240" height="150" fill="#1c2a5e"/>
-  <rect y="150" width="240" height="65" fill="#3aa856"/>
-  <g class="sunpos" data-s="0"><circle cx="34" cy="96" r="16" fill="#ffd23f"/></g>
-  <g class="sunpos" data-s="1" opacity="0.25"><circle cx="120" cy="30" r="16" fill="#ffd23f"/></g>
-  <g class="sunpos" data-s="2" opacity="0.25"><circle cx="206" cy="96" r="16" fill="#ffd23f"/></g>
-  <ellipse id="shadowEl" cx="164" cy="152" rx="44" ry="6" fill="#0d0a26" opacity="0.55"/>
-  <g><circle cx="120" cy="112" r="9" fill="#e8b98a"/><rect x="114" y="120" width="12" height="24" rx="4" fill="#ff5e87"/>
-    <rect x="114" y="143" width="5" height="10" rx="2" fill="#2b3a8f"/><rect x="121" y="143" width="5" height="10" rx="2" fill="#2b3a8f"/></g>
-  <text x="120" y="205" font-size="10" fill="#eaf4ff" text-anchor="middle">tap a sun position — watch the shadow!</text>
+function shadowsSVG(){return `<svg viewBox="0 0 420 230" id="shadowSvg">
+  <rect width="420" height="160" fill="#1c2a5e"/>
+  <rect y="160" width="420" height="70" fill="#3aa856"/>
+  <path d="M 60 160 A 150 130 0 0 1 360 160" fill="none" stroke="#ffffff22" stroke-width="2.5" stroke-dasharray="4 7"/>
+  <ellipse id="shadowEl" cx="290" cy="163" rx="70" ry="7" fill="#0d0a26" opacity="0.55"/>
+  <g><circle cx="210" cy="118" r="11" fill="#e8b98a"/><rect x="203" y="128" width="14" height="27" rx="5" fill="#ff5e87"/>
+    <rect x="203" y="153" width="6" height="10" rx="2" fill="#2b3a8f"/><rect x="211" y="153" width="6" height="10" rx="2" fill="#2b3a8f"/></g>
+  <g id="sunDrag" style="cursor:grab"><circle r="28" fill="#fff" opacity="0.001"/><circle r="17" fill="#ffd23f"/><circle cx="-5" cy="-5" r="4.5" fill="#ffe89a"/></g>
+  <text id="timeLbl" x="210" y="222" font-size="12.5" fill="#ffe89a" text-anchor="middle">drag the sun across the sky!</text>
 </svg>`;}
 function wireShadows(){
-  const svg=$('#topVis svg'); if(!svg||!svg.querySelector('.sunpos')) return;
-  const sh=svg.querySelector('#shadowEl');
-  const conf={0:{cx:164,rx:44},1:{cx:122,rx:12},2:{cx:76,rx:44}};
-  svg.querySelectorAll('.sunpos').forEach(g=>{ g.style.cursor='pointer';
-    g.addEventListener('click',()=>{
-      svg.querySelectorAll('.sunpos').forEach(x=>x.setAttribute('opacity',x===g?'1':'0.25'));
-      const c=conf[g.dataset.s];
-      sh.setAttribute('cx',c.cx); sh.setAttribute('rx',c.rx);
-    });
+  const svg=$('#topVis svg'); if(!svg||svg.id!=='shadowSvg') return;
+  const sun=svg.querySelector('#sunDrag'), sh=svg.querySelector('#shadowEl'), tl=svg.querySelector('#timeLbl');
+  const place=t=>{
+    const a=Math.PI*(1-t);
+    const x=210+150*Math.cos(a), y=160-130*Math.sin(a);
+    sun.setAttribute('transform',`translate(${x} ${y})`);
+    const len=18+125*Math.pow(Math.abs(Math.cos(a)),1.1);
+    const dir=x<210?1:-1;
+    sh.setAttribute('rx',len.toFixed(1));
+    sh.setAttribute('cx',(210+dir*(len*0.85+14)).toFixed(1));
+    tl.textContent=(t<0.33?'☀ morning':t<0.67?'☀ midday':'☀ evening')+' — '+(len>95?'a looong shadow!':len>48?'a medium shadow':'a tiny shadow!');
+  };
+  place(0.16);
+  let drag=false;
+  sun.style.touchAction='none';
+  sun.addEventListener('pointerdown',e=>{ drag=true; e.preventDefault(); try{sun.setPointerCapture(e.pointerId)}catch(_){} });
+  sun.addEventListener('pointermove',e=>{ if(!drag) return; e.preventDefault();
+    const pt=svgPt(svg,e); if(!pt) return;
+    const ang=Math.atan2(Math.max(6,160-pt.y), pt.x-210);
+    let t=1-ang/Math.PI; t=Math.max(0.02,Math.min(0.98,t));
+    place(t);
   });
+  sun.addEventListener('pointerup',()=>drag=false);
 }
 function weatherSVG(){return `<svg viewBox="0 0 240 215">
   <rect width="240" height="215" fill="#274b7a"/>
@@ -2011,46 +2045,62 @@ function wireBody(){
     setTimeout(()=>{ h.style.transition='transform .25s ease-in'; h.style.transform='scale(1)'; },130);
   });
 }
-function circuitSVG(){return `<svg viewBox="0 0 240 215" id="circuitSvg">
-  <rect width="240" height="215" fill="#16113a"/>
-  <path d="M60 160 L60 70 L104 70 M136 70 L180 70 L180 160 L140 160 M100 160 L60 160" stroke="#d9b54a" stroke-width="5" fill="none" stroke-linecap="round"/>
-  <g id="switchG" style="cursor:pointer">
-    <rect x="86" y="126" width="68" height="66" fill="#fff" opacity="0.001"/>
-    <circle cx="100" cy="160" r="5" fill="#e9e9f5"/><circle cx="140" cy="160" r="5" fill="#e9e9f5"/>
-    <line id="switchArm" x1="100" y1="160" x2="132" y2="136" stroke="#e9e9f5" stroke-width="5" stroke-linecap="round" style="transition:all .25s"/>
-    <text x="120" y="188" font-size="11" fill="#cfeaff" text-anchor="middle">switch</text>
-  </g>
+function circuitSVG(){return `<svg viewBox="0 0 420 230" id="circuitSvg">
+  <rect width="420" height="230" fill="#16113a"/>
+  <path d="M60 78 L60 40 L186 40 M234 40 L360 40 L360 160 L252 160 M168 160 L60 160 L60 112" fill="none" stroke="#d9b54a" stroke-width="5" stroke-linecap="round"/>
   <g id="bulbG">
-    <circle id="bulbGlow" cx="120" cy="70" r="26" fill="#ffd23f" opacity="0" style="transition:opacity .3s;filter:blur(6px)"/>
-    <circle cx="120" cy="70" r="15" fill="#2e2266" stroke="#e9e9f5" stroke-width="3"/>
-    <path d="M113 70 q7 -10 14 0" stroke="#ffd23f" stroke-width="2.5" fill="none"/>
-    <rect x="113" y="84" width="14" height="8" rx="2" fill="#9aa0a4"/>
+    <circle id="bulbGlow" cx="210" cy="40" r="30" fill="#ffd23f" opacity="0" style="transition:opacity .3s;filter:blur(7px)"/>
+    <circle cx="210" cy="40" r="17" fill="#2e2266" stroke="#e9e9f5" stroke-width="3"/>
+    <path d="M202 40 q8 -11 16 0" stroke="#ffd23f" stroke-width="2.5" fill="none"/>
   </g>
-  <g id="battG"><rect x="46" y="100" width="28" height="44" rx="4" fill="#37d4a7"/><rect x="54" y="92" width="12" height="8" fill="#cdd0d2"/>
-    <text x="60" y="127" font-size="16" fill="#06251c" text-anchor="middle" font-weight="700">+</text>
-    <text x="60" y="188" font-size="11" fill="#cfeaff" text-anchor="middle">battery</text></g>
+  <g id="battG"><rect x="46" y="78" width="28" height="34" rx="4" fill="#37d4a7"/><rect x="53" y="70" width="14" height="8" fill="#cdd0d2"/>
+    <text x="60" y="100" font-size="15" fill="#06251c" text-anchor="middle" font-weight="700">+</text>
+    <text x="60" y="130" font-size="10" fill="#cfeaff" text-anchor="middle">battery</text></g>
+  <rect id="gapSlot" x="172" y="146" width="76" height="28" rx="8" fill="none" stroke="#58d0ff" stroke-width="2.5" stroke-dasharray="6 5"/>
+  <text x="210" y="138" font-size="10" fill="#58d0ff" text-anchor="middle">the gap</text>
+  <text id="circLbl" x="210" y="96" font-size="12.5" fill="#ffe89a" text-anchor="middle">drag something into the gap!</text>
+  <rect y="186" width="420" height="44" fill="#1e2a44"/>
+  <g class="citem" data-c="1" data-nm="the metal key" transform="translate(75 206)"><rect x="-30" y="-18" width="60" height="40" fill="#fff" opacity="0.001"/><text font-size="19" text-anchor="middle" y="5">🗝️</text><text y="20" font-size="8.5" fill="#cfeaff" text-anchor="middle">metal key</text></g>
+  <g class="citem" data-c="0" data-nm="the plastic spoon" transform="translate(165 206)"><rect x="-30" y="-18" width="60" height="40" fill="#fff" opacity="0.001"/><text font-size="19" text-anchor="middle" y="5">🥄</text><text y="20" font-size="8.5" fill="#cfeaff" text-anchor="middle">plastic spoon</text></g>
+  <g class="citem" data-c="1" data-nm="the paperclip" transform="translate(255 206)"><rect x="-30" y="-18" width="60" height="40" fill="#fff" opacity="0.001"/><text font-size="19" text-anchor="middle" y="5">📎</text><text y="20" font-size="8.5" fill="#cfeaff" text-anchor="middle">paperclip</text></g>
+  <g class="citem" data-c="0" data-nm="the wooden pencil" transform="translate(345 206)"><rect x="-30" y="-18" width="60" height="40" fill="#fff" opacity="0.001"/><text font-size="19" text-anchor="middle" y="5">✏️</text><text y="20" font-size="8.5" fill="#cfeaff" text-anchor="middle">pencil</text></g>
 </svg>`;}
 function wireCircuit(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='circuitSvg') return;
-  let closed=false;
-  svg.querySelector('#switchG').addEventListener('click',()=>{
-    closed=!closed;
-    const arm=svg.querySelector('#switchArm');
-    arm.setAttribute('x2', closed?140:132); arm.setAttribute('y2', closed?160:136);
-    svg.querySelector('#bulbGlow').setAttribute('opacity', closed?'0.85':'0');
+  const glow=svg.querySelector('#bulbGlow'), lbl=svg.querySelector('#circLbl');
+  const homes=new Map(); let inGap=null;
+  svg.querySelectorAll('.citem').forEach(it=>{
+    homes.set(it, it.getAttribute('transform'));
+    it.style.cursor='grab'; it.style.touchAction='none';
+    let drag=false;
+    it.addEventListener('pointerdown',e=>{ drag=true; e.preventDefault(); try{it.setPointerCapture(e.pointerId)}catch(_){}
+      svg.appendChild(it); });
+    it.addEventListener('pointermove',e=>{ if(!drag) return; e.preventDefault();
+      const pt=svgPt(svg,e); if(pt) it.setAttribute('transform',`translate(${pt.x} ${pt.y})`); });
+    it.addEventListener('pointerup',e=>{ if(!drag) return; drag=false; try{it.releasePointerCapture(e.pointerId)}catch(_){}
+      const pt=svgPt(svg,e);
+      if(pt && Math.abs(pt.x-210)<50 && Math.abs(pt.y-160)<36){
+        if(inGap && inGap!==it) inGap.setAttribute('transform',homes.get(inGap));
+        inGap=it; it.setAttribute('transform','translate(210 162)');
+        const ok=it.dataset.c==='1';
+        glow.setAttribute('opacity', ok?'0.85':'0');
+        lbl.textContent= ok? it.dataset.nm+' is a CONDUCTOR — loop complete! 💡' : it.dataset.nm+' is an INSULATOR — no flow, no light.';
+      } else {
+        if(inGap===it){ inGap=null; glow.setAttribute('opacity','0'); lbl.textContent='drag something into the gap!'; }
+        it.setAttribute('transform',homes.get(it));
+      }
+    });
   });
 }
 function ziplineSVG(){return `<svg viewBox="0 0 420 230" id="zipSvg">
   <rect width="420" height="230" fill="#1c2a3e"/>
   <circle cx="372" cy="38" r="22" fill="#ffd23f"/>
   <rect y="200" width="420" height="30" fill="#2c4a38"/>
-  <g id="zipPostL" style="cursor:pointer">
-    <rect x="28" y="42" width="30" height="158" fill="#fff" opacity="0.001"/>
-    <rect x="38" y="42" width="10" height="158" rx="4" fill="#7a5a38"/>
-    <text x="43" y="32" font-size="12" fill="#ffd23f" text-anchor="middle">tap post!</text>
-  </g>
+  <rect x="38" y="42" width="10" height="158" rx="4" fill="#7a5a38"/>
+  <text x="43" y="32" font-size="12" fill="#ffd23f" text-anchor="middle">drag the ring!</text>
   <rect x="374" y="128" width="10" height="72" rx="4" fill="#7a5a38"/>
   <line id="zipLine" x1="48" y1="100" x2="376" y2="158" stroke="#d9d9e5" stroke-width="3"/>
+  <g id="zipHandle" style="cursor:grab"><circle r="18" fill="#fff" opacity="0.001"/><circle r="9" fill="#ffd23f" stroke="#b8860b" stroke-width="3"/></g>
   <g id="zipToy" style="cursor:pointer">
     <rect x="-13" y="-8" width="26" height="40" fill="#fff" opacity="0.001"/>
     <line x1="0" y1="0" x2="0" y2="12" stroke="#d9b54a" stroke-width="3.5"/>
@@ -2062,21 +2112,31 @@ function ziplineSVG(){return `<svg viewBox="0 0 420 230" id="zipSvg">
 </svg>`;}
 function wireZip(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='zipSvg') return;
-  const toy=svg.querySelector('#zipToy'), line=svg.querySelector('#zipLine'), tlbl=svg.querySelector('#zipTime');
-  let steep=false, running=false;
-  const startY=()=>steep?56:100;
-  // toy starts a little way down the line so it never covers the post's tap area
-  const place=()=>{ line.setAttribute('y1',startY()); toy.style.transition='none'; toy.style.transform=`translate(76px,${steep?65:105}px)`; };
+  const toy=svg.querySelector('#zipToy'), line=svg.querySelector('#zipLine'), tlbl=svg.querySelector('#zipTime'), hand=svg.querySelector('#zipHandle');
+  let y1=100, running=false;
+  const place=()=>{
+    line.setAttribute('y1',y1);
+    hand.setAttribute('transform',`translate(48 ${y1})`);
+    const f=(76-48)/(376-48), ty=y1+(158-y1)*f;
+    toy.style.transition='none'; toy.style.transform=`translate(76px,${ty}px)`;
+  };
   place();
-  svg.querySelector('#zipPostL').addEventListener('click',()=>{ if(running) return; steep=!steep; place();
-    tlbl.textContent= steep?'steep start — launch it!':'gentle start — launch it!'; });
+  let drag=false;
+  hand.style.touchAction='none';
+  hand.addEventListener('pointerdown',e=>{ if(running) return; drag=true; e.preventDefault(); try{hand.setPointerCapture(e.pointerId)}catch(_){} });
+  hand.addEventListener('pointermove',e=>{ if(!drag||running) return; e.preventDefault();
+    const pt=svgPt(svg,e); if(!pt) return;
+    y1=Math.max(46,Math.min(150,pt.y)); place();
+    tlbl.textContent= y1<80?'super steep — ready!' : y1<120?'medium slope — ready!' : 'gentle slope — ready!';
+  });
+  hand.addEventListener('pointerup',()=>drag=false);
   toy.addEventListener('click',()=>{ if(running) return; running=true;
-    const dur= steep?1.1:2.3;
+    const dur=0.85+((y1-46)/104)*1.75;
     tlbl.textContent='wheee!';
-    toy.style.transition=`transform ${dur}s cubic-bezier(.45,0,.9,1)`;
+    toy.style.transition=`transform ${dur.toFixed(2)}s cubic-bezier(.45,0,.9,1)`;
     toy.style.transform='translate(370px,157px)';
-    setTimeout(()=>{ tlbl.textContent= steep?'about 1 second — FAST! ⚡':'about 2 seconds — slower 🐌';
-      setTimeout(()=>{ place(); running=false; },1000);
+    setTimeout(()=>{ tlbl.textContent=`about ${dur.toFixed(1)} seconds — ${dur<1.4?'FAST! ⚡':dur<2.1?'medium speed':'nice and gentle 🐌'}`;
+      setTimeout(()=>{ place(); running=false; },1100);
     }, dur*1000+60);
   });
 }
@@ -2139,14 +2199,15 @@ function machinesSVG(){return `<svg viewBox="0 0 420 230" id="machSvg">
     <line x1="317" y1="56" x2="343" y2="56" stroke="#e9e9f5" stroke-width="2.5"/></g>
   <line id="ropeA" x1="320" y1="58" x2="320" y2="146" stroke="#d9b54a" stroke-width="3"/>
   <line id="ropeB" x1="340" y1="58" x2="340" y2="128" stroke="#d9b54a" stroke-width="3"/>
-  <text id="pullLbl" x="358" y="140" font-size="16" fill="#ffd23f">⬇</text>
+  <text id="pullLbl" x="360" y="112" font-size="11" fill="#ffd23f" text-anchor="middle">pull!⬇</text>
+  <g id="ropeKnot" style="cursor:grab" transform="translate(340 128)"><circle r="16" fill="#fff" opacity="0.001"/><circle r="8" fill="#d9b54a" stroke="#8a5a28" stroke-width="2.5"/></g>
   <g id="crateG" style="cursor:pointer" transform="translate(320 172)">
     <rect x="-21" y="-34" width="42" height="40" fill="#fff" opacity="0.001"/>
     <rect x="-17" y="-30" width="34" height="30" rx="4" fill="#a06a3a"/>
     <line x1="-17" y1="-15" x2="17" y2="-15" stroke="#7a4e28" stroke-width="2.5"/>
     <line x1="0" y1="-30" x2="0" y2="0" stroke="#7a4e28" stroke-width="2.5"/>
   </g>
-  <text x="330" y="220" font-size="13" fill="#cfeaff" text-anchor="middle">pulley — tap the crate</text>
+  <text x="330" y="220" font-size="13" fill="#cfeaff" text-anchor="middle">pulley — pull the rope knot down!</text>
 </svg>`;}
 function wireMachines(){
   const svg=$('#topVis svg'); if(!svg||svg.id!=='machSvg') return;
@@ -2161,7 +2222,29 @@ function wireMachines(){
     setTimeout(()=>{ box.style.transition='transform .9s ease-in'; box.style.transform='translate(48px,198px)';
       setTimeout(()=>busyR=false,950); },1700);
   });
-  crate.addEventListener('click',()=>{ if(busyP) return; busyP=true;
+  // drag the rope knot down to hoist the crate directly
+  const knot=svg.querySelector('#ropeKnot');
+  let kdrag=false;
+  const applyPull=dy=>{
+    dy=Math.max(0,Math.min(64,dy));
+    const y=172-dy;
+    crate.setAttribute('transform',`translate(320 ${y})`);
+    ropeA.setAttribute('y2',y-30);
+    ropeB.setAttribute('y2',128+dy);
+    knot.setAttribute('transform',`translate(340 ${128+dy})`);
+    wheel.setAttribute('transform',`rotate(${-dy/64*220} 330 56)`);
+    return dy;
+  };
+  let curDy=0;
+  knot.style.touchAction='none';
+  knot.addEventListener('pointerdown',e=>{ if(busyP) return; kdrag=true; e.preventDefault(); try{knot.setPointerCapture(e.pointerId)}catch(_){} });
+  knot.addEventListener('pointermove',e=>{ if(!kdrag||busyP) return; e.preventDefault();
+    const pt=svgPt(svg,e); if(pt) curDy=applyPull(pt.y-128); });
+  knot.addEventListener('pointerup',()=>{ if(!kdrag) return; kdrag=false;
+    const from=curDy;
+    if(from>0){ busyP=true; tween(k=>applyPull(from*(1-k)),700,()=>{busyP=false;curDy=0;}); }
+  });
+  crate.addEventListener('click',()=>{ if(busyP||kdrag) return; busyP=true;
     const t0=performance.now(), dur=1100, y0=172, rise=64;
     (function up(t){ const k=ease(Math.min(1,(t-t0)/dur));
       const y=y0-rise*k;
@@ -2288,9 +2371,9 @@ const TOPICS=[{
 },{
   id:'zipline', title:'Zip Line Physics', emoji:'🎢', blurb:'Speed, time and acceleration', keepVis:true,
   tags:['zip','zipline','wire','speed','fast','slow','acceleration','friction','race','rope','slide','gravity','time','distance'],
-  svg:ziplineSVG, cap:'👆 Tap the toy to launch it — tap the tall post to change the steepness!',
+  svg:ziplineSVG, cap:'👆 Drag the gold ring to set the steepness — then tap the toy to launch!',
   steps:[
-    {type:'say', text:'A zip line is gravity having fun! The line slopes downhill, gravity pulls the rider along it, and off you zoom. Launch the toy above — then tap the tall post to make the start steeper or gentler and launch again.'},
+    {type:'say', text:'A zip line is gravity having fun! The line slopes downhill, gravity pulls the rider along it, and off you zoom. Launch the toy above — then drag the gold ring up or down to change the steepness and launch again.'},
     {type:'ask', q:'What pulls the toy down the zip line?', opts:['Gravity','The wind','The string pushes it'], correct:0, why:'The same pull that drops the apple — gravity! The sloping line just steers the fall sideways.'},
     {type:'predict', predict:'Make your real zip line STEEPER. What will the toy do?', opts:['Go faster','Go slower','Exactly the same'], correct:0,
       test:'Set your toy zip line gentle and count out loud how long the ride takes. Now make it steeper and count again!',
@@ -2306,7 +2389,7 @@ const TOPICS=[{
 },{
   id:'machines', title:'Ramps, Levers & Pulleys', emoji:'🏗️', blurb:'Simple machines — build them from Lego!', keepVis:true,
   tags:['machine','machines','ramp','ramps','lever','levers','pulley','pulleys','lego','build','lift','seesaw','crane','engineer','simple'],
-  svg:machinesSVG, cap:'👆 Tap the box to push it up the ramp — tap the crate to hoist it with the pulley!',
+  svg:machinesSVG, cap:'👆 Tap the box up the ramp — and PULL the rope knot down to hoist the crate!',
   steps:[
     {type:'say', text:'Machines don’t have to beep or have motors! A RAMP, a LEVER and a PULLEY are called simple machines — clever tricks that make heavy work easier. Try both machines above!'},
     {type:'ask', q:'You must get a heavy box onto a table. Which way is easier?', opts:['Slide it up a ramp — a gentler push, just longer','Lift it straight up in one go','They’re exactly the same'], correct:0, why:'The ramp spreads the work out: a smaller push over a longer path. That’s the ramp’s trick!'},
@@ -2343,7 +2426,7 @@ const TOPICS=[{
 },{
   id:'floating', title:'Floating & Sinking', emoji:'🛁', blurb:'Archimedes & why boats float',
   tags:['float','floating','sink','sinking','water','boat','boats','ship','ships','archimedes','eureka','bath','buoyancy','upthrust','displace','displacement','dense','heavy'],
-  svg:archimedesSVG, cap:'👆 Tap the ball to drop it in',
+  svg:floatSVG, keepVis:true, cap:'👆 Drag the coin, orange, foil ball and foil boat into the water!',
   steps:[
     {type:'say', text:'Long ago, a scientist named Archimedes climbed into his bath. The water rose up the sides — and suddenly he understood why things float! He shouted “Eureka!” (“I’ve got it!”). Let’s discover it too.'},
     {type:'predict', predict:'We’ll drop a coin into a bowl of water. Will it float or sink?', opts:['Float','Sink'], correct:1,
@@ -2384,9 +2467,9 @@ const TOPICS=[{
 },{
   id:'shadows', title:'Light & Shadows', emoji:'🔦', blurb:'Why shadows stretch and shrink',
   tags:['light','shadow','shadows','sun','torch','dark','bright','lightning','thunder','shine','reflection','night','day'],
-  svg:shadowsSVG, cap:'👆 Tap a sun position — watch the shadow move and stretch!',
+  svg:shadowsSVG, keepVis:true, cap:'👆 Drag the sun across the sky — watch the shadow swing and stretch!',
   steps:[
-    {type:'say', text:'Light zooms along in perfectly straight lines. When something blocks its path, the light can’t bend round it — so a dark patch appears behind: a SHADOW. Tap the sun positions above to move the sun across the sky!'},
+    {type:'say', text:'Light zooms along in perfectly straight lines. When something blocks its path, the light can’t bend round it — so a dark patch appears behind: a SHADOW. Drag the sun across the sky above and watch the shadow!'},
     {type:'ask', q:'So what exactly IS a shadow?', opts:['A place the light can’t reach','Black paint from the sun','Your reflection'], correct:0, why:'Your body blocks the light, leaving a dark patch behind you shaped just like you.'},
     {type:'predict', predict:'Shine a torch at a toy near a wall. What happens to the shadow if you move the torch CLOSER?', opts:['The shadow gets bigger','The shadow gets smaller','The shadow disappears'], correct:0,
       test:'In a dim room, shine a torch at a toy near a wall. Slowly move the torch closer, then further away.',
@@ -2428,10 +2511,10 @@ const TOPICS=[{
 },{
   id:'electricity', title:'Electricity & Circuits', emoji:'🔋', blurb:'Make the bulb light up',
   tags:['electricity','electric','circuit','circuits','battery','batteries','bulb','light','switch','wire','power','energy','torch','conductor'],
-  svg:circuitSVG, cap:'👆 Tap the switch — close the loop and the bulb lights!',
+  svg:circuitSVG, keepVis:true, cap:'👆 Drag the key, spoon, paperclip or pencil into the gap — which ones light the bulb?',
   steps:[
-    {type:'say', text:'Electricity is a flow of tiny particles racing round a loop called a CIRCUIT. If the loop is complete, energy flows from the battery and the bulb lights up. If there’s a gap — nothing flows. Tap the switch above to open and close the loop!'},
-    {type:'ask', q:'Why does the bulb go out when the switch is open?', opts:['The loop is broken so electricity can’t flow','The bulb gets tired','The battery falls asleep'], correct:0, why:'Electricity only flows round a COMPLETE loop. An open switch is a gap — the flow stops instantly.'},
+    {type:'say', text:'Electricity is a flow of tiny particles racing round a loop called a CIRCUIT. If the loop is complete, energy flows from the battery and the bulb lights up. But look — this circuit has a GAP! Drag the things below into the gap and discover which ones let electricity flow.'},
+    {type:'ask', q:'Why is the bulb OFF while the gap is empty?', opts:['The loop is broken so electricity can’t flow','The bulb gets tired','The battery falls asleep'], correct:0, why:'Electricity only flows round a COMPLETE loop. A gap stops the flow instantly — that’s exactly how a switch works!'},
     {type:'ask', q:'Which of these is SAFE to play with?', opts:['A battery-powered toy','Wall sockets','Bare wires'], correct:0, why:'Little batteries are gentle and safe. Mains sockets and bare wires are DANGEROUS — never ever poke them!'},
     {type:'predict', predict:'If you put a plastic spoon into the circuit loop, will the bulb still light?', opts:['No — plastic blocks electricity','Yes — electricity flows through anything'], correct:0,
       reveal:'No! Electricity only flows through CONDUCTORS like metal. Plastic is an INSULATOR — that’s exactly why wires wear little plastic jackets to keep us safe.'},
@@ -2442,7 +2525,7 @@ const TOPICS=[{
 },{
   id:'magnets', title:'Magnets', emoji:'🧲', blurb:'The invisible pull',
   tags:['magnet','magnets','magnetic','metal','iron','steel','pull','attract','repel','pole','poles','north','south','compass','fridge','force'],
-  svg:magnetsSVG, cap:'👆 Drag the magnet onto the paperclip!',
+  svg:magnetsSVG, keepVis:true, cap:'👆 Drag the magnet onto the paperclip!',
   steps:[
     {type:'say', text:'A magnet is special: it can pull some things towards it without even touching them! That invisible pull is called magnetism. (Drag the magnet above onto the paperclip and watch!)'},
     {type:'predict', predict:'Hold a magnet near a metal paperclip. What will happen?', opts:['It sticks to the magnet','Nothing happens'], correct:0,
@@ -2462,6 +2545,10 @@ const TOPICS=[{
   ]
 }];
 let sciState=null;
+function svgPt(svg,e){ const pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  const m=svg.getScreenCTM(); return m?pt.matrixTransform(m.inverse()):null; }
+function tween(fn,dur,done){ const t0=performance.now(), ease=k=>k*k*(3-2*k);
+  (function f(t){ const k=ease(Math.min(1,(t-t0)/dur)); fn(k); if(k<1) requestAnimationFrame(f); else if(done) done(); })(t0); }
 function wireMagnet(){
   const svg=$('#topVis svg'), mag=document.getElementById('magnet'), clip=document.getElementById('clip');
   if(!svg||!mag||!clip) return;
@@ -2495,7 +2582,7 @@ function openTopic(t){
   $('#topVis').querySelectorAll('.tapdrop').forEach(el=>el.onclick=()=>el.classList.toggle('dropped'));
   const sun=$('#sunTap'); if(sun){ const svg=sun.closest('svg'); sun.style.cursor='pointer'; sun.onclick=()=>svg.classList.toggle('sunny'); }
   if(document.getElementById('magnet')) wireMagnet();
-  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit(); wireZip(); wireLight(); wireMachines(); wireSound();
+  wireSpace(); wireShadows(); wireWeather(); wireBody(); wireCircuit(); wireZip(); wireLight(); wireMachines(); wireSound(); wireFloat();
   if(S.explored[t.id]) renderTopicChooser(); else runStep(0);
   $('#topic').classList.remove('hidden'); $('#topic').scrollTop=0;
 }
