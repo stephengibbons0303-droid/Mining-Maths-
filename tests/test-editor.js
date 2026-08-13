@@ -18,7 +18,7 @@ const { chromium } = require('playwright');
     tools: document.querySelectorAll('#edPal button').length,
     left: edLeftN(), cells: document.querySelectorAll('#edSvg rect[data-c]').length
   }));
-  ck('editor opens: 4 tools, 40 blocks, 8x10 grid', st.open && st.tools === 4 && st.left === 40 && st.cells === 80);
+  ck('editor opens: 7 tools, 40 blocks, 8x10 grid', st.open && st.tools === 7 && st.left === 40 && st.cells === 80);
 
   // place a stone on the ground row
   await cell(0, 0);
@@ -58,6 +58,18 @@ const { chromium } = require('playwright');
   ck('over-budget placement blocked with arithmetic message', st.left === 0 && /Not enough/.test(st.msg));
   await p.evaluate(() => { for (const k in ED.g) { const r = +k.split(',')[1]; if (r >= 4) delete ED.g[k]; } edSave(); edDraw(); });
 
+  // planks can bridge sideways (but not float free)
+  await tool('p');
+  await cell(6, 2);
+  st = await p.evaluate(() => ({ n: S.castle.length, msg: document.getElementById('edMsg').textContent }));
+  ck('free-floating plank rejected with bridge hint', st.n === 7 && /beside/.test(st.msg));
+  await cell(5, 1); // left neighbour (4,1) is a stone -> bridge attaches
+  st = await p.evaluate(() => ({ n: S.castle.length, plank: S.castle.some(b => b[2] === 'p') }));
+  ck('plank attaches beside a stone (bridge)', st.n === 8 && st.plank);
+  await tool('x');
+  await cell(5, 1); // tidy up so later counts hold
+  ck('plank removed again', await p.evaluate(() => S.castle.length === 7));
+
   // done: editor closes, design persists
   await p.click('#edQuit');
   st = await p.evaluate(() => ({ closed: document.getElementById('editor').classList.contains('hidden'), n: S.castle.length }));
@@ -78,12 +90,14 @@ const { chromium } = require('playwright');
   ck('battle: custom castle = keep + 2 groups, flag flying; enemy classic', st.open && st.pRows === 3 && st.eRows === 3 && st.flag && st.keep);
   await p.click('#siegeQuit');
 
-  // classic restore
+  // classic selector: visibly selects, never wipes the build
   await p.click('#edBtn');
   await p.waitForTimeout(300);
-  await p.click('#edClassic');
-  st = await p.evaluate(() => S.castle.length);
-  ck('classic restore empties the design', st === 0);
+  st = await p.evaluate(() => document.querySelector('#edUse .sel') && document.querySelector('#edUse .sel').dataset.u);
+  ck('selector shows My build as active', st === 'own');
+  await p.click('#edUse [data-u="classic"]');
+  st = await p.evaluate(() => ({ use: S.castleUse, n: S.castle.length, sel: document.querySelector('#edUse .sel').dataset.u }));
+  ck('classic chip selects classic and keeps the build', st.use === 'classic' && st.n === 7 && st.sel === 'classic');
   await p.click('#edQuit');
   await p.evaluate(() => { S.battles.tokens = (S.battles.tokens || 0) + 1; save(); });
   await p.click('#siegeBtn');
@@ -91,8 +105,9 @@ const { chromium } = require('playwright');
   await p.click('#sgVsAI'); // v20 mode picker
   await p.waitForTimeout(300);
   st = await p.evaluate(() => document.querySelectorAll('#castleP rect').length);
-  ck('classic build back in battle (many bricks)', st > 40);
+  ck('classic fights while selected (many bricks), build intact', st > 40 && await p.evaluate(() => S.castle.length === 7));
   await p.click('#siegeQuit');
+  await p.evaluate(() => { S.castleUse = 'own'; save(); });
 
   console.log(log.join('\n')); console.log('ERRORS:', errs.length ? errs.join(' | ') : 'none');
   await b.close();

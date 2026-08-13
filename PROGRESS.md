@@ -107,6 +107,21 @@ pedagogy (worked solutions, retries, hints).
   2-player can't bypass quest gating). Jad's editor build fights on
   whichever side is named Jad.
 
+### Review pass + Stephen's UI feedback (v21–v23)
+- **v21**: full-repo code review — 10 verified fixes, headlined by the enemy
+  AI clamp that turned wide misses into direct hits (could even steal the
+  throne), plus day-rollover drift, fade guards, dead speech code, sw.js
+  offline errors, and a perpetual WebGL render loop.
+- **v22**: four-angle /simplify pass — shared `canFade` predicate, column
+  subtraction borrowing in true paper order (no negative digits), 3D loop
+  lifecycle owned properly, `renderHome()` naming the home render set.
+- **v23**: Stephen's tablet feedback — fixed the games row (Build button had
+  swallowed the row, crushing Sprint/Siege to 65px); editor gained planks
+  (side-supportable — bridges!), turret caps and windows plus an explicit
+  "which castle fights" selector that no longer wipes the build; and the
+  first ballistics maths layer: light/heavy rocks (heavy = ×2 smash, flies
+  HALF the power, even numbers only), true parabolic flight with a trail.
+
 ## State at end of session
 
 - **Live version: v20**, deployed and verified green on Pages.

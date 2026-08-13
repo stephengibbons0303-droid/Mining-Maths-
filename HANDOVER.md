@@ -16,7 +16,7 @@ pass-and-play). For the release-by-release history see `PROGRESS.md`.
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v20.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v23.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Usage pattern**: Jad uses the tablet roughly **every other day**, not daily.
 - **COPY RULE (Stephen, v17)**: never convey time windows or deadlines to Jad —
@@ -113,20 +113,31 @@ the instinct channel.
 2. Verdict on Jenga tower / Drop-Match: not yet given — ask again later.
 3. His own ideas: none captured yet.
 
-### Castle editor (v19 — SHIPPED, Stephen greenlit it over pass-and-play)
-🛠 button in the games row (free, no battle token). 8×10 grid above a fixed
-gold keep; palette Stone(1)/Torch(2)/Flag(4)/Remove with a **40-block
-budget** — the maths is the budget arithmetic (costs, subtraction, "can I
-afford a flag?"). Support rule: no floating blocks (place only on ground
-row or atop a block; Remove clears the block + everything above it).
-Placeable cells glow faint blue. Design persists as `S.castle=[[c,r,t],…]`
-and replaces the player's classic castle in every battle: blocks sorted
-bottom-up, upper half tumbles on hit 1, lower half on hit 2, then the usual
-exposed-throne endgame. Enemy keeps the classic build. Editor locks
-landscape like the siege. Key code: `openEditor/edDraw/edTap/ED_COST`,
-custom branch at the top of `castle()` in `siegeField()`.
-`tests/test-editor.js` covers budget, support rule, persistence, battle
-integration and classic restore.
+### Castle editor (v19, expanded v23 — SHIPPED)
+🛠 Build button in the games row (free, no battle token). 8×10 grid above a
+fixed gold keep; palette Stone(1)/**Plank(1)/Turret(1)/Window(1)** (v23)/
+Torch(2)/Flag(4)/Remove with a **40-block budget** — the maths is the budget
+arithmetic. Support rule: no floating blocks — EXCEPT **planks may hang off
+a side neighbour** (`edSupported()`), so bridges between towers work.
+Remove clears the block + everything above in the column (a plank left
+side-hanging after that is tolerated — soft structural sim). Placeable
+cells glow for the current tool. Design persists as `S.castle=[[c,r,t],…]`;
+types s/p/c/w/t/f. **`S.castleUse` ('own'|'classic', v23)** picks which
+castle fights via chips in the editor — choosing classic NEVER wipes the
+build (the v19 button destructively cleared it; Stephen flagged it).
+Blocks sorted bottom-up, upper half tumbles on hit 1, lower half on hit 2.
+Enemy keeps the classic build. `tests/test-editor.js` covers all of it.
+
+### Weights layer (v23 — SHIPPED, first of the agreed maths layers)
+Rock selector on every shot (solo + both 2P players, per-player via
+`pl[].wt`): 🪨 light flies FULL power; 🗿 heavy does **×2 smash (two wall
+layers, +4★) but flies HALF the power** — and only accepts EVEN power so
+the halving is exact mental maths (doubling to aim: castle at 44 → power
+88). Landing (not power) drives all feedback/corrections (`SG.lastLand`);
+enemy AI always fires light. Flight is now a tall parabola
+(apex `range*0.45`, capped) with a fading dot trail; heavy rock drawn
+bigger (r 8.5 vs 5.5). Copy states the halving every time it matters.
+Next layers: wind (signed adjustment), then angle as a second number.
 
 ### Pass-and-play (v20 — SHIPPED)
 The 🏰 button now opens a **mode picker** over a battlefield preview:
@@ -149,8 +160,16 @@ capture. NOTE: all siege-opening tests now click `#sgVsAI` after
 
 ### Next siege layers (agreed order)
 Per-player editor designs (Rai builds his own too — store per-name
-castles), then weights (double/halve), wind (signed adjustment), angle as
-a second number.
+castles), then wind (signed adjustment), angle as a second number
+(weights shipped in v23).
+
+### UI trap (v23, learned the hard way)
+`.newpic` has `width:100%`; inside `.gamesrow` the flex override MUST keep
+`width:auto;min-width:0` — an inline `flex:0 0 auto` on a `.newpic` child
+made the Build button swallow the whole row and crush Sprint/Siege to
+65px (shipped broken v19–v22; Stephen caught it on the tablet).
+`test-v17.js` now guards the row widths. When adding home-page buttons,
+re-screenshot PORTRAIT, not just landscape.
 
 ## Directed learning (v16, reframed v17 — SHIPPED)
 "⚔️ Quest Board" on the maths tab: 3 quests per **play day** — Practice

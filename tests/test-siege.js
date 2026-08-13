@@ -60,6 +60,17 @@ const { chromium } = require('playwright');
   await type(555);
   const guard = await p.evaluate(() => SG.busy === false && SG.mode === 'aim');
   ck('power >100 rejected, still aiming', guard);
+
+  // v23 heavy rock: flies half the power, smashes both walls at once
+  await p.evaluate(() => { SG.D = 44; redrawSiege(); });
+  await p.click('#sgRock [data-w="2"]');
+  await type(87);
+  ck('heavy rejects odd power (halving must be exact)', await p.evaluate(() => SG.busy === false && SG.mode === 'aim'));
+  const sh = await p.evaluate(() => S.stars);
+  await type(88);
+  await p.waitForTimeout(6500);
+  st = await p.evaluate(() => ({ eHP: SG.eHP, stars: S.stars, throne: !!document.querySelector('#castleE .throne') }));
+  ck('heavy at 88 flies 44 m: double smash 3->1, +4 stars, throne exposed', st.eHP === 1 && st.stars === sh + 4 && st.throne);
   await p.click('#siegeQuit');
 
   console.log(log.join('\n')); console.log('ERRORS:', errs.length ? errs.join(' | ') : 'none');

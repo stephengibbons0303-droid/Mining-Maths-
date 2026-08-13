@@ -59,6 +59,13 @@ const { chromium } = require('playwright');
   });
   ck('new play day: fresh board, crown cleared, 1 free battle', st.fresh && !st.crown && st.n === 3 && st.left === 1);
 
+  // 6b) games row: three buttons share the content width evenly (v23 regression)
+  st = await p.evaluate(() => {
+    const w = id => document.getElementById(id).getBoundingClientRect().width;
+    return { s: w('sprintBtn'), g: w('siegeBtn'), e: w('edBtn'), c: document.getElementById('catGrid').getBoundingClientRect().width };
+  });
+  ck('games row buttons share the row (no blowout)', st.s > 150 && st.g > 150 && st.e > 150 && Math.abs(st.s + st.g + st.e - st.c) < 40);
+
   // 7) landscape: siege lays out scene + keypad side by side, big scene
   const p2 = await b.newPage({ viewport: { width: 1280, height: 800 } });
   p2.on('pageerror', e => errs.push('L: ' + e.message));

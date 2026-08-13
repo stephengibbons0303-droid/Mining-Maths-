@@ -208,7 +208,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 
 /* Games row */
 .gamesrow{display:flex;gap:10px;margin:0 0 12px}
-.gamesrow .newpic{margin:0;flex:1}
+.gamesrow .newpic{margin:0;flex:1;width:auto;min-width:0}
 
 /* Castle Siege */
 #siege{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:14px;overflow:auto}
@@ -245,7 +245,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
   #edSvg{grid-column:1;grid-row:2/span 3;max-height:calc(100vh - 110px)}
   #edMsg{grid-column:2;grid-row:2}
   #edPal{grid-column:2;grid-row:3;flex-direction:column}
-  #edClassic{grid-column:2;grid-row:4}
+  .edcard .sgtag{grid-column:2;grid-row:4}
+  #edUse{grid-column:2;grid-row:5}
 }
 
 /* Times-table sprint */
@@ -376,7 +377,7 @@ window.addEventListener('unhandledrejection',function(e){
     <div class="gamesrow">
       <button class="newpic" id="sprintBtn">⚡ Sprint</button>
       <button class="newpic" id="siegeBtn" style="background:linear-gradient(135deg,#8fd8e0,#3d8fd1);color:#08222e">🏰 Castle Siege</button>
-      <button class="newpic" id="edBtn" style="flex:0 0 auto;background:linear-gradient(135deg,#ffd9a0,#e08f3d);color:#3a2408">🛠</button>
+      <button class="newpic" id="edBtn" style="background:linear-gradient(135deg,#ffd9a0,#e08f3d);color:#3a2408">🛠 Build</button>
     </div>
     <div class="grid" id="catGrid"></div>
   </div>
@@ -474,7 +475,11 @@ window.addEventListener('unhandledrejection',function(e){
     <svg id="edSvg" viewBox="0 0 240 212"></svg>
     <div id="edMsg"></div>
     <div id="edPal"></div>
-    <button class="btn ghost" id="edClassic" style="width:100%">🏰 Use the classic castle instead</button>
+    <div class="sgtag" style="margin-top:10px">which castle fights for you?</div>
+    <div class="kxrow" id="edUse">
+      <button data-u="own">🏗 My build</button>
+      <button data-u="classic">🏰 Classic castle</button>
+    </div>
   </div>
 </div>
 
@@ -588,7 +593,7 @@ window.addEventListener('unhandledrejection',function(e){
   <div class="opt" id="badgeRow" style="cursor:pointer"><span>🏅 Badges</span><span>›</span></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v22</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v23</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -655,6 +660,7 @@ function load(){
   S.crowns   = S.crowns   || 0;
   S.questsOn = (S.questsOn===undefined)?true:!!S.questsOn;
   S.castle   = Array.isArray(S.castle)?S.castle.filter(b=>Array.isArray(b)&&b.length===3):[];  // Jad's own castle: [col,row,type]
+  S.castleUse = S.castleUse==='classic'?'classic':'own';   // which castle fights (build kept either way)
   S.sg2      = S.sg2      || {1:'Jad',2:'Rai'};  // last pass-and-play pairing
   rollDate();
 }
@@ -2958,7 +2964,7 @@ function siegeField(){
     const wallGrid=(x,y,cols,rows,bw,bh,off)=>{let g='';for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)g+=B(x+c*bw,y+r*bh,bw,bh,stone(c+r*3+off));return g;};
     const merlons=(x,w,y,n)=>{let g='';const t=w/(n*2-1);for(let i=0;i<n;i++)g+=B(x+i*2*t,y,t,5,stone(i));return g;};
     let g='';
-    const own = ownFlag && S.castle && S.castle.length;
+    const own = ownFlag && S.castleUse!=='classic' && S.castle && S.castle.length;
     if(hp>1 && own){
       // Jad's design: blocks sorted bottom-up, upper half tumbles on hit 1,
       // lower half on hit 2 (no floaters mid-battle: support is downward)
@@ -2971,6 +2977,9 @@ function siegeField(){
         const c=b[0], r=b[1], t=b[2], bx=x0+c*bw2, by=189-(r+1)*bh2, mx=bx+bw2/2;
         if(t==='t') return B(bx,by+2.5,bw2,4,stone(c+r))+`<rect x="${(mx-0.6).toFixed(1)}" y="${(by-1.5).toFixed(1)}" width="1.2" height="4.5" fill="#5b4324"/><circle cx="${mx.toFixed(1)}" cy="${(by-2.6).toFixed(1)}" r="1.8" fill="#ffd23f"/>`;
         if(t==='f') return `<rect x="${(mx-0.6).toFixed(1)}" y="${(by-4.5).toFixed(1)}" width="1.2" height="${bh2+4.5}" fill="#5b4324"/><polygon points="${(mx+0.6).toFixed(1)},${(by-4.5).toFixed(1)} ${(mx+7).toFixed(1)},${(by-2.2).toFixed(1)} ${(mx+0.6).toFixed(1)},${by.toFixed(1)}" fill="${flag}"/>`;
+        if(t==='p') return `<rect x="${bx.toFixed(1)}" y="${(by+1.5).toFixed(1)}" width="${bw2}" height="${bh2-3}" fill="#a06a3a" stroke="#6b4522" stroke-width="0.7"/>`;
+        if(t==='c') return B(bx+0.3,by+2.5,1.5,4,stone(c))+B(bx+2.3,by+2.5,1.5,4,stone(c+1))+B(bx+4.3,by+2.5,1.5,4,stone(c+2));
+        if(t==='w') return B(bx,by,bw2,bh2,stone(c+r*3))+`<rect x="${(mx-0.7).toFixed(1)}" y="${(by+1.4).toFixed(1)}" width="1.4" height="${bh2-2.8}" rx="0.6" fill="#2b333d"/>`;
         return B(bx,by,bw2,bh2,stone(c+r*3));
       };
       const bl=[...S.castle].sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
@@ -3060,7 +3069,7 @@ function startSiege(){
 function useBattle(){ S.battles.used=(S.battles.used||0)+1; save(); renderQuests(); }
 function beginSolo(){
   useBattle();
-  SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, sign:1, val:'', mode:'aim', busy:false};
+  SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, sign:1, val:'', mode:'aim', busy:false, wt:1};
   redrawSiege();
   $('#siegeShots').textContent='shot 1';
   $('#siegeMsg').innerHTML='Their <b>throne</b> hides inside the gold keep. Smash the walls, then <b>capture it</b>! How many metres away is it?';
@@ -3078,21 +3087,25 @@ function pick2P(){
 }
 function begin2P(){
   useBattle();
-  SG={two:true, turn:1, shot:1, busy:false, val:'',
+  SG={two:true, turn:1, shot:1, busy:false, val:'', wt:1,
       nm:{1:S.sg2[1],2:S.sg2[2]},
       M:{1:rand(6,26),2:rand(60,92)},
       HP:{1:3,2:3},
-      pl:{1:{lastPow:null,sign:1,mode:'aim'},2:{lastPow:null,sign:1,mode:'aim'}}};
+      pl:{1:{lastPow:null,sign:1,mode:'aim',wt:1},2:{lastPow:null,sign:1,mode:'aim',wt:1}}};
   loadTurn();
   redrawSiege();
   $('#siegeShots').textContent='round 1';
   $('#siegeMsg').innerHTML=`🔵 <b>${SG.nm[1]}</b> goes first! Smash <b>${SG.nm[2]}</b>'s walls, then capture the throne. Which metre mark is their castle on?`;
   sgControls();
 }
-function loadTurn(){ const p=SG.pl[SG.turn]; SG.mode=p.mode; SG.lastPow=p.lastPow; SG.sign=p.sign; }
-function saveTurn(){ const p=SG.pl[SG.turn]; p.mode=SG.mode; p.lastPow=SG.lastPow; p.sign=SG.sign; }
+function loadTurn(){ const p=SG.pl[SG.turn]; SG.mode=p.mode; SG.lastPow=p.lastPow; SG.sign=p.sign; SG.wt=p.wt||1; }
+function saveTurn(){ const p=SG.pl[SG.turn]; p.mode=SG.mode; p.lastPow=SG.lastPow; p.sign=SG.sign; p.wt=SG.wt; }
 function sgControls(){
   const c=$('#siegeCtl');
+  const rockHTML=`<div class="kxrow" id="sgRock">
+      <button data-w="1" class="${SG.wt===1?'sel':''}">🪨 light · flies FULL power</button>
+      <button data-w="2" class="${SG.wt===2?'sel':''}">🗿 heavy ×2 smash · flies HALF</button>
+    </div>`;
   const padHTML=`<div class="kdisp"><span id="sgIn">…</span><span class="kunit">${SG.mode==='aim'?'m of power':'m'}</span></div>
     <div class="kgrid" id="sgPad">
       <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
@@ -3101,9 +3114,9 @@ function sgControls(){
       <button class="kdel" data-k="del">⌫</button><button data-k="0">0</button><button class="kok" data-k="ok">🎯</button>
     </div>`;
   if(SG.mode==='aim'){
-    c.innerHTML=`<div class="sgtag">${SG.two?'read the tape — aim at a metre mark':'catapult power = metres flown'}</div>${padHTML}`;
+    c.innerHTML=`<div class="sgtag">${SG.two?'read the tape — aim at a metre mark':'catapult power = metres flown'}</div>${rockHTML}${padHTML}`;
   } else {
-    c.innerHTML=`<div class="sgtag">last power: ${SG.lastPow} · adjust it!</div>
+    c.innerHTML=`<div class="sgtag">last power: ${SG.lastPow} · adjust it!</div>${rockHTML}
       <div class="kxrow" id="sgSign">
         <button data-s="1" class="${SG.sign>0?'sel':''}">＋ more power</button>
         <button data-s="-1" class="${SG.sign<0?'sel':''}">－ less power</button>
@@ -3111,6 +3124,8 @@ function sgControls(){
     c.querySelectorAll('#sgSign button').forEach(b=>b.onclick=()=>{ SG.sign=+b.dataset.s;
       c.querySelectorAll('#sgSign button').forEach(x=>x.classList.toggle('sel',x===b)); sgDisp(); });
   }
+  c.querySelectorAll('#sgRock button').forEach(b=>b.onclick=()=>{ SG.wt=+b.dataset.w;
+    c.querySelectorAll('#sgRock button').forEach(x=>x.classList.toggle('sel',x===b)); });
   SG.val='';
   c.querySelectorAll('#sgPad button').forEach(b=>b.onclick=()=>sgKey(b.dataset.k));
   sgDisp();
@@ -3128,20 +3143,30 @@ function sgKey(k){
     if(SG.mode==='aim') pow=parseInt(SG.val,10);
     else pow=SG.lastPow+SG.sign*parseInt(SG.val,10);
     if(pow<1||pow>100){ toast('Power must land between 1 and 100 m!'); SG.val=''; sgDisp(); return; }
+    if(SG.wt===2 && pow%2){ toast('🗿 The heavy rock flies HALF your power — pick an EVEN number!'); SG.val=''; sgDisp(); return; }
     if(SG.two) fire2P(pow); else playerFire(pow);
     return;
   }
   else if(SG.val.length<3) SG.val+=k;
   sgDisp();
 }
-function sgFly(fromM,toM,done){
-  const ball=$('#siegeSvg').querySelector('#sgBall');
+function sgFly(fromM,toM,done,wt){
+  const svg=$('#siegeSvg'), ball=svg.querySelector('#sgBall');
+  ball.querySelector('circle').setAttribute('r', (wt||SG.wt)===2?8.5:5.5);
   const x0=sgX(fromM), x1=sgX(toM), range=Math.abs(x1-x0);
-  const apex=Math.max(30,range/4), dur=700+range*2.2;
+  const apex=Math.max(55,Math.min(170,range*0.45)), dur=800+range*2.4;
   ball.setAttribute('opacity','1');
+  let n=0;
   tween(k=>{
     const x=x0+(x1-x0)*k, y=192-4*apex*k*(1-k);
     ball.setAttribute('transform',`translate(${x} ${y})`);
+    if(++n%4===0){
+      const d=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      d.setAttribute('cx',x); d.setAttribute('cy',y); d.setAttribute('r','1.7');
+      d.setAttribute('fill','#ffe89a'); d.setAttribute('opacity','0.55');
+      svg.appendChild(d);
+      tween(kk=>d.setAttribute('opacity',String(0.55*(1-kk))),700,()=>d.remove());
+    }
   },dur,()=>{ ball.setAttribute('opacity','0'); done(); });
 }
 function sgCrumble(castleId){
@@ -3171,10 +3196,12 @@ function sgCapture(fromM,toM,done){
 }
 function playerFire(pow){
   SG.busy=true; SG.lastPow=pow;
+  const heavy=SG.wt===2, land=heavy?pow/2:pow;
+  SG.lastLand=land;
   const exposed=SG.eHP===1;
-  $('#siegeMsg').textContent='Firing at power '+pow+'…';
-  sgFly(12,pow,()=>{
-    const diff=SG.D-pow, tol=exposed?3:6;
+  $('#siegeMsg').textContent=heavy?'🗿 Heavy rock at power '+pow+' — it flies '+land+' m…':'🪨 Firing at power '+pow+'…';
+  sgFly(12,land,()=>{
+    const diff=SG.D-land, tol=exposed?3:6;
     if(Math.abs(diff)<=tol){
       if(exposed){
         award(5); burst();
@@ -3182,16 +3209,18 @@ function playerFire(pow){
         sgCapture(SG.D,4,()=>siegeEnd(true));
         return;
       }
-      sgCrumble('castleE'); SG.eHP--; award(2); burst();
+      const layers=Math.min(heavy?2:1, SG.eHP-1);
+      sgCrumble('castleE'); if(layers===2) setTimeout(()=>sgCrumble('castleE'),350);
+      SG.eHP-=layers; award(2*layers); burst();
       const nowExposed=SG.eHP===1;
       $('#siegeMsg').innerHTML = nowExposed
-        ? '💥 <b>WALLS DOWN — the THRONE is exposed!</b> +2 ★<br>They drag the keep somewhere new… a precise shot within <b>3 m</b> captures it!'
+        ? `💥 <b>${layers===2?'DOUBLE SMASH — both walls down':'WALLS DOWN'} — the THRONE is exposed!</b> +${2*layers} ★<br>They drag the keep somewhere new… a precise shot within <b>3 m</b> captures it!`
         : '💥 <b>HIT!</b> +2 ★ — one wall left. The castle rebuilds further away…';
       SG.D=rand(35,90);
       setTimeout(()=>{ redrawSiege(); enemyTurn(); },1700);
     } else {
-      sgLandFlag(pow, pow+' m');
-      $('#siegeMsg').innerHTML=`Landed at <b>${pow} m</b> — the ${exposed?'<b>throne</b>':'castle'} sits at <b>${SG.D} m</b>. ${diff>0?'How much FURTHER?':'How much LESS?'}${exposed?' You must land within <b>3 m</b>!':''}`;
+      sgLandFlag(land, land+' m');
+      $('#siegeMsg').innerHTML=`Landed at <b>${land} m</b> — the ${exposed?'<b>throne</b>':'castle'} sits at <b>${SG.D} m</b>. ${diff>0?'How much FURTHER?':'How much LESS?'}${heavy?' Your heavy rock flies HALF your power!':''}${exposed?' You must land within <b>3 m</b>!':''}`;
       setTimeout(enemyTurn,1400);
     }
   });
@@ -3219,20 +3248,21 @@ function enemyTurn(){
         $('#siegeMsg').innerHTML='Their shot missed! Your turn — <b>adjust your power</b>.';
       }
       SG.shot++; $('#siegeShots').textContent='shot '+SG.shot;
-      SG.mode='correct'; SG.sign = SG.D-SG.lastPow>0?1:-1; SG.busy=false;
+      SG.mode='correct'; SG.sign = SG.D-(SG.lastLand!=null?SG.lastLand:SG.lastPow)>0?1:-1; SG.busy=false;
       sgControls();
-    });
+    },1);
   },700);
 }
 function fire2P(pow){
   SG.busy=true; SG.lastPow=pow; saveTurn();
   const me=SG.turn, them=me===1?2:1;
   const from=me===1?SG.M[1]+7:SG.M[2]-7;
+  const heavy=SG.wt===2, land=heavy?pow/2:pow;
   const target=SG.M[them], exposed=SG.HP[them]===1, tol=exposed?3:6;
   const dot=me===1?'🔵':'🔴';
-  $('#siegeMsg').textContent=dot+' '+SG.nm[me]+' fires at '+pow+' m…';
-  sgFly(from,pow,()=>{
-    const diff=target-pow;
+  $('#siegeMsg').textContent=dot+' '+SG.nm[me]+(heavy?' hurls the heavy rock at power '+pow+' — it flies '+land+' m…':' fires at '+pow+' m…');
+  sgFly(from,land,()=>{
+    const diff=target-land;
     if(Math.abs(diff)<=tol){
       if(exposed){
         award(5); burst();
@@ -3240,19 +3270,21 @@ function fire2P(pow){
         sgCapture(target,SG.M[me],()=>siegeEnd2(me));
         return;
       }
-      sgCrumble(them===1?'castleP':'castleE'); SG.HP[them]--; award(2); burst();
+      const layers=Math.min(heavy?2:1, SG.HP[them]-1);
+      sgCrumble(them===1?'castleP':'castleE'); if(layers===2) setTimeout(()=>sgCrumble(them===1?'castleP':'castleE'),350);
+      SG.HP[them]-=layers; award(2*layers); burst();
       const nowExposed=SG.HP[them]===1;
       $('#siegeMsg').innerHTML = nowExposed
-        ? '💥 <b>WALLS DOWN — '+SG.nm[them]+"'s THRONE is exposed!</b> A shot within <b>3 m</b> captures it!"
+        ? '💥 <b>'+(layers===2?'DOUBLE SMASH — ':'WALLS DOWN — ')+SG.nm[them]+"'s THRONE is exposed!</b> A shot within <b>3 m</b> captures it!"
         : '💥 <b>HIT!</b> One of '+SG.nm[them]+"'s walls is down — the castle rebuilds somewhere new…";
       SG.M[them]=them===1?rand(6,26):rand(60,92);
       setTimeout(()=>{ redrawSiege(); passTurn(); },1700);
     } else {
-      sgLandFlag(pow,pow+' m');
-      $('#siegeMsg').innerHTML='Landed at <b>'+pow+' m</b> — the '+(exposed?'<b>throne</b>':'castle')+' is at <b>'+target+' m</b>. '+(diff>0?'How much FURTHER?':'How much LESS?');
+      sgLandFlag(land,land+' m');
+      $('#siegeMsg').innerHTML='Landed at <b>'+land+' m</b> — the '+(exposed?'<b>throne</b>':'castle')+' is at <b>'+target+' m</b>. '+(diff>0?'How much FURTHER?':'How much LESS?')+(heavy?' The heavy rock flies HALF your power!':'');
       setTimeout(passTurn,1600);
     }
-    SG.pl[me].mode='correct'; SG.pl[me].sign=SG.M[them]-pow>0?1:-1; // aim hint for this player's next turn (throne capture returned above)
+    SG.pl[me].mode='correct'; SG.pl[me].sign=SG.M[them]-land>0?1:-1; // aim hint for this player's next turn (throne capture returned above)
   });
 }
 function passTurn(){
@@ -3287,7 +3319,7 @@ function siegeEnd(win){
 }
 
 /* ---------- Castle editor: Jad designs his own castle ---------- */
-const ED_COLS=8, ED_ROWS=10, ED_BUDGET=40, ED_COST={s:1,t:2,f:4};
+const ED_COLS=8, ED_ROWS=10, ED_BUDGET=40, ED_COST={s:1,p:1,c:1,w:1,t:2,f:4};
 let ED=null;
 const edKey=(c,r)=>c+','+r;
 function edUsed(){ let u=0; for(const k in ED.g) u+=ED_COST[ED.g[k]]; return u; }
@@ -3299,10 +3331,10 @@ function openEditor(){
   $('#editor').classList.remove('hidden');
   lockOrient('landscape');
   $('#edMsg').textContent=ED_HINT;
-  edPalette(); edDraw();
+  edPalette(); edUseChips(); edDraw();
 }
 function edPalette(){
-  const tools=[['s','🧱 Stone · 1'],['t','🔥 Torch · 2'],['f','🚩 Flag · 4'],['x','🧽 Remove']];
+  const tools=[['s','🧱 Stone · 1'],['p','🪵 Plank · 1'],['c','🏰 Turret · 1'],['w','🪟 Window · 1'],['t','🔥 Torch · 2'],['f','🚩 Flag · 4'],['x','🧽 Remove']];
   const p=$('#edPal'); p.innerHTML='';
   tools.forEach(tl=>{
     const b=document.createElement('button');
@@ -3327,15 +3359,22 @@ function edDraw(){
     const p=k.split(','), c=+p[0], r=+p[1], t=ED.g[k];
     const bx=x0+c*bw, by=base-(r+1)*bh, mx=bx+bw/2;
     if(t==='s') g+=`<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${stone(c+r*3)}" stroke="#3f4a57" stroke-width="1.2"/>`;
+    else if(t==='p') g+=`<rect x="${bx}" y="${by+3}" width="${bw}" height="${bh-6}" fill="#a06a3a" stroke="#6b4522" stroke-width="1.2"/><line x1="${bx+3}" y1="${by+bh/2}" x2="${bx+bw-3}" y2="${by+bh/2}" stroke="#6b4522" stroke-width="1"/>`;
+    else if(t==='c') g+=`<rect x="${bx+1}" y="${by+7}" width="6" height="9" fill="${stone(c)}" stroke="#3f4a57" stroke-width="1.1"/><rect x="${bx+9}" y="${by+7}" width="6" height="9" fill="${stone(c+1)}" stroke="#3f4a57" stroke-width="1.1"/><rect x="${bx+17}" y="${by+7}" width="6" height="9" fill="${stone(c+2)}" stroke="#3f4a57" stroke-width="1.1"/>`;
+    else if(t==='w') g+=`<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${stone(c+r*3)}" stroke="#3f4a57" stroke-width="1.2"/><rect x="${mx-2.5}" y="${by+3}" width="5" height="${bh-6}" rx="2" fill="#2b333d"/>`;
     else if(t==='t') g+=`<rect x="${bx}" y="${by+6}" width="${bw}" height="${bh-6}" fill="${stone(c+r)}" stroke="#3f4a57" stroke-width="1.2"/><rect x="${mx-1.5}" y="${by-3}" width="3" height="10" fill="#5b4324"/><circle cx="${mx}" cy="${by-6}" r="4.5" fill="#ffd23f"/>`;
     else if(t==='f') g+=`<rect x="${mx-1.5}" y="${by-10}" width="3" height="${bh+10}" fill="#5b4324"/><polygon points="${mx+1.5},${by-10} ${mx+17},${by-5} ${mx+1.5},${by}" fill="#58d0ff"/>`;
   }
   for(let r=0;r<ED_ROWS;r++) for(let c=0;c<ED_COLS;c++){
-    const ok=!ED.g[edKey(c,r)]&&(r===0||!!ED.g[edKey(c,r-1)]);
+    const ok=!ED.g[edKey(c,r)]&&edSupported(c,r,ED.tool);
     g+=`<rect x="${x0+c*bw}" y="${base-(r+1)*bh}" width="${bw}" height="${bh}" fill="transparent" stroke="${ok?'#58d0ff2e':'#ffffff10'}" stroke-width="1" data-c="${c}" data-r="${r}"/>`;
   }
   $('#edSvg').innerHTML=g;
   $('#edLeft').textContent='🧱 '+edLeftN()+' left';
+}
+function edSupported(c,r,tool){
+  if(r===0 || ED.g[edKey(c,r-1)]) return true;
+  return tool==='p' && (!!ED.g[edKey(c-1,r)] || !!ED.g[edKey(c+1,r)]); // planks can bridge sideways
 }
 function edTap(c,r){
   if(!ED) return;
@@ -3347,7 +3386,12 @@ function edTap(c,r){
     edSave(); edDraw(); return;
   }
   if(cur){ $('#edMsg').textContent='That spot is full — tap 🧽 Remove first!'; return; }
-  if(r>0 && !ED.g[edKey(c,r-1)]){ $('#edMsg').textContent='Blocks need something underneath — no floating blocks!'; return; }
+  if(!edSupported(c,r,ED.tool)){
+    $('#edMsg').textContent = ED.tool==='p'
+      ? 'Planks need a block underneath OR beside them — build a tower first, then bridge across!'
+      : 'Blocks need something underneath — no floating blocks!';
+    return;
+  }
   const cost=ED_COST[ED.tool];
   if(cost>edLeftN()){ $('#edMsg').textContent='Not enough blocks! That costs '+cost+' and you have '+edLeftN()+' left.'; return; }
   ED.g[k]=ED.tool;
@@ -3360,7 +3404,15 @@ $('#edSvg').addEventListener('pointerdown',e=>{
 });
 $('#edBtn').onclick=openEditor;
 $('#edQuit').onclick=()=>{ lockOrient('portrait'); $('#editor').classList.add('hidden'); };
-$('#edClassic').onclick=()=>{ ED.g={}; edSave(); edDraw(); $('#edMsg').textContent='Classic castle restored — or start building your own!'; };
+function edUseChips(){
+  document.querySelectorAll('#edUse button').forEach(b=>b.classList.toggle('sel',b.dataset.u===S.castleUse));
+}
+document.querySelectorAll('#edUse button').forEach(b=>b.onclick=()=>{
+  S.castleUse=b.dataset.u; save(); edUseChips();
+  $('#edMsg').textContent = S.castleUse==='own'
+    ? '🏗 Your build fights in every battle!'
+    : '🏰 The classic castle fights — your build stays saved here.';
+});
 
 /* ---------- Times-table sprint ---------- */
 let spr={run:false,t:60,score:0,ans:0,val:'',iv:null};
