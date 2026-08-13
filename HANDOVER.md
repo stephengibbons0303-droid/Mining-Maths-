@@ -16,7 +16,7 @@ pass-and-play). For the release-by-release history see `PROGRESS.md`.
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v19.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v20.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Usage pattern**: Jad uses the tablet roughly **every other day**, not daily.
 - **COPY RULE (Stephen, v17)**: never convey time windows or deadlines to Jad —
@@ -39,7 +39,8 @@ pass-and-play). For the release-by-release history see `PROGRESS.md`.
 - Suites: `test.js` (core kid/dad/retry/steps), `test-v4/v5/v9/v12.js` (feature
   eras), `test-v16.js` (quests/tokens/badges), `test-v17.js` (time-free copy,
   gap-tolerant streak, landscape layouts), `test-siege.js` (full match to
-  throne capture), `test-editor.js` (castle editor). All green at v19.
+  throne capture), `test-editor.js` (castle editor), `test-2p.js`
+  (pass-and-play). All green at v20.
   `survey.js` measures scene sizes. Note: the local `http.server 8901` dies
   between shell commands in the cloud env and must be started from the REPO
   ROOT (wrong cwd = silent 404s).
@@ -53,7 +54,7 @@ pass-and-play). For the release-by-release history see `PROGRESS.md`.
   and ziplineSVG — careless slicing has deleted them twice. Always `node --check` the
   extracted script AND load the page (the on-page red `#errbar` reports runtime errors).
 
-## Castle Siege — v1 SHIPPED (v14) · castle editor SHIPPED (v19). Next: v2 pass-and-play.
+## Castle Siege — v1 (v14) · editor (v19) · pass-and-play (v20) all SHIPPED.
 
 v1 is live: solo vs AI, 🏰 button in the games row. Implementation notes:
 `startSiege()/SG` state, `siegeField()` draws battlefield (tape 0–100 m,
@@ -127,12 +128,29 @@ custom branch at the top of `castle()` in `siegeField()`.
 `tests/test-editor.js` covers budget, support rule, persistence, battle
 integration and classic restore.
 
-### v2 roadmap
-v2 pass-and-play: two catapults + two castles, alternate real players (name
-prompts, Jad vs Rai vs Dad), same correction maths both ways — both kids
-could then fight with their OWN editor builds (store per-player designs).
-Then layer weights (double/halve), wind (signed adjustment), angle as a
-second number.
+### Pass-and-play (v20 — SHIPPED)
+The 🏰 button now opens a **mode picker** over a battlefield preview:
+🤖 solo (unchanged) or 👥 two players. Name chips (Jad/Rai/Dad, persisted
+as `S.sg2`, same-name guard). Both modes cost one battle token, consumed
+when the match starts (`useBattle()`), so 2-player can't bypass quest
+gating. 2P state lives in `SG.two/turn/M{1,2}/HP{1,2}/pl{1,2}` — per-player
+lastPow/sign/mode are swapped into the shared SG fields via
+`loadTurn()/saveTurn()`, so `sgControls/sgKey/sgDisp` are reused untouched;
+`sgKey` routes to `fire2P()` vs `playerFire()`. Both players aim by tape
+mark (tag copy switches — "read the tape"); castles at rand(6–26) and
+rand(60–92) both relocate on hits (churn both ways); same ±6/±3 tolerances,
+same correction-as-input maths in both directions; catapults mirrored
+(`cata(m,flip)`); name labels above castles; "pass the tablet" prompt each
+turn; winner banner via `siegeEnd2`. Jad's editor build fights on
+**whichever side is named Jad** (`castle(...,ownFlag)`).
+`tests/test-2p.js` plays a full Jad-vs-Rai match both directions to
+capture. NOTE: all siege-opening tests now click `#sgVsAI` after
+`#siegeBtn` (the picker step).
+
+### Next siege layers (agreed order)
+Per-player editor designs (Rai builds his own too — store per-name
+castles), then weights (double/halve), wind (signed adjustment), angle as
+a second number.
 
 ## Directed learning (v16, reframed v17 — SHIPPED)
 "⚔️ Quest Board" on the maths tab: 3 quests per **play day** — Practice

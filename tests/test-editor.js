@@ -65,7 +65,9 @@ const { chromium } = require('playwright');
 
   // battle uses Jad's build: keep + 2 crumble groups, his flag flying
   await p.click('#siegeBtn');
-  await p.waitForTimeout(400);
+  await p.waitForTimeout(300);
+  await p.click('#sgVsAI'); // v20 mode picker
+  await p.waitForTimeout(300);
   st = await p.evaluate(() => ({
     open: !document.getElementById('siege').classList.contains('hidden'),
     pRows: document.querySelectorAll('#castleP .crow').length,
@@ -85,7 +87,9 @@ const { chromium } = require('playwright');
   await p.click('#edQuit');
   await p.evaluate(() => { S.battles.tokens = (S.battles.tokens || 0) + 1; save(); });
   await p.click('#siegeBtn');
-  await p.waitForTimeout(400);
+  await p.waitForTimeout(300);
+  await p.click('#sgVsAI'); // v20 mode picker
+  await p.waitForTimeout(300);
   st = await p.evaluate(() => document.querySelectorAll('#castleP rect').length);
   ck('classic build back in battle (many bricks)', st > 40);
   await p.click('#siegeQuit');

@@ -91,23 +91,32 @@ pedagogy (worked solutions, retries, hints).
   and **Castle Siege goes landscape** (orientation lock in the installed app +
   side-by-side scene/keypad layout).
 
-### Castle editor (`94142c6`, v19 — current)
+### Castle editor (`94142c6`, v19)
 - 🛠 **build-your-own-castle editor**: 8×10 grid over the fixed gold keep;
   Stone(1)/Torch(2)/Flag(4) palette against a **40-block budget** (the maths
   is the running cost arithmetic); **no floating blocks** support rule; design
   persists and fights in every battle, crumbling in two layers. Classic castle
   restorable; enemy keeps the classic build.
 
+### Pass-and-play (v20 — current)
+- Castle Siege **two-player mode**: mode picker over a battlefield preview
+  (🤖 solo / 👥 two players), Jad/Rai/Dad name chips, alternating turns with
+  a "pass the tablet" prompt, mirrored catapults, both castles relocating on
+  hits, the same estimation-and-correction maths in both directions, and the
+  throne-capture endgame either way. Both modes cost one battle token (so
+  2-player can't bypass quest gating). Jad's editor build fights on
+  whichever side is named Jad.
+
 ## State at end of session
 
-- **Live version: v19** (`94142c6`), deployed and verified green on Pages.
+- **Live version: v20**, deployed and verified green on Pages.
 - 12 maths topics × 5 levels, kid/dad modes, worked solutions, adaptive retry.
 - 13 interactive science topics with missions, quizzes, drags, reading gates.
-- Games: times-table Sprint, Castle Siege (+ editor), quest board with battle
-  tokens, crown, badges, gentle gap-tolerant streak.
-- 9 Playwright suites in `tests/` (~90 checks), all green at v19:
+- Games: times-table Sprint, Castle Siege (solo + pass-and-play + editor),
+  quest board with battle tokens, crown, badges, gentle gap-tolerant streak.
+- 10 Playwright suites in `tests/` (~100 checks), all green at v20:
   `test.js`, `test-v4/v5/v9/v12/v16/v17.js`, `test-siege.js`,
-  `test-editor.js`, plus `test-touch.js` (CDP touch), `test-sw.js`,
-  `test-slow.js`, `survey.js`.
-- Next up (agreed): Castle Siege **v2 pass-and-play** (Jad vs Rai vs Dad,
-  per-player castle designs). See `HANDOVER.md` for the full backlog.
+  `test-editor.js`, `test-2p.js`, plus `test-touch.js` (CDP touch),
+  `test-sw.js`, `test-slow.js`, `survey.js`.
+- Next up (agreed): per-player castle designs (Rai builds his own), then
+  weights / wind / angle layers. See `HANDOVER.md` for the full backlog.

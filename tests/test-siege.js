@@ -10,7 +10,9 @@ const { chromium } = require('playwright');
   const type = async n => { for (const ch of String(n)) await p.click(`#sgPad [data-k="${ch}"]`); await p.click('#sgPad [data-k="ok"]'); };
 
   await p.click('#siegeBtn');
-  await p.waitForTimeout(400);
+  await p.waitForTimeout(300);
+  await p.click('#sgVsAI'); // v20 mode picker
+  await p.waitForTimeout(300);
   let st = await p.evaluate(() => ({ open: !document.getElementById('siege').classList.contains('hidden'),
     D: SG.D, rows: document.querySelectorAll('#castleE .crow').length, mode: SG.mode,
     keep: !!document.querySelector('#castleE .keep'), throne: !!document.querySelector('#castleE .throne') }));
@@ -47,7 +49,9 @@ const { chromium } = require('playwright');
   // out-of-range guard (grant a battle token first — v16 gating consumes them)
   await p.evaluate(() => { S.battles.tokens = (S.battles.tokens || 0) + 1; save(); });
   await p.click('#sgAgain');
-  await p.waitForTimeout(400);
+  await p.waitForTimeout(300);
+  await p.click('#sgVsAI'); // play again re-opens the mode picker (v20)
+  await p.waitForTimeout(300);
   await type(555);
   const guard = await p.evaluate(() => SG.busy === false && SG.mode === 'aim');
   ck('power >100 rejected, still aiming', guard);

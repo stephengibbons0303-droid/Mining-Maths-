@@ -50,6 +50,8 @@ const { chromium } = require('playwright');
   // battle consumes a token; blocking when exhausted
   await p.click('#siegeBtn');
   await p.waitForTimeout(300);
+  await p.click('#sgVsAI'); // v20: token consumed when a match starts
+  await p.waitForTimeout(300);
   ck('battle starts, consumes one', await p.evaluate(() => !document.getElementById('siege').classList.contains('hidden') && battlesLeft() === 1));
   await p.click('#siegeQuit');
   await p.evaluate(() => { S.battles.used = 2; save(); renderQuests(); });

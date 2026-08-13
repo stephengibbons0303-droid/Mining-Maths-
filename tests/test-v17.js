@@ -65,7 +65,9 @@ const { chromium } = require('playwright');
   await p2.goto('http://localhost:8901/index.html', { waitUntil: 'load' });
   await p2.waitForTimeout(900);
   await p2.click('#siegeBtn');
-  await p2.waitForTimeout(500);
+  await p2.waitForTimeout(300);
+  await p2.click('#sgVsAI'); // v20 mode picker
+  await p2.waitForTimeout(300);
   st = await p2.evaluate(() => {
     const card = document.querySelector('.siegecard'), svg = document.getElementById('siegeSvg'), ctl = document.getElementById('siegeCtl');
     const sr = svg.getBoundingClientRect(), cr = ctl.getBoundingClientRect();
@@ -80,7 +82,9 @@ const { chromium } = require('playwright');
     return true;
   });
   await p.click('#siegeBtn');
-  await p.waitForTimeout(400);
+  await p.waitForTimeout(300);
+  await p.click('#sgVsAI'); // v20 mode picker
+  await p.waitForTimeout(300);
   st = await p.evaluate(() => {
     const card = document.querySelector('.siegecard');
     const svg = document.getElementById('siegeSvg').getBoundingClientRect();
