@@ -1,5 +1,5 @@
 /* Jad's Maths Quest — offline service worker */
-const CACHE = 'jadquest-v20';
+const CACHE = 'jadquest-v21';
 const ASSETS = [
   './',
   './index.html',
@@ -40,6 +40,7 @@ self.addEventListener('fetch', e => {
       }).catch(() => {
         // offline navigation fallback
         if (e.request.mode === 'navigate') return caches.match('./index.html');
+        return Response.error();
       });
     })
   );

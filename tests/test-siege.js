@@ -18,6 +18,11 @@ const { chromium } = require('playwright');
     keep: !!document.querySelector('#castleE .keep'), throne: !!document.querySelector('#castleE .throne') }));
   ck('siege opens: keep + 2 walls, throne hidden, aim mode', st.open && st.D >= 35 && st.D <= 90 && st.rows === 3 && st.mode === 'aim' && st.keep && !st.throne);
 
+  // v21 regression: wide enemy misses must stay misses (the old Math.max(1,4+err)
+  // clamp turned every negative wide shot into a direct hit on the player castle)
+  ck('enemy misses land |err| metres from the castle, never clamped into a hit',
+    await p.evaluate(() => [16, -16, 10, -10, 5, -5, 3, -3, 0].every(e => Math.abs(enemyLand(e) - 4) === Math.abs(e) && enemyLand(e) >= 1)));
+
   // shot 1: fire exactly at the castle -> hit
   const s0 = await p.evaluate(() => S.stars);
   await type(st.D);

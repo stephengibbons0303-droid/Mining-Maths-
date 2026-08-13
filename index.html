@@ -114,8 +114,6 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .scene3d:active{cursor:grabbing}
 .solid{width:100%;height:100%;position:relative;transform-style:preserve-3d}
 .face3d{position:absolute;left:50%;top:50%;border:2px solid #ffffffcc;border-radius:4px}
-#speak{position:absolute;top:12px;right:12px;width:46px;height:46px;border-radius:14px;
-  border:1px solid var(--line);background:var(--card2);color:var(--ink);font-size:22px}
 #streakBar{display:flex;gap:6px;margin:0 2px 12px}
 #streakBar i{flex:1;height:11px;border-radius:6px;background:#ffffff14;border:1px solid #ffffff22;transition:.25s}
 #streakBar i.on{background:linear-gradient(90deg,#37d4a7,#1fae84);box-shadow:0 0 10px #37d4a799;border-color:#37d4a7}
@@ -590,7 +588,7 @@ window.addEventListener('unhandledrejection',function(e){
   <div class="opt" id="badgeRow" style="cursor:pointer"><span>🏅 Badges</span><span>›</span></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v20</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v21</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -605,7 +603,7 @@ window.addEventListener('unhandledrejection',function(e){
 </script>
 <script>
 /* ---------- Config ---------- */
-const STARS_PER_TILE = 2, TILES = 24;
+const TILES = 24;
 const TRACKER_STARS = 3, QUIZ_STARS = 1, CHALLENGE_STARS = 3;
 const CATS = [
   {id:'addition',       nm:'Addition',      emoji:'➕', color:'--c-add', gen:true},
@@ -640,8 +638,6 @@ function load(){
   S.streak   = S.streak   || 0;
   S.mode     = S.mode     || 'quiz';
   S.autoAns  = !!S.autoAns;
-  S.audio    = !!S.audio;
-  S.hideQ    = !!S.hideQ;
   S.fade     = (S.fade===undefined)?true:!!S.fade;
   S.starsPerTile = S.starsPerTile || 2;
   S.autoLevel = (S.autoLevel===undefined)?true:!!S.autoLevel;
@@ -1015,7 +1011,8 @@ function stepsColSub(a,b){
   const u2=b%10, t2=Math.floor(b/10)%10, h2=Math.floor(b/100);
   if(u1<u2){ S.push(`Ones: ${u1} is smaller than ${u2}, so borrow 1 ten. ${u1}+10 = ${u1+10}. Now ${u1+10} − ${u2} = ${u1+10-u2}.`); u1+=10; t1-=1; }
   else S.push(`Ones first: ${u1} − ${u2} = ${u1-u2}.`);
-  if(t1<t2){ S.push(`Tens: ${t1} is smaller than ${t2}, so borrow 1 hundred. ${t1}+10 = ${t1+10}. Now ${t1+10} − ${t2} = ${t1+10-t2}.`); t1+=10; h1-=1; }
+  if(t1<t2){ const why = t1<0 ? 'The tens lent 1 away and have none left' : `${t1} is smaller than ${t2}`;
+    S.push(`Tens: ${why}, so borrow 1 hundred. That makes ${t1+10} tens. Now ${t1+10} − ${t2} = ${t1+10-t2}.`); t1+=10; h1-=1; }
   else S.push(`Now the tens: ${t1} − ${t2} = ${t1-t2}.`);
   if(a>=100 && (h1>0||h2>0)) S.push(`Now the hundreds: ${h1} − ${h2} = ${h1-h2}.`);
   S.push(`So ${a} − ${b} = ${a-b} 🎉`);
@@ -1399,7 +1396,10 @@ function ensure3D(){
   el.addEventListener('pointermove',e=>{if(!down)return;R3.ry+=(e.clientX-px)*0.01;R3.rx+=(e.clientY-py)*0.01;px=e.clientX;py=e.clientY;});
   el.addEventListener('pointerup',()=>down=false);
   el.addEventListener('pointercancel',()=>down=false);
-  (function loop(){ if(!R3) return; if(R3.mesh){R3.mesh.rotation.x=R3.rx;R3.mesh.rotation.y=R3.ry;} renderer.render(scene,cam); requestAnimationFrame(loop); })();
+  (function loop(){ if(!R3) return;
+    const vis=!$('#shape3d').classList.contains('hidden') && !$('#activity').classList.contains('hidden');
+    if(vis){ if(R3.mesh){R3.mesh.rotation.x=R3.rx;R3.mesh.rotation.y=R3.ry;} renderer.render(scene,cam); }
+    requestAnimationFrame(loop); })();
 }
 function geomFor(key){
   const T=THREE;
@@ -1432,30 +1432,6 @@ function show3D(key){
   R3.mesh=mesh; R3.rx=-0.45; R3.ry=0.7; R3.scene.add(mesh);
   return R3.renderer.domElement;
 }
-
-/* ---------- Speech ---------- */
-let speechUnlocked=false;
-function initSpeech(){
-  if(!('speechSynthesis'in window)) return;
-  speechSynthesis.getVoices();
-  speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
-  const unlock=()=>{ if(speechUnlocked)return; speechUnlocked=true;
-    try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){} };
-  document.addEventListener('pointerdown',unlock,{once:false});
-}
-function speak(t){
-  if(!('speechSynthesis'in window)){ toast('Speech not supported on this browser'); return; }
-  const say=t.replace(/\+/g,' plus ').replace(/−/g,' minus ').replace(/×/g,' times ').replace(/÷/g,' divided by ');
-  const vs=speechSynthesis.getVoices();
-  const u=new SpeechSynthesisUtterance(say);
-  u.rate=.85; u.lang='en-GB';
-  const gb=vs.find(v=>/en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));
-  if(gb) u.voice=gb;
-  if(vs.length===0) toast('No TTS voice found — check Android settings');
-  try{ speechSynthesis.cancel(); speechSynthesis.speak(u); speechSynthesis.resume(); }
-  catch(e){ toast('Speech error'); }
-}
-const SPEAKABLE=['addition','subtraction','multiplication','division'];
 
 /* ---------- Analog clock SVG ---------- */
 function clockSVG(h,m){
@@ -2062,7 +2038,7 @@ function wireSpace(){
     moon:{h:110,t:'6× higher!'},mars:{h:58,t:'about 3× higher!'},jupiter:{h:9,t:'less than half — heavy legs!'},
     saturn:{h:21,t:'about the same — surprise!'},uranus:{h:25,t:'almost the same as Earth'},neptune:{h:19,t:'a little lower'}};
   const geo={mercury:{x:30,r:8},venus:{x:78,r:11},earth:{x:126,r:11},moon:{x:163,r:6},mars:{x:198,r:9},
-    jupiter:{x:252,r:20},saturn:{x:312,r:16},uranus:{x:360,r:12},neptune:{x:394,r:12}};
+    jupiter:{x:252,r:20},saturn:{x:312,r:16},uranus:{x:354,r:12},neptune:{x:394,r:12}};
   const names={mercury:'Mercury',venus:'Venus',earth:'Earth',moon:'the Moon',mars:'Mars',jupiter:'Jupiter',saturn:'Saturn',uranus:'Uranus',neptune:'Neptune'};
   let timers=[];
   svg.querySelectorAll('.planet').forEach(pl=>{ pl.style.cursor='pointer';
@@ -3213,9 +3189,10 @@ function playerFire(pow){
     }
   });
 }
+function enemyLand(err){ const land=4+err; return land<1 ? 4-err : land; } // off-tape misses mirror right — never clamp into the castle
 function enemyTurn(){
   const errs=[16,10,5,3,0], err=errs[Math.min(SG.shot-1,4)]*(Math.random()<0.5?-1:1);
-  const land=Math.max(1,4+err);
+  const land=enemyLand(err);
   const tolP=SG.pHP===1?3:6;
   $('#siegeMsg').innerHTML+=' <br>☄️ Enemy fires back!';
   setTimeout(()=>{
@@ -3262,7 +3239,7 @@ function fire2P(pow){
         ? '💥 <b>WALLS DOWN — '+SG.nm[them]+"'s THRONE is exposed!</b> A shot within <b>3 m</b> captures it!"
         : '💥 <b>HIT!</b> One of '+SG.nm[them]+"'s walls is down — the castle rebuilds somewhere new…";
       SG.M[them]=them===1?rand(6,26):rand(60,92);
-      SG.pl[me].mode='correct';
+      SG.pl[me].mode='correct'; SG.pl[me].sign=SG.M[them]-pow>0?1:-1;
       setTimeout(()=>{ redrawSiege(); passTurn(); },1700);
     } else {
       sgLandFlag(pow,pow+' m');
@@ -3530,12 +3507,12 @@ $('#picUpload').onchange=async e=>{
   if(files.length) toast(files.length+' picture(s) added ✨');
 };
 $('#closeSheet').onclick=()=>$('#sheet').classList.remove('open');
-$('#qText').onclick=()=>{ if(S.who!=='kid' && S.fade && S.mode==='quiz' && cur && cur.q && !cur.q.clock && !cur.q.shape3d && !cur.q.measure && !cur.q.svg) scheduleFade(); };
+$('#qText').onclick=()=>{ if(S.who!=='kid' && S.fade && S.mode==='quiz' && cur && cur.q && !cur.q.clock && !cur.q.shape3d && !cur.q.measure && !cur.q.svg && !cur.q.noFade) scheduleFade(); };
 $('#optAuto').onchange=e=>{S.autoAns=e.target.checked;save();};
 $('#optFade').onchange=e=>{S.fade=e.target.checked;save();};
 $('#optAutoLevel').onchange=e=>{S.autoLevel=e.target.checked;save();updateStreak();};
 $('#optChallenge').onchange=e=>{S.challenges=e.target.checked;save();};
-$('#optStars').onchange=e=>{S.starsPerTile=parseInt(e.target.value,10)||2;save();};
+$('#optStars').onchange=e=>{S.starsPerTile=parseInt(e.target.value,10)||2;save();renderPicture();};
 $('#newPic').onclick=()=>{S.picIndex=(S.picIndex+1)%sceneCount();S.revealBase=S.stars;S.order=[...Array(TILES).keys()].sort(()=>Math.random()-.5);save();renderPicture();toast('New picture started ✨');};
 $('#resetBtn').onclick=()=>{ if(confirm("Reset ALL of Jad's progress? This cannot be undone.")){localStorage.removeItem(KEY);load();renderHeader();renderGrid();renderPicture();$('#sheet').classList.remove('open');} };
 
@@ -3549,6 +3526,7 @@ $('#resetBtn').onclick=()=>{ if(confirm("Reset ALL of Jad's progress? This canno
   try{ await loadPics(); }catch(e){}
   renderPicture(); renderPicsList();
 })();
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ rollDate(); renderHeader(); renderQuests(); } });
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 </script>
 </body>
