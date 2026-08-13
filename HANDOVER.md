@@ -47,7 +47,7 @@ agreed design for the next major feature (Castle Siege).
   and ziplineSVG — careless slicing has deleted them twice. Always `node --check` the
   extracted script AND load the page (the on-page red `#errbar` reports runtime errors).
 
-## Castle Siege — v1 SHIPPED (v14). Next: v2 pass-and-play, v3 castle editor.
+## Castle Siege — v1 SHIPPED (v14) · castle editor SHIPPED (v19). Next: v2 pass-and-play.
 
 v1 is live: solo vs AI, 🏰 button in the games row. Implementation notes:
 `startSiege()/SG` state, `siegeField()` draws battlefield (tape 0–100 m,
@@ -106,11 +106,27 @@ the instinct channel.
 2. Verdict on Jenga tower / Drop-Match: not yet given — ask again later.
 3. His own ideas: none captured yet.
 
-### v2/v3 roadmap
+### Castle editor (v19 — SHIPPED, Stephen greenlit it over pass-and-play)
+🛠 button in the games row (free, no battle token). 8×10 grid above a fixed
+gold keep; palette Stone(1)/Torch(2)/Flag(4)/Remove with a **40-block
+budget** — the maths is the budget arithmetic (costs, subtraction, "can I
+afford a flag?"). Support rule: no floating blocks (place only on ground
+row or atop a block; Remove clears the block + everything above it).
+Placeable cells glow faint blue. Design persists as `S.castle=[[c,r,t],…]`
+and replaces the player's classic castle in every battle: blocks sorted
+bottom-up, upper half tumbles on hit 1, lower half on hit 2, then the usual
+exposed-throne endgame. Enemy keeps the classic build. Editor locks
+landscape like the siege. Key code: `openEditor/edDraw/edTap/ED_COST`,
+custom branch at the top of `castle()` in `siegeField()`.
+`tests/test-editor.js` covers budget, support rule, persistence, battle
+integration and classic restore.
+
+### v2 roadmap
 v2 pass-and-play: two catapults + two castles, alternate real players (name
-prompts, Jad vs Rai vs Dad), same correction maths both ways. v3 castle
-editor: place-your-own-blocks before battle (geometry). Then layer weights
-(double/halve), wind (signed adjustment), angle as a second number.
+prompts, Jad vs Rai vs Dad), same correction maths both ways — both kids
+could then fight with their OWN editor builds (store per-player designs).
+Then layer weights (double/halve), wind (signed adjustment), angle as a
+second number.
 
 ## Directed learning (v16, reframed v17 — SHIPPED)
 "⚔️ Quest Board" on the maths tab: 3 quests per **play day** — Practice

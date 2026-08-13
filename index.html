@@ -231,6 +231,25 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
   #siegeCtl{grid-column:2;grid-row:2/span 2}
 }
 
+/* Castle editor */
+#editor{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:14px;overflow:auto}
+#editor.hidden{display:none}
+.edcard{max-width:560px;margin:0 auto}
+#edSvg{display:block;width:100%;touch-action:none;-webkit-user-select:none;user-select:none}
+#edMsg{text-align:center;font-size:14px;color:#ffe89a;font-weight:700;min-height:24px;margin:6px 0;line-height:1.35}
+#edPal{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+#edPal button{flex:1;min-width:96px;padding:11px 6px;border-radius:12px;border:2px solid var(--line);background:var(--card2);color:var(--ink);font-family:inherit;font-size:15px;font-weight:800}
+#edPal button.sel{border-color:#58d0ff;background:#58d0ff22}
+@media (orientation:landscape) and (min-width:700px){
+  #editor{padding:10px 18px}
+  .edcard{max-width:1000px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:2px 22px;align-items:start}
+  .edcard .actbar{grid-column:1/-1}
+  #edSvg{grid-column:1;grid-row:2/span 3;max-height:calc(100vh - 110px)}
+  #edMsg{grid-column:2;grid-row:2}
+  #edPal{grid-column:2;grid-row:3;flex-direction:column}
+  #edClassic{grid-column:2;grid-row:4}
+}
+
 /* Times-table sprint */
 #sprint{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:16px;overflow:auto}
 #sprint.hidden{display:none}
@@ -359,6 +378,7 @@ window.addEventListener('unhandledrejection',function(e){
     <div class="gamesrow">
       <button class="newpic" id="sprintBtn">⚡ Sprint</button>
       <button class="newpic" id="siegeBtn" style="background:linear-gradient(135deg,#8fd8e0,#3d8fd1);color:#08222e">🏰 Castle Siege</button>
+      <button class="newpic" id="edBtn" style="flex:0 0 auto;background:linear-gradient(135deg,#ffd9a0,#e08f3d);color:#3a2408">🛠</button>
     </div>
     <div class="grid" id="catGrid"></div>
   </div>
@@ -443,6 +463,20 @@ window.addEventListener('unhandledrejection',function(e){
     <svg id="siegeSvg" viewBox="0 0 420 262"></svg>
     <div id="siegeMsg">Look at the tape. How many metres to the enemy castle?</div>
     <div id="siegeCtl"></div>
+  </div>
+</div>
+
+<div id="editor" class="hidden">
+  <div class="edcard">
+    <div class="actbar">
+      <button class="back" id="edQuit">✓ Done</button>
+      <b style="font-family:'Fredoka';font-size:20px">🛠 My Castle</b>
+      <b id="edLeft" style="font-family:'Fredoka';font-size:15px;color:var(--gold)"></b>
+    </div>
+    <svg id="edSvg" viewBox="0 0 240 212"></svg>
+    <div id="edMsg"></div>
+    <div id="edPal"></div>
+    <button class="btn ghost" id="edClassic" style="width:100%">🏰 Use the classic castle instead</button>
   </div>
 </div>
 
@@ -556,7 +590,7 @@ window.addEventListener('unhandledrejection',function(e){
   <div class="opt" id="badgeRow" style="cursor:pointer"><span>🏅 Badges</span><span>›</span></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v18</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v19</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -624,6 +658,7 @@ function load(){
   S.battles  = S.battles  || {date:'', used:0, tokens:0};
   S.crowns   = S.crowns   || 0;
   S.questsOn = (S.questsOn===undefined)?true:!!S.questsOn;
+  S.castle   = Array.isArray(S.castle)?S.castle.filter(b=>Array.isArray(b)&&b.length===3):[];  // Jad's own castle: [col,row,type]
   rollDate();
 }
 function rollDate(){
@@ -2939,7 +2974,26 @@ function siegeField(){
     const wallGrid=(x,y,cols,rows,bw,bh,off)=>{let g='';for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)g+=B(x+c*bw,y+r*bh,bw,bh,stone(c+r*3+off));return g;};
     const merlons=(x,w,y,n)=>{let g='';const t=w/(n*2-1);for(let i=0;i<n;i++)g+=B(x+i*2*t,y,t,5,stone(i));return g;};
     let g='';
-    if(hp>1){
+    const own = id==='castleP' && S.castle && S.castle.length;
+    if(hp>1 && own){
+      // Jad's design: blocks sorted bottom-up, upper half tumbles on hit 1,
+      // lower half on hit 2 (no floaters mid-battle: support is downward)
+      let keep='';
+      for(let c=0;c<6;c++) keep+=B(x0+c*8,189,8,7.5,c%2?'#c9971c':'#b8860b')+B(x0+c*8,196.5,8,7.5,c%2?'#b8860b':'#c9971c');
+      keep+=`<rect x="${cx-5}" y="193" width="10" height="11" rx="4" fill="#4d3a12"/>`;
+      g+=`<g class="crow keep">${keep}</g>`;
+      const bw2=cw/8, bh2=6.5;
+      const draw=b=>{
+        const c=b[0], r=b[1], t=b[2], bx=x0+c*bw2, by=189-(r+1)*bh2, mx=bx+bw2/2;
+        if(t==='t') return B(bx,by+2.5,bw2,4,stone(c+r))+`<rect x="${(mx-0.6).toFixed(1)}" y="${(by-1.5).toFixed(1)}" width="1.2" height="4.5" fill="#5b4324"/><circle cx="${mx.toFixed(1)}" cy="${(by-2.6).toFixed(1)}" r="1.8" fill="#ffd23f"/>`;
+        if(t==='f') return `<rect x="${(mx-0.6).toFixed(1)}" y="${(by-4.5).toFixed(1)}" width="1.2" height="${bh2+4.5}" fill="#5b4324"/><polygon points="${(mx+0.6).toFixed(1)},${(by-4.5).toFixed(1)} ${(mx+7).toFixed(1)},${(by-2.2).toFixed(1)} ${(mx+0.6).toFixed(1)},${by.toFixed(1)}" fill="${flag}"/>`;
+        return B(bx,by,bw2,bh2,stone(c+r*3));
+      };
+      const bl=[...S.castle].sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
+      const cut=Math.ceil(bl.length/2);
+      g+=`<g class="crow">${bl.slice(0,cut).map(draw).join('')}</g>`;
+      if(hp>2) g+=`<g class="crow">${bl.slice(cut).map(draw).join('')}</g>`;
+    } else if(hp>1){
       let keep='';
       for(let c=0;c<6;c++) keep+=B(x0+c*8,189,8,7.5,c%2?'#c9971c':'#b8860b')+B(x0+c*8,196.5,8,7.5,c%2?'#b8860b':'#c9971c');
       keep+=`<rect x="${cx-5}" y="193" width="10" height="11" rx="4" fill="#4d3a12"/>`;
@@ -3152,6 +3206,82 @@ function siegeEnd(win){
   $('#sgAgain').onclick=startSiege;
   $('#sgDone').onclick=()=>{ lockOrient('portrait'); $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
 }
+
+/* ---------- Castle editor: Jad designs his own castle ---------- */
+const ED_COLS=8, ED_ROWS=10, ED_BUDGET=40, ED_COST={s:1,t:2,f:4};
+let ED=null;
+const edKey=(c,r)=>c+','+r;
+function edUsed(){ let u=0; for(const k in ED.g) u+=ED_COST[ED.g[k]]; return u; }
+function edLeftN(){ return ED_BUDGET-edUsed(); }
+const ED_HINT='Your throne lives in the gold keep — build your castle around it! It fights in every battle.';
+function openEditor(){
+  ED={g:{},tool:'s'};
+  (S.castle||[]).forEach(b=>{ ED.g[edKey(b[0],b[1])]=b[2]; });
+  $('#editor').classList.remove('hidden');
+  lockOrient('landscape');
+  $('#edMsg').textContent=ED_HINT;
+  edPalette(); edDraw();
+}
+function edPalette(){
+  const tools=[['s','🧱 Stone · 1'],['t','🔥 Torch · 2'],['f','🚩 Flag · 4'],['x','🧽 Remove']];
+  const p=$('#edPal'); p.innerHTML='';
+  tools.forEach(tl=>{
+    const b=document.createElement('button');
+    b.textContent=tl[1]; b.classList.toggle('sel',ED.tool===tl[0]);
+    b.onclick=()=>{ ED.tool=tl[0]; edPalette(); };
+    p.appendChild(b);
+  });
+}
+function edSave(){
+  S.castle=Object.keys(ED.g).map(k=>{const p=k.split(','); return [+p[0],+p[1],ED.g[k]];});
+  save();
+}
+function edDraw(){
+  const x0=24, bw=24, bh=16, base=174;
+  const stone=i=>['#8a97a5','#7a8794','#95a2b0','#84919f'][i%4];
+  let g=`<rect width="240" height="212" fill="#1c2a3e"/>
+    <circle cx="212" cy="24" r="13" fill="#ffd23f"/>
+    <rect y="190" width="240" height="22" fill="#2c4a38"/>`;
+  for(let c=0;c<ED_COLS;c++) g+=`<rect x="${x0+c*bw}" y="174" width="${bw}" height="16" fill="${c%2?'#c9971c':'#b8860b'}" stroke="#7a5a1e" stroke-width="1"/>`;
+  g+=`<rect x="${x0+ED_COLS*bw/2-9}" y="178" width="18" height="12" rx="6" fill="#4d3a12"/>`;
+  for(const k in ED.g){
+    const p=k.split(','), c=+p[0], r=+p[1], t=ED.g[k];
+    const bx=x0+c*bw, by=base-(r+1)*bh, mx=bx+bw/2;
+    if(t==='s') g+=`<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${stone(c+r*3)}" stroke="#3f4a57" stroke-width="1.2"/>`;
+    else if(t==='t') g+=`<rect x="${bx}" y="${by+6}" width="${bw}" height="${bh-6}" fill="${stone(c+r)}" stroke="#3f4a57" stroke-width="1.2"/><rect x="${mx-1.5}" y="${by-3}" width="3" height="10" fill="#5b4324"/><circle cx="${mx}" cy="${by-6}" r="4.5" fill="#ffd23f"/>`;
+    else if(t==='f') g+=`<rect x="${mx-1.5}" y="${by-10}" width="3" height="${bh+10}" fill="#5b4324"/><polygon points="${mx+1.5},${by-10} ${mx+17},${by-5} ${mx+1.5},${by}" fill="#58d0ff"/>`;
+  }
+  for(let r=0;r<ED_ROWS;r++) for(let c=0;c<ED_COLS;c++){
+    const ok=!ED.g[edKey(c,r)]&&(r===0||!!ED.g[edKey(c,r-1)]);
+    g+=`<rect x="${x0+c*bw}" y="${base-(r+1)*bh}" width="${bw}" height="${bh}" fill="transparent" stroke="${ok?'#58d0ff2e':'#ffffff10'}" stroke-width="1" data-c="${c}" data-r="${r}"/>`;
+  }
+  $('#edSvg').innerHTML=g;
+  $('#edLeft').textContent='🧱 '+edLeftN()+' left';
+}
+function edTap(c,r){
+  if(!ED) return;
+  const k=edKey(c,r), cur=ED.g[k];
+  if(ED.tool==='x'){
+    if(!cur) return;
+    for(let rr=r;rr<ED_ROWS;rr++){ if(!ED.g[edKey(c,rr)]) break; delete ED.g[edKey(c,rr)]; }
+    $('#edMsg').textContent=ED_HINT;
+    edSave(); edDraw(); return;
+  }
+  if(cur){ $('#edMsg').textContent='That spot is full — tap 🧽 Remove first!'; return; }
+  if(r>0 && !ED.g[edKey(c,r-1)]){ $('#edMsg').textContent='Blocks need something underneath — no floating blocks!'; return; }
+  const cost=ED_COST[ED.tool];
+  if(cost>edLeftN()){ $('#edMsg').textContent='Not enough blocks! That costs '+cost+' and you have '+edLeftN()+' left.'; return; }
+  ED.g[k]=ED.tool;
+  $('#edMsg').textContent=ED_HINT;
+  edSave(); edDraw();
+}
+$('#edSvg').addEventListener('pointerdown',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.c!==undefined) edTap(+t.dataset.c,+t.dataset.r);
+});
+$('#edBtn').onclick=openEditor;
+$('#edQuit').onclick=()=>{ lockOrient('portrait'); $('#editor').classList.add('hidden'); };
+$('#edClassic').onclick=()=>{ ED.g={}; edSave(); edDraw(); $('#edMsg').textContent='Classic castle restored — or start building your own!'; };
 
 /* ---------- Times-table sprint ---------- */
 let spr={run:false,t:60,score:0,ans:0,val:'',iv:null};
