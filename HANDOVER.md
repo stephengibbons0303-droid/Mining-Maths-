@@ -15,7 +15,7 @@ agreed design for the next major feature (Castle Siege).
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v14.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v15.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Design language**: dark slate bg, ice-blue `#cfeaff` labels, sunny yellow `#ffe89a`
   guidance, cyan `#58d0ff` headings, gold stars, white numbers. Scenes are wide
@@ -48,11 +48,14 @@ v1 is live: solo vs AI, 🏰 button in the games row. Implementation notes:
 `startSiege()/SG` state, `siegeField()` draws battlefield (tape 0–100 m,
 `sgX(m)` maps metres→svg x), `playerFire`/`enemyTurn` turn loop,
 `sgCrumble` scripted block tumble, correction mode = ＋/− delta input.
-v1 decisions taken (Stephen can veto): castle distance UNLABELLED (first
-shot = tape estimation), hit tolerance = castle footprint ±6 m, power maps
-1:1 to metres, castle rebuilds at a new distance after every hit (churn),
-enemy accuracy tightens per shot [±16,±10,±5,0], stars: +2/hit, +5 win.
-`tests/test-siege.js` plays a full match to victory.
+Win condition (v15, Stephen's design): each castle guards a THRONE inside
+a gold keep (tabletop C&C homage). Smash 2 walls (±6 m tolerance) to
+EXPOSE the sparkling throne, then a precision shot within ±3 m CAPTURES
+it — the endgame demands finer arithmetic. Enemy can capture yours too.
+Other v1 decisions: castle distance UNLABELLED (first shot = estimation),
+power maps 1:1 to metres, keep relocates after every hit (churn), enemy
+accuracy tightens per shot [±16,±10,±5,±3,0], stars: +2/wall, +5 capture.
+`tests/test-siege.js` plays a full match to throne capture.
 
 ### Core design principle (the whole game hangs on this)
 Angry-Birds-style drag-to-aim makes ballistics **instinctive** — motor calibration,

@@ -12,8 +12,9 @@ const { chromium } = require('playwright');
   await p.click('#siegeBtn');
   await p.waitForTimeout(400);
   let st = await p.evaluate(() => ({ open: !document.getElementById('siege').classList.contains('hidden'),
-    D: SG.D, rows: document.querySelectorAll('#castleE .crow').length, mode: SG.mode }));
-  ck('siege opens: castle 35-90m, 3 walls, aim mode', st.open && st.D >= 35 && st.D <= 90 && st.rows === 3 && st.mode === 'aim');
+    D: SG.D, rows: document.querySelectorAll('#castleE .crow').length, mode: SG.mode,
+    keep: !!document.querySelector('#castleE .keep'), throne: !!document.querySelector('#castleE .throne') }));
+  ck('siege opens: keep + 2 walls, throne hidden, aim mode', st.open && st.D >= 35 && st.D <= 90 && st.rows === 3 && st.mode === 'aim' && st.keep && !st.throne);
 
   // shot 1: fire exactly at the castle -> hit
   const s0 = await p.evaluate(() => S.stars);
@@ -29,18 +30,19 @@ const { chromium } = require('playwright');
   const inGame = await p.evaluate(() => Math.abs(SG.D - SG.lastPow) <= 6); // within tolerance? then delta 0 would also hit; use exact anyway
   await type(delta);
   await p.waitForTimeout(6000);
-  st = await p.evaluate(() => ({ eHP: SG.eHP }));
-  ck('correction input lands the second hit', st.eHP === 1);
+  st = await p.evaluate(() => ({ eHP: SG.eHP, throne: !!document.querySelector('#castleE .throne'),
+    msg: document.getElementById('siegeMsg').textContent }));
+  ck('second hit exposes the throne (crown visible, 3m warning)', st.eHP === 1 && st.throne);
 
   // shot 3: final wall
   let d3 = await p.evaluate(() => Math.abs(SG.D - SG.lastPow));
   if (d3 === 0) { await p.evaluate(() => { SG.D = Math.min(90, SG.D + 8); }); d3 = 8; }
   const sw = await p.evaluate(() => S.stars);
   await type(d3);
-  await p.waitForTimeout(4000);
-  st = await p.evaluate(() => ({ eHP: SG.eHP, again: !!document.getElementById('sgAgain'),
+  await p.waitForTimeout(6000);
+  st = await p.evaluate(() => ({ again: !!document.getElementById('sgAgain'),
     msg: document.getElementById('siegeMsg').textContent, stars: S.stars }));
-  ck('third hit wins: victory card + bonus stars', st.eHP === 0 && st.again && st.msg.includes('WIN') && st.stars >= sw + 7);
+  ck('precise third shot CAPTURES the throne + bonus stars', st.again && st.msg.includes('CAPTURED') && st.stars >= sw + 5);
 
   // out-of-range guard
   await p.click('#sgAgain');
