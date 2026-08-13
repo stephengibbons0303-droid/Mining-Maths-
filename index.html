@@ -220,6 +220,13 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 #siegeCtl .kdisp{max-width:420px;margin:0 auto 10px}
 #siegeCtl .kxrow{max-width:420px;margin:0 auto 8px}
 .sgtag{text-align:center;font-size:13px;color:#58d0ff;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px}
+.sgset{display:flex;align-items:center;gap:10px;justify-content:center;margin:8px 0}
+.sglbl{font-size:12px;color:#8fb8d0;text-transform:uppercase;letter-spacing:1px;width:52px;text-align:right}
+.sgstep{width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--card2);color:var(--ink);font-size:18px;font-family:inherit}
+.sgset b{font-family:'Fredoka';font-size:27px;min-width:76px;text-align:center;color:#ffe89a}
+.sgnote{font-size:12px;color:#8fb8d0;width:112px;line-height:1.25}
+#sgFire{display:block;width:100%;margin-top:10px;padding:16px;border:0;border-radius:14px;font-family:'Fredoka';font-size:20px;color:#3a0d0d;background:linear-gradient(135deg,#ff9a6b,#e5484d);box-shadow:0 4px 0 #8a2a2e;cursor:pointer}
+#sgFire:active{transform:translateY(3px);box-shadow:0 1px 0 #8a2a2e}
 @media (orientation:landscape) and (min-width:700px){
   #siege{padding:10px 18px}
   .siegecard{max-width:1150px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:2px 22px;align-items:start}
@@ -593,7 +600,7 @@ window.addEventListener('unhandledrejection',function(e){
   <div class="opt" id="badgeRow" style="cursor:pointer"><span>🏅 Badges</span><span>›</span></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v23</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v24</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -3023,12 +3030,16 @@ function siegeField(){
     }
     return `<g id="${id}">${g}</g>`;
   };
-  const cata=(m,flip)=>`<g transform="translate(${sgX(m)} 0)${flip?' scale(-1 1)':''}">
+  const cata=(m,flip,active)=>{
+    const cock=active?-15-(SG.pow||0)*0.95:0;
+    return `<g transform="translate(${sgX(m)} 0)${flip?' scale(-1 1)':''}">
     <rect x="-12" y="186" width="24" height="8" rx="2" fill="#7a5a38"/>
     <circle cx="-8" cy="196" r="5" fill="#4d5a68"/><circle cx="8" cy="196" r="5" fill="#4d5a68"/>
-    <line x1="-6" y1="188" x2="10" y2="168" stroke="#a06a3a" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="11" cy="166" r="5" fill="#d9b54a"/>
-  </g>`;
+    <g ${active?'class="armActive" ':''}transform="rotate(${cock} -6 188)">
+      <line x1="-6" y1="188" x2="10" y2="168" stroke="#a06a3a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="11" cy="166" r="5" fill="#d9b54a"/>
+    </g>
+  </g>`;};
   const back=`
   <rect width="420" height="262" fill="#1c2a3e"/>
   <circle cx="382" cy="34" r="20" fill="#ffd23f"/>
@@ -3042,20 +3053,20 @@ function siegeField(){
   <g id="sgFlag" opacity="0"><line x1="0" y1="0" x2="0" y2="-18" stroke="#ff5e87" stroke-width="2.5"/><polygon points="0,-18 14,-13 0,-8" fill="#ff5e87"/><text class="flagT" y="-24" font-size="11" fill="#ffe89a" text-anchor="middle" font-weight="800"></text></g>`;
   if(SG.two){
     return back
-      + castle(SG.M[1],'castleP',SG.HP[1],'#58d0ff',SG.nm[1]==='Jad') + cata(SG.M[1]+7,false)
-      + castle(SG.M[2],'castleE',SG.HP[2],'#e5484d',SG.nm[2]==='Jad') + cata(SG.M[2]-7,true)
+      + castle(SG.M[1],'castleP',SG.HP[1],'#58d0ff',SG.nm[1]==='Jad') + cata(SG.M[1]+7,false,SG.turn===1)
+      + castle(SG.M[2],'castleE',SG.HP[2],'#e5484d',SG.nm[2]==='Jad') + cata(SG.M[2]-7,true,SG.turn===2)
       + `<text x="${sgX(SG.M[1])}" y="80" font-size="12" fill="#58d0ff" text-anchor="middle" font-weight="800">${SG.nm[1]}</text>`
       + `<text x="${sgX(SG.M[2])}" y="80" font-size="12" fill="#ff8fa5" text-anchor="middle" font-weight="800">${SG.nm[2]}</text>`
       + fx;
   }
   return back
-    + castle(4,'castleP',SG.pHP,'#58d0ff',true) + cata(12,false)
+    + castle(4,'castleP',SG.pHP,'#58d0ff',true) + cata(12,false,true)
     + castle(SG.D,'castleE',SG.eHP,'#e5484d',false)
     + fx;
 }
 function startSiege(){
   if(battlesLeft()<=0){ toast('⚔️ No battles left — complete a quest to earn one!'); return; }
-  SG={D:rand(35,90), pHP:3, eHP:3};   // preview battlefield behind the picker
+  SG={D:rand(35,90), pHP:3, eHP:3, pow:0};   // preview battlefield behind the picker (arm at rest, drag disabled)
   $('#siege').classList.remove('hidden');
   lockOrient('landscape');
   redrawSiege();
@@ -3069,7 +3080,7 @@ function startSiege(){
 function useBattle(){ S.battles.used=(S.battles.used||0)+1; save(); renderQuests(); }
 function beginSolo(){
   useBattle();
-  SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, sign:1, val:'', mode:'aim', busy:false, wt:1};
+  SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, busy:false, pow:50, ang:45, kg:2};
   redrawSiege();
   $('#siegeShots').textContent='shot 1';
   $('#siegeMsg').innerHTML='Their <b>throne</b> hides inside the gold keep. Smash the walls, then <b>capture it</b>! How many metres away is it?';
@@ -3087,74 +3098,111 @@ function pick2P(){
 }
 function begin2P(){
   useBattle();
-  SG={two:true, turn:1, shot:1, busy:false, val:'', wt:1,
+  SG={two:true, turn:1, shot:1, busy:false, pow:50, ang:45, kg:2,
       nm:{1:S.sg2[1],2:S.sg2[2]},
       M:{1:rand(6,26),2:rand(60,92)},
       HP:{1:3,2:3},
-      pl:{1:{lastPow:null,sign:1,mode:'aim',wt:1},2:{lastPow:null,sign:1,mode:'aim',wt:1}}};
+      pl:{1:{lastPow:null,pow:50,ang:45,kg:2},2:{lastPow:null,pow:50,ang:45,kg:2}}};
   loadTurn();
   redrawSiege();
   $('#siegeShots').textContent='round 1';
   $('#siegeMsg').innerHTML=`🔵 <b>${SG.nm[1]}</b> goes first! Smash <b>${SG.nm[2]}</b>'s walls, then capture the throne. Which metre mark is their castle on?`;
   sgControls();
 }
-function loadTurn(){ const p=SG.pl[SG.turn]; SG.mode=p.mode; SG.lastPow=p.lastPow; SG.sign=p.sign; SG.wt=p.wt||1; }
-function saveTurn(){ const p=SG.pl[SG.turn]; p.mode=SG.mode; p.lastPow=SG.lastPow; p.sign=SG.sign; p.wt=SG.wt; }
+function loadTurn(){ const p=SG.pl[SG.turn]; SG.lastPow=p.lastPow; SG.pow=p.pow; SG.ang=p.ang; SG.kg=p.kg; }
+function saveTurn(){ const p=SG.pl[SG.turn]; p.lastPow=SG.lastPow; p.pow=SG.pow; p.ang=SG.ang; p.kg=SG.kg; }
+const SG_F={15:0.5,30:0.75,45:1,60:0.75,75:0.5};
+const SG_FTXT={15:'½',30:'¾',45:'FULL',60:'¾',75:'½'};
+function sgLand(){ return Math.round(SG.pow*SG_F[SG.ang]*2/SG.kg); }
+function sgWhy(){
+  const w=[];
+  if(SG.kg===1) w.push('the 1 kg stone flies ×2 your power');
+  if(SG.kg===4) w.push('the 4 kg boulder flies ½ your power');
+  if(SG.ang!==45) w.push(SG.ang+'° flies '+SG_FTXT[SG.ang]+' power');
+  return w.join(' · ');
+}
 function sgControls(){
   const c=$('#siegeCtl');
-  const rockHTML=`<div class="kxrow" id="sgRock">
-      <button data-w="1" class="${SG.wt===1?'sel':''}">🪨 light · flies FULL power</button>
-      <button data-w="2" class="${SG.wt===2?'sel':''}">🗿 heavy ×2 smash · flies HALF</button>
-    </div>`;
-  const padHTML=`<div class="kdisp"><span id="sgIn">…</span><span class="kunit">${SG.mode==='aim'?'m of power':'m'}</span></div>
-    <div class="kgrid" id="sgPad">
-      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
-      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
-      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
-      <button class="kdel" data-k="del">⌫</button><button data-k="0">0</button><button class="kok" data-k="ok">🎯</button>
-    </div>`;
-  if(SG.mode==='aim'){
-    c.innerHTML=`<div class="sgtag">${SG.two?'read the tape — aim at a metre mark':'catapult power = metres flown'}</div>${rockHTML}${padHTML}`;
-  } else {
-    c.innerHTML=`<div class="sgtag">last power: ${SG.lastPow} · adjust it!</div>${rockHTML}
-      <div class="kxrow" id="sgSign">
-        <button data-s="1" class="${SG.sign>0?'sel':''}">＋ more power</button>
-        <button data-s="-1" class="${SG.sign<0?'sel':''}">－ less power</button>
-      </div>${padHTML}`;
-    c.querySelectorAll('#sgSign button').forEach(b=>b.onclick=()=>{ SG.sign=+b.dataset.s;
-      c.querySelectorAll('#sgSign button').forEach(x=>x.classList.toggle('sel',x===b)); sgDisp(); });
-  }
-  c.querySelectorAll('#sgRock button').forEach(b=>b.onclick=()=>{ SG.wt=+b.dataset.w;
-    c.querySelectorAll('#sgRock button').forEach(x=>x.classList.toggle('sel',x===b)); });
-  SG.val='';
-  c.querySelectorAll('#sgPad button').forEach(b=>b.onclick=()=>sgKey(b.dataset.k));
-  sgDisp();
+  c.innerHTML=`
+    <div class="sgtag">${SG.two?'read the tape — set your shot, then pull the lever':'set angle, rock and power — then pull the lever!'}</div>
+    <div class="sgset">
+      <span class="sglbl">angle</span>
+      <button class="sgstep" id="angDn">▼</button>
+      <b id="sgAngV">${SG.ang}°</b>
+      <button class="sgstep" id="angUp">▲</button>
+      <span class="sgnote" id="sgAngN">${SG.ang===45?'flies the furthest':'flies '+SG_FTXT[SG.ang]+' power'}</span>
+    </div>
+    <div class="kxrow" id="sgWt">
+      <button data-kg="1" class="${SG.kg===1?'sel':''}">1 kg · flies ×2</button>
+      <button data-kg="2" class="${SG.kg===2?'sel':''}">2 kg · steady</button>
+      <button data-kg="4" class="${SG.kg===4?'sel':''}">4 kg · ½ · smash ×2</button>
+    </div>
+    <div class="sgset">
+      <span class="sglbl">power</span>
+      <button class="sgstep" id="powDn">▼</button>
+      <b id="sgPowV">${SG.pow}</b>
+      <button class="sgstep" id="powUp">▲</button>
+      <span class="sgnote">drag the catapult arm back!</span>
+    </div>
+    ${SG.lastPow!=null?`<div class="sgtag" id="sgLast">last shot: power ${SG.lastPow}</div>`:''}
+    <button id="sgFire">🔥 PULL THE LEVER!</button>`;
+  $('#angUp').onclick=()=>sgAng(15);
+  $('#angDn').onclick=()=>sgAng(-15);
+  $('#powUp').onclick=()=>sgSetPow(SG.pow+1);
+  $('#powDn').onclick=()=>sgSetPow(SG.pow-1);
+  c.querySelectorAll('#sgWt button').forEach(b=>b.onclick=()=>{ if(SG.busy) return; SG.kg=+b.dataset.kg;
+    c.querySelectorAll('#sgWt button').forEach(x=>x.classList.toggle('sel',x===b)); });
+  $('#sgFire').onclick=sgFire;
+  sgArm();
 }
-function sgDisp(){
-  const t=SG.val||'…';
-  $('#sgIn').textContent = SG.mode==='correct' ? (SG.sign>0?'＋':'－')+t : t;
-}
-function sgKey(k){
+function sgAng(d){
   if(!SG||SG.busy) return;
-  if(k==='del') SG.val=SG.val.slice(0,-1);
-  else if(k==='ok'){
-    if(!SG.val) return;
-    let pow;
-    if(SG.mode==='aim') pow=parseInt(SG.val,10);
-    else pow=SG.lastPow+SG.sign*parseInt(SG.val,10);
-    if(pow<1||pow>100){ toast('Power must land between 1 and 100 m!'); SG.val=''; sgDisp(); return; }
-    if(SG.wt===2 && pow%2){ toast('🗿 The heavy rock flies HALF your power — pick an EVEN number!'); SG.val=''; sgDisp(); return; }
-    if(SG.two) fire2P(pow); else playerFire(pow);
-    return;
-  }
-  else if(SG.val.length<3) SG.val+=k;
-  sgDisp();
+  SG.ang=Math.max(15,Math.min(75,SG.ang+d));
+  $('#sgAngV').textContent=SG.ang+'°';
+  $('#sgAngN').textContent=SG.ang===45?'flies the furthest':'flies '+SG_FTXT[SG.ang]+' power';
 }
-function sgFly(fromM,toM,done,wt){
+function sgSetPow(n){
+  if(!SG||SG.busy) return;
+  SG.pow=Math.max(1,Math.min(100,Math.round(n)));
+  const el=$('#sgPowV'); if(el) el.textContent=SG.pow;
+  sgArm();
+}
+function sgArm(){
+  const g=$('#siegeSvg').querySelector('.armActive');
+  if(g) g.setAttribute('transform',`rotate(${-15-SG.pow*0.95} -6 188)`);
+}
+function sgFire(){
+  if(!SG||SG.busy||!SG.pow) return;
+  SG.busy=true;
+  const g=$('#siegeSvg').querySelector('.armActive'), a0=-15-SG.pow*0.95;
+  tween(k=>{ if(g) g.setAttribute('transform',`rotate(${a0+(25-a0)*k} -6 188)`); },150,()=>{
+    if(SG.two) fire2P(SG.pow); else playerFire(SG.pow);
+  });
+}
+// drag the arm: pull away from the enemy (and/or down) to wind up power
+let sgDragS=null;
+$('#siegeSvg').addEventListener('pointerdown',e=>{
+  if(!SG||SG.busy||!SG.pow) return;
+  const pt=svgPt($('#siegeSvg'),e);
+  const cm=SG.two?(SG.turn===1?SG.M[1]+7:SG.M[2]-7):12;
+  if(Math.abs(pt.x-sgX(cm))<58 && pt.y>110){
+    sgDragS={x:pt.x,y:pt.y,pow:SG.pow,dir:(SG.two&&SG.turn===2)?-1:1};
+    try{ $('#siegeSvg').setPointerCapture(e.pointerId); }catch(err){}
+  }
+});
+$('#siegeSvg').addEventListener('pointermove',e=>{
+  if(!sgDragS) return;
+  const pt=svgPt($('#siegeSvg'),e);
+  sgSetPow(sgDragS.pow + ((sgDragS.x-pt.x)*sgDragS.dir + (pt.y-sgDragS.y))*0.45);
+});
+addEventListener('pointerup',()=>sgDragS=null);
+$('#siegeSvg').addEventListener('pointercancel',()=>sgDragS=null);
+function sgFly(fromM,toM,done,kg,ang){
   const svg=$('#siegeSvg'), ball=svg.querySelector('#sgBall');
-  ball.querySelector('circle').setAttribute('r', (wt||SG.wt)===2?8.5:5.5);
+  ball.querySelector('circle').setAttribute('r', {1:4.5,2:6,4:8.5}[kg||SG.kg]);
   const x0=sgX(fromM), x1=sgX(toM), range=Math.abs(x1-x0);
-  const apex=Math.max(55,Math.min(170,range*0.45)), dur=800+range*2.4;
+  const af={15:0.16,30:0.3,45:0.45,60:0.68,75:0.95}[ang||SG.ang];
+  const apex=Math.max(30,Math.min(185,range*af)), dur=800+range*2.4;
   ball.setAttribute('opacity','1');
   let n=0;
   tween(k=>{
@@ -3196,10 +3244,10 @@ function sgCapture(fromM,toM,done){
 }
 function playerFire(pow){
   SG.busy=true; SG.lastPow=pow;
-  const heavy=SG.wt===2, land=heavy?pow/2:pow;
+  const land=sgLand(), heavy=SG.kg===4, why=sgWhy();
   SG.lastLand=land;
   const exposed=SG.eHP===1;
-  $('#siegeMsg').textContent=heavy?'🗿 Heavy rock at power '+pow+' — it flies '+land+' m…':'🪨 Firing at power '+pow+'…';
+  $('#siegeMsg').textContent='🔥 The '+SG.kg+' kg rock flies at '+SG.ang+'°…';
   sgFly(12,land,()=>{
     const diff=SG.D-land, tol=exposed?3:6;
     if(Math.abs(diff)<=tol){
@@ -3219,8 +3267,9 @@ function playerFire(pow){
       SG.D=rand(35,90);
       setTimeout(()=>{ redrawSiege(); enemyTurn(); },1700);
     } else {
-      sgLandFlag(land, land+' m');
-      $('#siegeMsg').innerHTML=`Landed at <b>${land} m</b> — the ${exposed?'<b>throne</b>':'castle'} sits at <b>${SG.D} m</b>. ${diff>0?'How much FURTHER?':'How much LESS?'}${heavy?' Your heavy rock flies HALF your power!':''}${exposed?' You must land within <b>3 m</b>!':''}`;
+      sgLandFlag(Math.min(land,101), land+' m');
+      const off=land>100?' — right off the field!':'';
+      $('#siegeMsg').innerHTML=`Landed at <b>${land} m</b>${off} — the ${exposed?'<b>throne</b>':'castle'} sits at <b>${SG.D} m</b>. ${diff>0?'How much FURTHER?':'How much LESS?'}${why?`<br><small>${why}</small>`:''}${exposed?' You must land within <b>3 m</b>!':''}`;
       setTimeout(enemyTurn,1400);
     }
   });
@@ -3248,19 +3297,19 @@ function enemyTurn(){
         $('#siegeMsg').innerHTML='Their shot missed! Your turn — <b>adjust your power</b>.';
       }
       SG.shot++; $('#siegeShots').textContent='shot '+SG.shot;
-      SG.mode='correct'; SG.sign = SG.D-(SG.lastLand!=null?SG.lastLand:SG.lastPow)>0?1:-1; SG.busy=false;
+      SG.busy=false;
       sgControls();
-    },1);
+    },2,45);
   },700);
 }
 function fire2P(pow){
   SG.busy=true; SG.lastPow=pow; saveTurn();
   const me=SG.turn, them=me===1?2:1;
   const from=me===1?SG.M[1]+7:SG.M[2]-7;
-  const heavy=SG.wt===2, land=heavy?pow/2:pow;
+  const heavy=SG.kg===4, land=sgLand(), why=sgWhy();
   const target=SG.M[them], exposed=SG.HP[them]===1, tol=exposed?3:6;
   const dot=me===1?'🔵':'🔴';
-  $('#siegeMsg').textContent=dot+' '+SG.nm[me]+(heavy?' hurls the heavy rock at power '+pow+' — it flies '+land+' m…':' fires at '+pow+' m…');
+  $('#siegeMsg').textContent=dot+' '+SG.nm[me]+' launches the '+SG.kg+' kg rock at '+SG.ang+'°…';
   sgFly(from,land,()=>{
     const diff=target-land;
     if(Math.abs(diff)<=tol){
@@ -3280,11 +3329,10 @@ function fire2P(pow){
       SG.M[them]=them===1?rand(6,26):rand(60,92);
       setTimeout(()=>{ redrawSiege(); passTurn(); },1700);
     } else {
-      sgLandFlag(land,land+' m');
-      $('#siegeMsg').innerHTML='Landed at <b>'+land+' m</b> — the '+(exposed?'<b>throne</b>':'castle')+' is at <b>'+target+' m</b>. '+(diff>0?'How much FURTHER?':'How much LESS?')+(heavy?' The heavy rock flies HALF your power!':'');
+      sgLandFlag(Math.min(land,101),land+' m');
+      $('#siegeMsg').innerHTML='Landed at <b>'+land+' m</b>'+(land>100?' — right off the field!':'')+' — the '+(exposed?'<b>throne</b>':'castle')+' is at <b>'+target+' m</b>. '+(diff>0?'How much FURTHER?':'How much LESS?')+(why?`<br><small>${why}</small>`:'');
       setTimeout(passTurn,1600);
     }
-    SG.pl[me].mode='correct'; SG.pl[me].sign=SG.M[them]-land>0?1:-1; // aim hint for this player's next turn (throne capture returned above)
   });
 }
 function passTurn(){

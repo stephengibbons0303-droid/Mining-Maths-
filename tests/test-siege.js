@@ -1,76 +1,95 @@
-// Castle Siege v1: full match — estimate, hit, correction inputs, win.
+// Castle Siege: v24 lever controls (drag arm / angle stepper / kg weights), full match.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || '/opt/pw-browsers/chromium' });
-  const p = await b.newPage({ viewport: { width: 800, height: 1280 } });
+  const p = await b.newPage({ viewport: { width: 1280, height: 800 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://localhost:8901/index.html', { waitUntil: 'load' });
   await p.waitForTimeout(900);
   const log = [], ck = (n, ok) => log.push((ok ? 'PASS' : 'FAIL') + '  ' + n);
-  const type = async n => { for (const ch of String(n)) await p.click(`#sgPad [data-k="${ch}"]`); await p.click('#sgPad [data-k="ok"]'); };
+  const fire = async n => { await p.evaluate(n => sgSetPow(n), n); await p.click('#sgFire'); };
 
   await p.click('#siegeBtn');
   await p.waitForTimeout(300);
-  await p.click('#sgVsAI'); // v20 mode picker
+  await p.click('#sgVsAI'); // mode picker
   await p.waitForTimeout(300);
   let st = await p.evaluate(() => ({ open: !document.getElementById('siege').classList.contains('hidden'),
-    D: SG.D, rows: document.querySelectorAll('#castleE .crow').length, mode: SG.mode,
-    keep: !!document.querySelector('#castleE .keep'), throne: !!document.querySelector('#castleE .throne') }));
-  ck('siege opens: keep + 2 walls, throne hidden, aim mode', st.open && st.D >= 35 && st.D <= 90 && st.rows === 3 && st.mode === 'aim' && st.keep && !st.throne);
+    D: SG.D, rows: document.querySelectorAll('#castleE .crow').length,
+    keep: !!document.querySelector('#castleE .keep'), throne: !!document.querySelector('#castleE .throne'),
+    lever: !!document.getElementById('sgFire'), ang: !!document.getElementById('sgAngV'),
+    kgs: document.querySelectorAll('#sgWt button').length, arm: !!document.querySelector('.armActive') }));
+  ck('siege opens: castle intact, lever + angle stepper + 3 kg weights + arm', st.open && st.D >= 35 && st.D <= 90 && st.rows === 3 && st.keep && !st.throne && st.lever && st.ang && st.kgs === 3 && st.arm);
 
-  // v21 regression: wide enemy misses must stay misses (the old Math.max(1,4+err)
-  // clamp turned every negative wide shot into a direct hit on the player castle)
+  // enemy-aim invariant (v21 regression)
   ck('enemy misses land |err| metres from the castle, never clamped into a hit',
     await p.evaluate(() => [16, -16, 10, -10, 5, -5, 3, -3, 0].every(e => Math.abs(enemyLand(e) - 4) === Math.abs(e) && enemyLand(e) >= 1)));
 
-  // shot 1: fire exactly at the castle -> hit
+  // landing maths: land = power x angle-fraction x 2/kg
+  ck('sgLand: fractions of power by angle, x2 / half by kg',
+    await p.evaluate(() => {
+      const t = (pow, ang, kg, want) => { SG.pow = pow; SG.ang = ang; SG.kg = kg; return sgLand() === want; };
+      const ok = t(80, 45, 2, 80) && t(80, 60, 2, 60) && t(80, 15, 2, 40) && t(80, 45, 1, 160) && t(88, 45, 4, 44) && t(80, 30, 4, 30);
+      SG.pow = 50; SG.ang = 45; SG.kg = 2; sgControls(); return ok;
+    }));
+
+  // angle stepper UI + power clamp
+  await p.click('#angUp');
+  ck('angle steps to 60 with fraction note', await p.evaluate(() =>
+    SG.ang === 60 && document.getElementById('sgAngV').textContent === '60°' && /¾/.test(document.getElementById('sgAngN').textContent)));
+  await p.click('#angDn');
+  ck('power clamps to 100', await p.evaluate(() => { sgSetPow(555); const ok = SG.pow === 100; return ok; }));
+
+  // drag the catapult arm: pull left/down raises power, readout + arm follow
+  const before = await p.evaluate(() => { sgSetPow(30); return { pow: SG.pow, arm: document.querySelector('.armActive').getAttribute('transform') }; });
+  const box = await p.locator('#siegeSvg').boundingBox();
+  const gx = box.x + (65.6 / 420) * box.width, gy = box.y + (180 / 262) * box.height;
+  await p.mouse.move(gx, gy); await p.mouse.down();
+  await p.mouse.move(gx - 40, gy + 25, { steps: 8 });
+  await p.mouse.up();
+  st = await p.evaluate(() => ({ pow: SG.pow, disp: document.getElementById('sgPowV').textContent, arm: document.querySelector('.armActive').getAttribute('transform') }));
+  ck('dragging the arm raises power (readout + arm rotate)', st.pow > before.pow && st.disp === String(st.pow) && st.arm !== before.arm);
+
+  // shot 1: dead-on with the default 2 kg / 45° rock
   const s0 = await p.evaluate(() => S.stars);
-  await type(st.D);
+  await fire(st.D = await p.evaluate(() => SG.D));
   await p.waitForTimeout(6000);
-  st = await p.evaluate(() => ({ eHP: SG.eHP, stars: S.stars, mode: SG.mode, sign: !!document.getElementById('sgSign') }));
+  st = await p.evaluate(() => ({ eHP: SG.eHP, stars: S.stars, busy: SG.busy, last: !!document.getElementById('sgLast') }));
   ck('direct hit: wall down, +2 stars', st.eHP === 2 && st.stars === s0 + 2);
-  ck('after enemy turn: correction mode with +/- buttons', st.mode === 'correct' && st.sign);
+  ck('after enemy turn: controls back with last-power reminder', st.busy === false && st.last);
 
-  // shot 2: castle rebuilt at new D — enter the CORRECTION (|D - lastPow|)
-  let delta = await p.evaluate(() => Math.abs(SG.D - SG.lastPow));
-  if (delta === 0) { await p.evaluate(() => { SG.D = Math.min(90, SG.D + 8); }); delta = 8; }
-  const inGame = await p.evaluate(() => Math.abs(SG.D - SG.lastPow) <= 6); // within tolerance? then delta 0 would also hit; use exact anyway
-  await type(delta);
+  // shot 2: castle relocated — fire at its new mark
+  await fire(await p.evaluate(() => SG.D));
   await p.waitForTimeout(6000);
-  st = await p.evaluate(() => ({ eHP: SG.eHP, throne: !!document.querySelector('#castleE .throne'),
-    msg: document.getElementById('siegeMsg').textContent }));
-  ck('second hit exposes the throne (crown visible, 3m warning)', st.eHP === 1 && st.throne);
+  st = await p.evaluate(() => ({ eHP: SG.eHP, throne: !!document.querySelector('#castleE .throne') }));
+  ck('second hit exposes the throne', st.eHP === 1 && st.throne);
 
-  // shot 3: final wall
-  let d3 = await p.evaluate(() => Math.abs(SG.D - SG.lastPow));
-  if (d3 === 0) { await p.evaluate(() => { SG.D = Math.min(90, SG.D + 8); }); d3 = 8; }
+  // shot 3: capture
   const sw = await p.evaluate(() => S.stars);
-  await type(d3);
+  await fire(await p.evaluate(() => SG.D));
   await p.waitForTimeout(6000);
-  st = await p.evaluate(() => ({ again: !!document.getElementById('sgAgain'),
-    msg: document.getElementById('siegeMsg').textContent, stars: S.stars }));
+  st = await p.evaluate(() => ({ again: !!document.getElementById('sgAgain'), msg: document.getElementById('siegeMsg').textContent, stars: S.stars }));
   ck('precise third shot CAPTURES the throne + bonus stars', st.again && st.msg.includes('CAPTURED') && st.stars >= sw + 5);
 
-  // out-of-range guard (grant a battle token first — v16 gating consumes them)
+  // rematch: heavy 4 kg double-smash, then 1 kg doubling capture
   await p.evaluate(() => { S.battles.tokens = (S.battles.tokens || 0) + 1; save(); });
   await p.click('#sgAgain');
   await p.waitForTimeout(300);
-  await p.click('#sgVsAI'); // play again re-opens the mode picker (v20)
+  await p.click('#sgVsAI');
   await p.waitForTimeout(300);
-  await type(555);
-  const guard = await p.evaluate(() => SG.busy === false && SG.mode === 'aim');
-  ck('power >100 rejected, still aiming', guard);
-
-  // v23 heavy rock: flies half the power, smashes both walls at once
   await p.evaluate(() => { SG.D = 44; redrawSiege(); });
-  await p.click('#sgRock [data-w="2"]');
-  await type(87);
-  ck('heavy rejects odd power (halving must be exact)', await p.evaluate(() => SG.busy === false && SG.mode === 'aim'));
+  await p.click('#sgWt [data-kg="4"]');
   const sh = await p.evaluate(() => S.stars);
-  await type(88);
+  await fire(88); // 88 x 1/2 = 44
   await p.waitForTimeout(6500);
   st = await p.evaluate(() => ({ eHP: SG.eHP, stars: S.stars, throne: !!document.querySelector('#castleE .throne') }));
-  ck('heavy at 88 flies 44 m: double smash 3->1, +4 stars, throne exposed', st.eHP === 1 && st.stars === sh + 4 && st.throne);
+  ck('4 kg at power 88 flies 44 m: double smash 3->1, +4 stars', st.eHP === 1 && st.stars === sh + 4 && st.throne);
+  await p.evaluate(() => { SG.D = 44; redrawSiege(); });
+  await p.click('#sgWt [data-kg="1"]');
+  const sc = await p.evaluate(() => S.stars);
+  await fire(22); // 22 x 2 = 44 — doubling to capture
+  await p.waitForTimeout(7000);
+  st = await p.evaluate(() => ({ msg: document.getElementById('siegeMsg').textContent, stars: S.stars }));
+  ck('1 kg at power 22 flies 44 m: doubling captures the throne', st.msg.includes('CAPTURED') && st.stars >= sc + 5);
   await p.click('#siegeQuit');
 
   console.log(log.join('\n')); console.log('ERRORS:', errs.length ? errs.join(' | ') : 'none');

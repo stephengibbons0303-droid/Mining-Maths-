@@ -16,7 +16,7 @@ pass-and-play). For the release-by-release history see `PROGRESS.md`.
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v23.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v24.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Usage pattern**: Jad uses the tablet roughly **every other day**, not daily.
 - **COPY RULE (Stephen, v17)**: never convey time windows or deadlines to Jad —
@@ -128,16 +128,29 @@ build (the v19 button destructively cleared it; Stephen flagged it).
 Blocks sorted bottom-up, upper half tumbles on hit 1, lower half on hit 2.
 Enemy keeps the classic build. `tests/test-editor.js` covers all of it.
 
-### Weights layer (v23 — SHIPPED, first of the agreed maths layers)
-Rock selector on every shot (solo + both 2P players, per-player via
-`pl[].wt`): 🪨 light flies FULL power; 🗿 heavy does **×2 smash (two wall
-layers, +4★) but flies HALF the power** — and only accepts EVEN power so
-the halving is exact mental maths (doubling to aim: castle at 44 → power
-88). Landing (not power) drives all feedback/corrections (`SG.lastLand`);
-enemy AI always fires light. Flight is now a tall parabola
-(apex `range*0.45`, capped) with a fading dot trail; heavy rock drawn
-bigger (r 8.5 vs 5.5). Copy states the halving every time it matters.
-Next layers: wind (signed adjustment), then angle as a second number.
+### Physical firing controls + weights + angle (v23 rock pair → v24 full panel, SHIPPED)
+Stephen requested tactile controls (drag-arm + release lever + angle
+steppers + kg weights). The core no-instinct principle survives because
+**everything resolves to visible numbers and there is NO trajectory
+preview**: the drag sets a number on a big readout, landing feedback stays
+numeric, and castles still relocate every hit.
+- **Power**: drag the catapult arm back (arm visibly cocks, `.armActive`
+  rotates `-15-pow*0.95°` about its pivot; pointer handler on #siegeSvg
+  near the active catapult, mirrored for 2P player 2) — or tap ▼▲ for ±1.
+  `sgSetPow()` clamps 1–100.
+- **Angle**: ▼▲ stepper, 15°–75° in 15° steps. **45° = full power,
+  30°/60° = ¾, 15°/75° = ½** (fractions of amounts — Year 3). Arc height
+  follows the angle in `sgFly` (steep = high lob, short).
+- **Weight**: three kg chips. **1 kg flies ×2 power** (halve to aim far),
+  **2 kg flies exactly power** (the learnt baseline), **4 kg flies ½ and
+  smashes two wall layers** (+4★). `sgLand() = round(pow·F(ang)·2/kg)`;
+  overshoots past 100 m announce "right off the field".
+- **🔥 PULL THE LEVER!** button fires (arm snap animation, then flight).
+  Post-miss copy explains the active factors (`sgWhy()`); "last shot:
+  power N" reminder shown. Enemy AI always fires the 2 kg/45° baseline
+  (`sgFly(...,2,45)`); per-player pow/ang/kg in 2P via loadTurn/saveTurn.
+The number pad is GONE from the siege (still used everywhere else).
+Next layer: wind (signed adjustment).
 
 ### Pass-and-play (v20 — SHIPPED)
 The 🏰 button now opens a **mode picker** over a battlefield preview:

@@ -122,6 +122,15 @@ pedagogy (worked solutions, retries, hints).
   first ballistics maths layer: light/heavy rocks (heavy = ×2 smash, flies
   HALF the power, even numbers only), true parabolic flight with a trail.
 
+### Physical catapult controls (v24)
+- Stephen's spec: drag the catapult arm back to set power (arm visibly
+  cocks, big numeric readout, ±1 fine arrows), tap ▲▼ to step the launch
+  angle (15°–75°; 45° flies full power, 30°/60° fly ¾, 15°/75° fly ½ —
+  fractions of amounts), pick a rock in kilogrammes (1 kg flies ×2, 2 kg
+  steady, 4 kg flies ½ and smashes two layers), then 🔥 pull the release
+  lever. Arc height follows the angle; no trajectory preview, so every
+  shot still needs the arithmetic. Number pad removed from the siege.
+
 ## State at end of session
 
 - **Live version: v20**, deployed and verified green on Pages.

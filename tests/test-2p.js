@@ -8,15 +8,8 @@ const { chromium } = require('playwright');
   await p.goto('http://localhost:8901/index.html', { waitUntil: 'load' });
   await p.waitForTimeout(900);
   const log = [], ck = (n, ok) => log.push((ok ? 'PASS' : 'FAIL') + '  ' + n);
-  const type = async n => { for (const ch of String(n)) await p.click(`#sgPad [data-k="${ch}"]`); await p.click('#sgPad [data-k="ok"]'); };
-  // fire the current player's shot to land exactly at `to` (handles aim vs correction mode)
-  const fireAt = async to => {
-    const st = await p.evaluate(() => ({ mode: SG.mode, last: SG.lastPow }));
-    if (st.mode === 'aim') { await type(to); return; }
-    const d = to - st.last;
-    await p.click(`#sgSign [data-s="${d >= 0 ? 1 : -1}"]`);
-    await type(Math.abs(d));
-  };
+  // v24: set the power gauge and pull the lever (default 2 kg / 45° -> land = power)
+  const fireAt = async to => { await p.evaluate(n => sgSetPow(n), to); await p.click('#sgFire'); };
 
   // mode picker
   await p.click('#siegeBtn');
