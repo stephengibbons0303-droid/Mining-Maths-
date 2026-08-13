@@ -192,6 +192,22 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 .sayline{margin:0 0 10px;animation:howin .35s ease;text-align:left}
 .btn:disabled{opacity:.4}
 
+/* Quest board */
+#questCard .optbtn{text-align:left;font-size:15px;padding:12px 14px}
+#questCard small{color:var(--gold);font-weight:800}
+
+/* Badges */
+#badges{position:fixed;inset:0;background:#000c;z-index:80;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
+#badges.hidden{display:none}
+.badgewrap{width:100%;max-width:480px;margin:auto;background:var(--bg1);border:1px solid var(--line);border-radius:22px;padding:18px}
+.badgegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.badge{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.badge.off{opacity:.35}
+.badge .be{font-size:30px;line-height:1.2}
+.badge .bn{font-family:'Fredoka';font-size:14px;margin-top:2px}
+.badge .bd{font-size:11px;color:var(--muted);margin-top:2px}
+.badge .bp{font-size:11px;color:var(--gold);margin-top:2px;font-weight:800}
+
 /* Games row */
 .gamesrow{display:flex;gap:10px;margin:0 0 12px}
 .gamesrow .newpic{margin:0;flex:1}
@@ -328,6 +344,10 @@ window.addEventListener('unhandledrejection',function(e){
 
 <div id="views">
   <div id="mathsView">
+    <div class="picturecard" id="questCard" style="padding:12px 14px;margin-bottom:12px">
+      <div class="ttl"><h3 style="margin:0">⚔️ Today's Quests</h3><small id="crownState"></small></div>
+      <div id="questList" class="opts" style="gap:8px"></div>
+    </div>
     <div class="gamesrow">
       <button class="newpic" id="sprintBtn">⚡ Sprint</button>
       <button class="newpic" id="siegeBtn" style="background:linear-gradient(135deg,#8fd8e0,#3d8fd1);color:#08222e">🏰 Castle Siege</button>
@@ -440,6 +460,12 @@ window.addEventListener('unhandledrejection',function(e){
   </div>
 </div>
 
+<div id="badges" class="hidden"><div class="badgewrap">
+  <h3 style="margin:0">🏅 Jad's Badges</h3>
+  <div class="badgegrid" id="badgeGrid"></div>
+  <button class="btn ghost" id="badgeClose" style="width:100%;margin-top:14px">Close</button>
+</div></div>
+
 <div id="cert" class="hidden"><div class="certwrap">
   <div class="certcard" id="certCard">
     <div class="certstar">🏆</div>
@@ -518,9 +544,11 @@ window.addEventListener('unhandledrejection',function(e){
     <select id="optStars" style="background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:inherit">
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
+  <div class="opt"><span>⚔️ Daily quests &amp; battle tokens</span><input type="checkbox" id="optQuests"></div>
+  <div class="opt" id="badgeRow" style="cursor:pointer"><span>🏅 Badges</span><span>›</span></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v15</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v16</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -583,6 +611,11 @@ function load(){
   S.missQ    = S.missQ    || {};           // per-category queue of missed questions to revisit
   S.wrongRun = S.wrongRun || {};           // per-category consecutive misses (for auto step-down)
   S.sprintBest = S.sprintBest || 0;
+  S.hist     = S.hist     || {};           // per-topic {n, ok, last} for quest targeting
+  S.quests   = S.quests   || null;         // today's quest board
+  S.battles  = S.battles  || {date:'', used:0, tokens:0};
+  S.crowns   = S.crowns   || 0;
+  S.questsOn = (S.questsOn===undefined)?true:!!S.questsOn;
   rollDate();
 }
 function rollDate(){
@@ -1533,8 +1566,12 @@ function takeQueued(c){
   return null;
 }
 function resolveCorrect(secondTry){
-  S.wrongRun[cur.cat.id]=0; save();
+  const cid=cur.cat.id;
+  const h=S.hist[cid]=S.hist[cid]||{n:0,ok:0,last:''};
+  h.n++; h.ok++; h.last=todayStr();
+  S.wrongRun[cid]=0; save();
   award(QUIZ_STARS);
+  questTick('cat',cid);
   if(S.autoLevel && !secondTry){
     setStreak(winStreak+1);
     if(winStreak>=5){ setStreak(0); triggerLevelReward(); return; }
@@ -1544,6 +1581,8 @@ function resolveCorrect(secondTry){
 }
 function resolveWrong(){
   const cid=cur.cat.id;
+  const h=S.hist[cid]=S.hist[cid]||{n:0,ok:0,last:''};
+  h.n++; h.last=todayStr();
   if(S.autoLevel) setStreak(0);
   S.wrongRun[cid]=(S.wrongRun[cid]||0)+1;
   const qq=JSON.parse(JSON.stringify(cur.q)); delete qq.retry;
@@ -1613,7 +1652,7 @@ function openActivity(c){
   winStreak = S.streaks[c.id]||0; updateStreak();
   newQuestion();
 }
-function closeActivity(){$('#activity').classList.add('hidden');renderGrid();renderHeader();renderPicture();}
+function closeActivity(){$('#activity').classList.add('hidden');renderGrid();renderHeader();renderPicture();renderQuests();}
 function lvlLabel(){
   const c=cur.cat;
   $('#lvlLabel').textContent = S.mastered[c.id]?'Mastered':'Level '+S.levels[c.id];
@@ -2645,7 +2684,7 @@ function startSciQuiz(){
   sciState.t=Object.assign({},base,{steps});
   runStep(0);
 }
-function finishTopic(){ S.explored[sciState.t.id]=true; save(); toast('🌟 Topic complete!'); closeTopic(); }
+function finishTopic(){ S.explored[sciState.t.id]=true; save(); questTick('science'); toast('🌟 Topic complete!'); closeTopic(); }
 function stepNextBtn(i){ const last=i+1>=sciState.t.steps.length; return last?'Finish ⭐':'Next →'; }
 function runStep(i){
   sciState.idx=i; const s=sciState.t.steps[i], step=$('#topStep');
@@ -2753,6 +2792,123 @@ function setTab(n){
   if(n==='science') renderSci($('#sciSearch').value);
 }
 
+/* ---------- Daily quests, battle tokens, badges ---------- */
+function ensureQuests(){
+  const t=todayStr();
+  if(S.quests && S.quests.date===t) return;
+  const last=id=>(S.hist[id]&&S.hist[id].last)||'';
+  const acc=id=>{const h=S.hist[id]; if(!h||h.n<5) return 1; return h.ok/h.n;};
+  // practice: least recently practised (ties: lowest level)
+  const byStale=[...CATS].sort((a,b)=>{
+    const la=last(a.id), lb=last(b.id);
+    if(la!==lb) return la<lb?-1:1;
+    return S.levels[a.id]-S.levels[b.id];
+  });
+  const practice=byStale[0].id;
+  // challenge: lowest accuracy among practised topics; cold-start default = division
+  const cand=[...CATS].filter(c=>c.id!==practice).sort((a,b)=>acc(a.id)-acc(b.id)||S.levels[a.id]-S.levels[b.id]);
+  let challenge = cand.length&&acc(cand[0].id)<1 ? cand[0].id : (practice==='division'?cand[0].id:'division');
+  // explorer: rotate science / sprint / surprise topic
+  const day=Math.floor(new Date(t+'T00:00:00Z').getTime()/86400000);
+  const etype=['science','sprint','topic'][day%3];
+  const others=CATS.filter(c=>c.id!==practice&&c.id!==challenge);
+  const q3 = etype==='topic'
+    ? {k:'explore', cat:others[day%others.length].id, need:5, done:0, got:false}
+    : {k:etype, need:1, done:0, got:false};
+  S.quests={date:t, crown:false, list:[
+    {k:'practice', cat:practice, need:5, done:0, got:false},
+    {k:'challenge', cat:challenge, need:5, done:0, got:false, x2:true},
+    q3,
+  ]};
+  S.battles={date:t, used:0, tokens:0};
+  save();
+}
+function battlesLeft(){
+  if(!S.questsOn) return Infinity;
+  ensureQuests();
+  if(S.quests.crown) return Infinity;
+  return Math.max(0, 1+(S.battles.tokens||0)-(S.battles.used||0));
+}
+function questTick(kind,cat){
+  if(!S.questsOn) return;
+  ensureQuests();
+  let changed=false;
+  S.quests.list.forEach(q=>{
+    if(q.got) return;
+    const match = (q.k==='sprint'&&kind==='sprint') || (q.k==='science'&&kind==='science')
+      || ((q.k==='practice'||q.k==='challenge'||q.k==='explore') && kind==='cat' && q.cat===cat);
+    if(!match) return;
+    q.done++; changed=true;
+    if(q.done>=q.need){
+      q.got=true; S.battles.tokens=(S.battles.tokens||0)+1;
+      const bonus=q.x2?6:3; S.stars+=bonus; S.today+=bonus;
+      toast('🎯 Quest complete! +'+bonus+' ★ · +1 battle ⚔️');
+      if(S.quests.list.every(x=>x.got)){
+        S.quests.crown=true; S.crowns++;
+        setTimeout(()=>{ toast('👑 DAILY CROWN — unlimited battles today!'); burst(); },1200);
+      }
+    }
+  });
+  if(changed){ save(); renderQuests(); renderHeader(); }
+}
+function renderQuests(){
+  const card=$('#questCard'); if(!card) return;
+  card.classList.toggle('hidden',!S.questsOn);
+  $('#siegeBtn').textContent='🏰 Castle Siege'+(S.questsOn?` · ⚔️${battlesLeft()===Infinity?'∞':battlesLeft()}`:'');
+  if(!S.questsOn) return;
+  ensureQuests();
+  $('#crownState').textContent = S.quests.crown ? '👑 CROWN!' : `⚔️ battles: ${battlesLeft()===Infinity?'∞':battlesLeft()}`;
+  const list=$('#questList'); list.innerHTML='';
+  S.quests.list.forEach(q=>{
+    const cat=q.cat?CATS.find(c=>c.id===q.cat):null;
+    let label;
+    if(q.k==='sprint') label='⚡ Finish a Sprint (5 or more right)';
+    else if(q.k==='science') label='🔬 Finish any science topic or quiz';
+    else if(q.k==='challenge') label=`🐉 Challenge: ${cat.nm} · double-star bonus!`;
+    else if(q.k==='explore') label=`🎲 Surprise topic: ${cat.nm}`;
+    else label=`${cat.emoji} Practise ${cat.nm}`;
+    const prog=q.need>1&&!q.got?` — ${Math.min(q.done,q.need)}/${q.need}`:'';
+    const b=document.createElement('button');
+    b.className='optbtn'+(q.got?' ok':'');
+    b.textContent=(q.got?'✅ ':'')+label+prog;
+    b.onclick=()=>{
+      if(q.got) return;
+      if(q.k==='sprint') startSprint();
+      else if(q.k==='science') setTab('science');
+      else openActivity(CATS.find(c=>c.id===q.cat));
+    };
+    list.appendChild(b);
+  });
+}
+function badgeDefs(){
+  const done=id=>S.hist[id]&&S.hist[id].n>0;
+  const divOk=S.hist.division?S.hist.division.ok:0;
+  const base=[
+    {e:'🏅',nm:'All-Rounder',bd:'Practise every maths topic',got:CATS.every(c=>done(c.id)),bp:CATS.filter(c=>done(c.id)).length+'/'+CATS.length},
+    {e:'🐉',nm:'Dragon Slayer',bd:'50 division answers right',got:divOk>=50,bp:Math.min(50,divOk)+'/50'},
+    {e:'🔬',nm:'Scientist',bd:'Explore every science topic',got:TOPICS.every(t=>S.explored[t.id]),bp:TOPICS.filter(t=>S.explored[t.id]).length+'/'+TOPICS.length},
+    {e:'🔥',nm:'Week Streak',bd:'7 days in a row',got:S.streak>=7,bp:Math.min(7,S.streak)+'/7'},
+    {e:'🌋',nm:'Month Streak',bd:'30 days in a row',got:S.streak>=30,bp:Math.min(30,S.streak)+'/30'},
+    {e:'👑',nm:'Crown Collector',bd:'Earn 5 daily crowns',got:(S.crowns||0)>=5,bp:Math.min(5,S.crowns||0)+'/5'},
+  ];
+  CATS.forEach(c=>{
+    const lv=S.levels[c.id], m=S.mastered[c.id];
+    const medal=m?'🥇':lv>=4?'🥈':lv>=2?'🥉':'';
+    base.push({e:c.emoji+(medal?' '+medal:''), nm:c.nm, bd:m?'Mastered!':'Level '+lv+' of 5', got:!!medal});
+  });
+  return base;
+}
+function openBadges(){
+  const g=$('#badgeGrid'); g.innerHTML='';
+  badgeDefs().forEach(b=>{
+    const d=document.createElement('div');
+    d.className='badge'+(b.got?'':' off');
+    d.innerHTML=`<div class="be">${b.e}</div><div class="bn">${b.nm}</div><div class="bd">${b.bd}</div>${b.bp&&!b.got?`<div class="bp">${b.bp}</div>`:''}`;
+    g.appendChild(d);
+  });
+  $('#badges').classList.remove('hidden');
+}
+
 /* ---------- Castle Siege ---------- */
 let SG=null;
 const sgX=m=>20+m*3.8;
@@ -2809,6 +2965,8 @@ function siegeField(){
   <g id="sgFlag" opacity="0"><line x1="0" y1="0" x2="0" y2="-18" stroke="#ff5e87" stroke-width="2.5"/><polygon points="0,-18 14,-13 0,-8" fill="#ff5e87"/><text class="flagT" y="-24" font-size="11" fill="#ffe89a" text-anchor="middle" font-weight="800"></text></g>`;
 }
 function startSiege(){
+  if(battlesLeft()<=0){ toast('⚔️ No battles left today — complete a quest to earn more!'); return; }
+  S.battles.used=(S.battles.used||0)+1; save(); renderQuests();
   SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, sign:1, val:'', mode:'aim', busy:false};
   $('#siege').classList.remove('hidden');
   redrawSiege();
@@ -2993,6 +3151,7 @@ function endSprint(){
   if(best) S.sprintBest=sc;
   const stars=(sc>0?Math.ceil(sc/3):0)+(best?2:0);
   if(stars) award(stars); else save();
+  if(sc>=5) questTick('sprint');
   renderGrid(); renderPicture();
   $('#sprintLive').classList.add('hidden');
   const e=$('#sprintEnd'); e.classList.remove('hidden');
@@ -3064,7 +3223,7 @@ $('#lvlDown').onclick=()=>setLevel(-1);
 // tracker
 $('#anotherEx').onclick=newQuestion;
 $('#revealT').onclick=showAns;
-$('#passLevel').onclick=()=>{award(TRACKER_STARS);levelUp();newQuestion();burst();};
+$('#passLevel').onclick=()=>{const h=S.hist[cur.cat.id]=S.hist[cur.cat.id]||{n:0,ok:0,last:''};h.n++;h.ok++;h.last=todayStr();award(TRACKER_STARS);questTick('cat',cur.cat.id);levelUp();newQuestion();burst();};
 
 // quiz
 $('#revealQ').onclick=showAns;
@@ -3083,6 +3242,9 @@ document.querySelectorAll('#sprintPad button').forEach(b=>b.onclick=()=>sprintKe
 $('#certPrint').onclick=()=>window.print();
 $('#certClose').onclick=()=>$('#cert').classList.add('hidden');
 $('#certRow').onclick=()=>{ $('#sheet').classList.remove('open'); openCerts(); };
+$('#badgeRow').onclick=()=>{ $('#sheet').classList.remove('open'); openBadges(); };
+$('#badgeClose').onclick=()=>$('#badges').classList.add('hidden');
+$('#optQuests').onchange=e=>{ S.questsOn=e.target.checked; save(); renderQuests(); };
 $('#howNext').onclick=()=>{ if(howIdx>=cur.q.steps.length-1) $('#howto').classList.add('hidden'); else { howIdx++; renderHowSteps(); } };
 $('#howClose').onclick=()=>$('#howto').classList.add('hidden');
 document.querySelectorAll('#kPad .kgrid button').forEach(b=>b.onclick=()=>kidKey(b.dataset.k));
@@ -3101,7 +3263,7 @@ $('#sciBack').onclick=()=>{ $('#topic').classList.add('hidden'); renderSci($('#s
 })();
 
 // settings
-$('#gear').onclick=()=>{$('#optAuto').checked=S.autoAns;$('#optFade').checked=S.fade;$('#optAutoLevel').checked=S.autoLevel;$('#optChallenge').checked=S.challenges;$('#optStars').value=String(S.starsPerTile);renderPicsList();$('#sheet').classList.add('open');};
+$('#gear').onclick=()=>{$('#optQuests').checked=S.questsOn;$('#optAuto').checked=S.autoAns;$('#optFade').checked=S.fade;$('#optAutoLevel').checked=S.autoLevel;$('#optChallenge').checked=S.challenges;$('#optStars').value=String(S.starsPerTile);renderPicsList();$('#sheet').classList.add('open');};
 $('#picUpload').onchange=async e=>{
   const files=[...e.target.files].filter(f=>f.type.startsWith('image/'));
   for(const f of files){ try{ const poster = f.type==='image/gif' ? await makePoster(f) : null; await idbAdd(f,f.name,f.type,poster); }catch(err){ toast('Could not save (storage full?)'); } }
@@ -3122,7 +3284,7 @@ $('#resetBtn').onclick=()=>{ if(confirm("Reset ALL of Jad's progress? This canno
 /* ---------- Boot ---------- */
 (async()=>{
   load();
-  renderHeader(); renderGrid(); renderPicture(); renderPicsList(); setTab(S.tab);
+  renderHeader(); renderGrid(); renderPicture(); renderPicsList(); setTab(S.tab); renderQuests();
   // pictures load in the background — UI must never wait on network or IndexedDB
   try{ await loadBuiltins(); }catch(e){}
   try{ await loadPics(); }catch(e){}

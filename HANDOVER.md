@@ -15,7 +15,7 @@ agreed design for the next major feature (Castle Siege).
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v15.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v16.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Design language**: dark slate bg, ice-blue `#cfeaff` labels, sunny yellow `#ffe89a`
   guidance, cyan `#58d0ff` headings, gold stars, white numbers. Scenes are wide
@@ -99,6 +99,21 @@ v2 pass-and-play: two catapults + two castles, alternate real players (name
 prompts, Jad vs Rai vs Dad), same correction maths both ways. v3 castle
 editor: place-your-own-blocks before battle (geometry). Then layer weights
 (double/halve), wind (signed adjustment), angle as a second number.
+
+## Directed learning (v16 — agreed design, SHIPPED)
+Daily Quest Board on the maths tab: 3 quests/day — Practice (least-recently
+practised topic, from new per-topic history `S.hist{n,ok,last}`), Challenge
+(lowest-accuracy topic, cold-start division, framed as 🐉 with double-star
+bonus +6★), Explorer (rotates science-quiz / sprint / surprise topic).
+Game gating: 1 free Castle Siege battle daily + 1 token per quest; all 3
+quests = 👑 Daily Crown → unlimited battles that day (S.crowns counted).
+Day-streak stays GENTLE (any practice counts) — the crown carries the
+variety pressure. Badge shelf (Settings → 🏅): All-Rounder, Dragon Slayer
+(50 division correct), Scientist, week/month streak, Crown Collector, plus
+bronze/silver/gold per maths topic. Dad override: Settings toggle
+'Daily quests & battle tokens' disables gating entirely.
+Key functions: ensureQuests/battlesLeft/questTick/renderQuests/badgeDefs.
+`tests/test-v16.js` covers the full loop.
 
 ## Backlog (agreed or parked)
 - **3D Jenga tower** — parked pending Jad. If built: faux physics (stability meter +

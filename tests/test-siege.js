@@ -44,7 +44,8 @@ const { chromium } = require('playwright');
     msg: document.getElementById('siegeMsg').textContent, stars: S.stars }));
   ck('precise third shot CAPTURES the throne + bonus stars', st.again && st.msg.includes('CAPTURED') && st.stars >= sw + 5);
 
-  // out-of-range guard
+  // out-of-range guard (grant a battle token first — v16 gating consumes them)
+  await p.evaluate(() => { S.battles.tokens = (S.battles.tokens || 0) + 1; save(); });
   await p.click('#sgAgain');
   await p.waitForTimeout(400);
   await type(555);
