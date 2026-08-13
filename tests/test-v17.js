@@ -89,9 +89,10 @@ const { chromium } = require('playwright');
   });
   ck('portrait siege unchanged: stacked layout', st.open && st.stacked && st.svgW > 500);
 
-  // 9) footer version bumped
+  // 9) footer version is v17 or later
   const ver = await p.evaluate(() => document.getElementById('ver').textContent);
-  ck('footer shows v17', ver.includes('· v17'));
+  const vn = parseInt((ver.match(/· v(\d+)/) || [])[1] || 0, 10);
+  ck('footer shows v17+ (' + vn + ')', vn >= 17);
 
   console.log(log.join('\n')); console.log('ERRORS:', errs.length ? errs.join(' | ') : 'none');
   await b.close();

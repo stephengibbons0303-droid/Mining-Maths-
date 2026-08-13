@@ -53,6 +53,13 @@ v1 is live: solo vs AI, 🏰 button in the games row. Implementation notes:
 `startSiege()/SG` state, `siegeField()` draws battlefield (tape 0–100 m,
 `sgX(m)` maps metres→svg x), `playerFire`/`enemyTurn` turn loop,
 `sgCrumble` scripted block tumble, correction mode = ＋/− delta input.
+Castles are Minecraft-style builds (v18, Stephen wanted more than 6 blocks):
+~60 small brick rects per castle — corner towers with battlement caps and
+torches, curtain wall, arched gate, arrow slits, tall central flag tower
+(player flag blue, enemy red). Damage order via `.crow` groups: hit 1
+tumbles the flag tower + tower caps, hit 2 the main walls, leaving the
+broken gold keep + exposed throne amid rubble. `sgCrumble` tumbles every
+rect/polygon/circle in the top group.
 Win condition (v15, Stephen's design): each castle guards a THRONE inside
 a gold keep (tabletop C&C homage). Smash 2 walls (±6 m tolerance) to
 EXPOSE the sparkling throne, then a precision shot within ±3 m CAPTURES
