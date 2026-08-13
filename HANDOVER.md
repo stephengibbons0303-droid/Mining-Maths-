@@ -15,7 +15,7 @@ agreed design for the next major feature (Castle Siege).
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v12.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v13.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
 - **Design language**: dark slate bg, ice-blue `#cfeaff` labels, sunny yellow `#ffe89a`
   guidance, cyan `#58d0ff` headings, gold stars, white numbers. Scenes are wide
@@ -32,6 +32,11 @@ agreed design for the next major feature (Castle Siege).
   `/opt/pw-browsers/chromium` in the cloud env; locally let Playwright download).
 - Suites: `test.js` (core kid/dad/retry/steps), `test-v4/v5/v9/v12.js` (features).
   All green at v12. `survey.js` measures scene sizes.
+- **Touch lesson (v13)**: Chromium honours `touch-action` only on the **SVG root**,
+  not inner elements — per-element `touchAction='none'` works for mouse but real
+  touchscreens hijack the gesture for scrolling/pull-to-refresh. Fix lives in CSS
+  (`#topVis svg{touch-action:none}` + overscroll-behavior). `tests/test-touch.js`
+  guards every drag surface with CDP-emulated touch — run it for any new drag UI.
 - **Known trap ×2**: when patching `index.html` with python string slices between
   function names, the scene functions (shadowsSVG…wireCircuit) sit BETWEEN wireSpace
   and ziplineSVG — careless slicing has deleted them twice. Always `node --check` the
@@ -72,13 +77,13 @@ the instinct channel.
   crumble via scripted tumble (same trick planned for Jenga). 2D SVG/canvas in the
   existing stack.
 
-### Questions Jad is being asked (his answers steer build order)
-1. Which fantasy matters most: **building** his own castle (→ castle editor, geometry),
-   **smashing** the enemy's (→ invest in crumble/damage), or **beating** Rai/Dad
-   (→ two-player first)?
-2. His verdict on the other game ideas (3D Jenga tower with faux physics;
-   Drop-Match falling-tile matcher) — build later, shelve, or never.
-3. Any of his own ideas.
+### Jad's answers (received)
+1. Fantasy: **ALL THREE — build, smash AND beat.** So the full vision is on:
+   castle editor, satisfying crumble, and pass-and-play two-player. Suggested
+   phasing: v1 solo numeric artillery + scripted crumble → v2 pass-and-play
+   (Jad vs Rai/Dad) → v3 castle editor (place-your-own-blocks, geometry).
+2. Verdict on Jenga tower / Drop-Match: not yet given — ask again later.
+3. His own ideas: none captured yet.
 
 ### Suggested first build slice (once Jad answers)
 Solo vs simple AI, one projectile weight + one castle layout, numeric power dial only
