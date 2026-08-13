@@ -15,8 +15,13 @@ agreed design for the next major feature (Castle Siege).
   service worker (bump `CACHE = 'jadquest-vN'` on every release **and** the `· vN`
   version string in the settings footer of index.html — users verify updates by it),
   self-hosted fonts, `pics/` bundled reward GIFs.
-- **Current version: v16.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
+- **Current version: v17.** Family: Jad (7), little brother Rai, Dad (Stephen). Rai
   appears in word-problem name pools; sound topic references him.
+- **Usage pattern**: Jad uses the tablet roughly **every other day**, not daily.
+- **COPY RULE (Stephen, v17)**: never convey time windows or deadlines to Jad —
+  no "today", "daily", "until midnight", countdowns or expiry language anywhere
+  in app copy. He's 7. Mechanics may still roll over by calendar date internally;
+  the words must not say so.
 - **Design language**: dark slate bg, ice-blue `#cfeaff` labels, sunny yellow `#ffe89a`
   guidance, cyan `#58d0ff` headings, gold stars, white numbers. Scenes are wide
   420-unit SVG panoramas (tablet-first, ~94% width at 800px). Science steps engine:
@@ -100,20 +105,38 @@ prompts, Jad vs Rai vs Dad), same correction maths both ways. v3 castle
 editor: place-your-own-blocks before battle (geometry). Then layer weights
 (double/halve), wind (signed adjustment), angle as a second number.
 
-## Directed learning (v16 — agreed design, SHIPPED)
-Daily Quest Board on the maths tab: 3 quests/day — Practice (least-recently
-practised topic, from new per-topic history `S.hist{n,ok,last}`), Challenge
-(lowest-accuracy topic, cold-start division, framed as 🐉 with double-star
-bonus +6★), Explorer (rotates science-quiz / sprint / surprise topic).
-Game gating: 1 free Castle Siege battle daily + 1 token per quest; all 3
-quests = 👑 Daily Crown → unlimited battles that day (S.crowns counted).
-Day-streak stays GENTLE (any practice counts) — the crown carries the
-variety pressure. Badge shelf (Settings → 🏅): All-Rounder, Dragon Slayer
-(50 division correct), Scientist, week/month streak, Crown Collector, plus
-bronze/silver/gold per maths topic. Dad override: Settings toggle
-'Daily quests & battle tokens' disables gating entirely.
+## Directed learning (v16, reframed v17 — SHIPPED)
+"⚔️ Quest Board" on the maths tab: 3 quests per **play day** — Practice
+(least-recently practised topic, from per-topic history `S.hist{n,ok,last}`),
+Challenge (lowest-accuracy topic, cold-start division, framed as 🐉 with
+double-star bonus +6★), Explorer (rotates science-quiz / sprint / surprise
+topic). Game gating: 1 free Castle Siege battle per board + 1 token per
+quest; all 3 quests = 👑 Crown → endless battles (S.crowns counted).
+Internally the board regenerates when `S.quests.date !== todayStr()` — i.e.
+a fresh board each visit on Jad's every-other-day cadence; the crown/tokens
+quietly reset with it, and **no copy ever mentions this** (see COPY RULE).
+Streak is gap-tolerant (v17): `rollDate()` keeps `S.streak` through gaps of
+≤3 days, so every-other-day play builds a streak; badges are 🔥 On Fire
+(streak of 7 play days) and 🌋 Unstoppable (30). Badge shelf (Settings → 🏅):
+All-Rounder, Dragon Slayer (50 division correct), Scientist, the two streak
+badges, Crown Collector (win 5 crowns), plus bronze/silver/gold per maths
+topic. Dad override: Settings toggle '⚔️ Quests & battle tokens' disables
+gating entirely.
 Key functions: ensureQuests/battlesLeft/questTick/renderQuests/badgeDefs.
-`tests/test-v16.js` covers the full loop.
+`tests/test-v16.js` covers the loop; `tests/test-v17.js` guards the
+time-free copy, gap-tolerant streak and fresh-board rollover.
+
+## Landscape Castle Siege (v17 — SHIPPED)
+Manifest `orientation` is now `"any"`; the app locks itself portrait at boot
+via `lockOrient('portrait')` (guarded `screen.orientation.lock`, no-op where
+unsupported, e.g. browser tabs that aren't fullscreen). `startSiege()` locks
+landscape; Quit/Done re-lock portrait. So the installed PWA behaves exactly
+as before everywhere except the siege, which rotates to a much bigger scene.
+In a plain browser tab the lock is inert — rotating the tablet by hand gets
+the same layout via CSS. Layout: `@media (orientation:landscape) and
+(min-width:700px)` turns `.siegecard` into a grid — battlefield SVG + message
+left (~900px wide on the tablet), keypad column (340px) right. This also
+sets up v2 pass-and-play nicely (both players see the whole field).
 
 ## Backlog (agreed or parked)
 - **3D Jenga tower** — parked pending Jad. If built: faux physics (stability meter +

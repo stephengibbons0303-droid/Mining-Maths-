@@ -222,6 +222,14 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;ma
 #siegeCtl .kdisp{max-width:420px;margin:0 auto 10px}
 #siegeCtl .kxrow{max-width:420px;margin:0 auto 8px}
 .sgtag{text-align:center;font-size:13px;color:#58d0ff;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px}
+@media (orientation:landscape) and (min-width:700px){
+  #siege{padding:10px 18px}
+  .siegecard{max-width:1150px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:2px 22px;align-items:start}
+  .siegecard .actbar{grid-column:1/-1}
+  #siegeSvg{grid-column:1;grid-row:2}
+  #siegeMsg{grid-column:1;grid-row:3}
+  #siegeCtl{grid-column:2;grid-row:2/span 2}
+}
 
 /* Times-table sprint */
 #sprint{position:fixed;inset:0;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:58;padding:16px;overflow:auto}
@@ -327,7 +335,7 @@ window.addEventListener('unhandledrejection',function(e){
 
 <div class="stats">
   <div class="stat"><b id="sToday">0</b><span>Today</span></div>
-  <div class="stat"><b id="sStreak">0</b><span>Day streak</span></div>
+  <div class="stat"><b id="sStreak">0</b><span>🔥 Streak</span></div>
   <div class="stat"><b id="sStars">0</b><span>★ Stars</span></div>
 </div>
 
@@ -345,7 +353,7 @@ window.addEventListener('unhandledrejection',function(e){
 <div id="views">
   <div id="mathsView">
     <div class="picturecard" id="questCard" style="padding:12px 14px;margin-bottom:12px">
-      <div class="ttl"><h3 style="margin:0">⚔️ Today's Quests</h3><small id="crownState"></small></div>
+      <div class="ttl"><h3 style="margin:0">⚔️ Quest Board</h3><small id="crownState"></small></div>
       <div id="questList" class="opts" style="gap:8px"></div>
     </div>
     <div class="gamesrow">
@@ -544,11 +552,11 @@ window.addEventListener('unhandledrejection',function(e){
     <select id="optStars" style="background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:inherit">
       <option value="1">1 ★</option><option value="2">2 ★</option><option value="3">3 ★</option><option value="4">4 ★</option><option value="5">5 ★</option>
     </select></div>
-  <div class="opt"><span>⚔️ Daily quests &amp; battle tokens</span><input type="checkbox" id="optQuests"></div>
+  <div class="opt"><span>⚔️ Quests &amp; battle tokens</span><input type="checkbox" id="optQuests"></div>
   <div class="opt" id="badgeRow" style="cursor:pointer"><span>🏅 Badges</span><span>›</span></div>
   <div class="opt" id="certRow" style="cursor:pointer"><span>🏆 Certificates</span><span>›</span></div>
   <div class="opt danger" id="resetBtn"><span>Reset all of Jad's progress</span><span>⟲</span></div>
-  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v16</p>
+  <p class="small" id="ver">Saved on this device only. Works offline once loaded. · v17</p>
   <button class="btn ghost" id="closeSheet" style="margin-top:8px">Close</button>
 </div></div>
 
@@ -612,7 +620,7 @@ function load(){
   S.wrongRun = S.wrongRun || {};           // per-category consecutive misses (for auto step-down)
   S.sprintBest = S.sprintBest || 0;
   S.hist     = S.hist     || {};           // per-topic {n, ok, last} for quest targeting
-  S.quests   = S.quests   || null;         // today's quest board
+  S.quests   = S.quests   || null;         // current quest board (fresh each play day)
   S.battles  = S.battles  || {date:'', used:0, tokens:0};
   S.crowns   = S.crowns   || 0;
   S.questsOn = (S.questsOn===undefined)?true:!!S.questsOn;
@@ -624,7 +632,7 @@ function rollDate(){
     if(S.lastDate){
       const d1=new Date(S.lastDate),d2=new Date(t);
       const diff=Math.round((d2-d1)/86400000);
-      S.streak = diff===1 ? S.streak : 0;
+      S.streak = diff<=3 ? S.streak : 0; // short gaps keep the streak: tablet days are every-other-day
     }
     S.today=0; S.lastDate=t; save();
   }
@@ -2792,7 +2800,7 @@ function setTab(n){
   if(n==='science') renderSci($('#sciSearch').value);
 }
 
-/* ---------- Daily quests, battle tokens, badges ---------- */
+/* ---------- Quest board, battle tokens, badges ---------- */
 function ensureQuests(){
   const t=todayStr();
   if(S.quests && S.quests.date===t) return;
@@ -2845,7 +2853,7 @@ function questTick(kind,cat){
       toast('🎯 Quest complete! +'+bonus+' ★ · +1 battle ⚔️');
       if(S.quests.list.every(x=>x.got)){
         S.quests.crown=true; S.crowns++;
-        setTimeout(()=>{ toast('👑 DAILY CROWN — unlimited battles today!'); burst(); },1200);
+        setTimeout(()=>{ toast('👑 CROWN WON — endless castle battles unlocked!'); burst(); },1200);
       }
     }
   });
@@ -2887,9 +2895,9 @@ function badgeDefs(){
     {e:'🏅',nm:'All-Rounder',bd:'Practise every maths topic',got:CATS.every(c=>done(c.id)),bp:CATS.filter(c=>done(c.id)).length+'/'+CATS.length},
     {e:'🐉',nm:'Dragon Slayer',bd:'50 division answers right',got:divOk>=50,bp:Math.min(50,divOk)+'/50'},
     {e:'🔬',nm:'Scientist',bd:'Explore every science topic',got:TOPICS.every(t=>S.explored[t.id]),bp:TOPICS.filter(t=>S.explored[t.id]).length+'/'+TOPICS.length},
-    {e:'🔥',nm:'Week Streak',bd:'7 days in a row',got:S.streak>=7,bp:Math.min(7,S.streak)+'/7'},
-    {e:'🌋',nm:'Month Streak',bd:'30 days in a row',got:S.streak>=30,bp:Math.min(30,S.streak)+'/30'},
-    {e:'👑',nm:'Crown Collector',bd:'Earn 5 daily crowns',got:(S.crowns||0)>=5,bp:Math.min(5,S.crowns||0)+'/5'},
+    {e:'🔥',nm:'On Fire',bd:'Streak of 7 play days',got:S.streak>=7,bp:Math.min(7,S.streak)+'/7'},
+    {e:'🌋',nm:'Unstoppable',bd:'Streak of 30 play days',got:S.streak>=30,bp:Math.min(30,S.streak)+'/30'},
+    {e:'👑',nm:'Crown Collector',bd:'Win 5 crowns',got:(S.crowns||0)>=5,bp:Math.min(5,S.crowns||0)+'/5'},
   ];
   CATS.forEach(c=>{
     const lv=S.levels[c.id], m=S.mastered[c.id];
@@ -2910,6 +2918,7 @@ function openBadges(){
 }
 
 /* ---------- Castle Siege ---------- */
+function lockOrient(o){ try{ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock(o).catch(()=>{}); }catch(e){} }
 let SG=null;
 const sgX=m=>20+m*3.8;
 function siegeField(){
@@ -2965,10 +2974,11 @@ function siegeField(){
   <g id="sgFlag" opacity="0"><line x1="0" y1="0" x2="0" y2="-18" stroke="#ff5e87" stroke-width="2.5"/><polygon points="0,-18 14,-13 0,-8" fill="#ff5e87"/><text class="flagT" y="-24" font-size="11" fill="#ffe89a" text-anchor="middle" font-weight="800"></text></g>`;
 }
 function startSiege(){
-  if(battlesLeft()<=0){ toast('⚔️ No battles left today — complete a quest to earn more!'); return; }
+  if(battlesLeft()<=0){ toast('⚔️ No battles left — complete a quest to earn one!'); return; }
   S.battles.used=(S.battles.used||0)+1; save(); renderQuests();
   SG={D:rand(35,90), pHP:3, eHP:3, shot:1, lastPow:null, sign:1, val:'', mode:'aim', busy:false};
   $('#siege').classList.remove('hidden');
+  lockOrient('landscape');
   redrawSiege();
   $('#siegeShots').textContent='shot 1';
   $('#siegeMsg').innerHTML='Their <b>throne</b> hides inside the gold keep. Smash the walls, then <b>capture it</b>! How many metres away is it?';
@@ -3118,7 +3128,7 @@ function siegeEnd(win){
   $('#siegeCtl').innerHTML=`<button class="btn correct" id="sgAgain" style="width:100%">🏰 Play again</button>
     <button class="btn ghost" id="sgDone" style="width:100%;margin-top:8px">Done</button>`;
   $('#sgAgain').onclick=startSiege;
-  $('#sgDone').onclick=()=>{ $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
+  $('#sgDone').onclick=()=>{ lockOrient('portrait'); $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
 }
 
 /* ---------- Times-table sprint ---------- */
@@ -3236,7 +3246,7 @@ $('#colBtn').onclick=()=>{ const q=cur&&cur.q; if(!q||!q.colSvg) return;
   $('#vissvg').classList.remove('hidden'); $('#vissvg').innerHTML=q.colSvg; $('#colBtn').classList.add('hidden'); };
 $('#sprintBtn').onclick=startSprint;
 $('#siegeBtn').onclick=startSiege;
-$('#siegeQuit').onclick=()=>{ $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
+$('#siegeQuit').onclick=()=>{ lockOrient('portrait'); $('#siege').classList.add('hidden'); renderHeader(); renderPicture(); };
 $('#sprintQuit').onclick=()=>{ clearInterval(spr.iv); spr.run=false; $('#sprint').classList.add('hidden'); };
 document.querySelectorAll('#sprintPad button').forEach(b=>b.onclick=()=>sprintKey(b.dataset.k));
 $('#certPrint').onclick=()=>window.print();
@@ -3284,6 +3294,7 @@ $('#resetBtn').onclick=()=>{ if(confirm("Reset ALL of Jad's progress? This canno
 /* ---------- Boot ---------- */
 (async()=>{
   load();
+  lockOrient('portrait');
   renderHeader(); renderGrid(); renderPicture(); renderPicsList(); setTab(S.tab); renderQuests();
   // pictures load in the background — UI must never wait on network or IndexedDB
   try{ await loadBuiltins(); }catch(e){}
